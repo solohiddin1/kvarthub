@@ -2,4 +2,9 @@ media/
 static/
 .env
 venv/
-
+dv.sqlite3
+__pycache__/
+*.pyc
+.idea/
+*.log
+migrations/

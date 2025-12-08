@@ -1,30 +1,47 @@
 from pydantic_settings import BaseSettings
+from pydantic import Field
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+
 
 class Settings(BaseSettings):
-    DEBUG: bool = True
-
-    # Database
-    ENGINE: str
-    NAME : str
-    USER : str
-    PASSWORD : str
-    HOST : str
-    PORT : str
-    # Security
-    # ACCESS_TOKEN_EXPIRE_MINUTES: int = 60*24  # 1 day
+    PHOTO_PATH: str
+    DEFAULT_PHOTO_PATH: str
+    
+    # db
+    DATABASE_PASSWORD: str
+    DATABASE_NAME: str
+    DATABASE_USER: str
+    DATABASE_HOST: str
+    DATABASE_PORT: str
+    DATABASE_ENGINE: str
+    
+    # django
     SECRET_KEY: str
+    DEBUG: str
 
-    # CORS
-    ALLOWED_HOSTS: list[str] = ["*"]
+    ALLOWED_HOSTS: list[str] = Field(default_factory=list)
+    
+    # email
+    EMAIL_HOST: str
+    EMAIL_PORT: int
+    EMAIL_HOST_USER: str
+    EMAIL_HOST_PASSWORD: str
+    EMAIL_USE_TLS: bool
+    DEFAULT_FROM_EMAIL: str
+    SERVER_EMAIL: str
+    EMAIL_BACKEND: str
 
-    # Optional external services
-    EMAIL_HOST: str = "smtp.example.com"
-    EMAIL_PORT: int = 587
-    EMAIL_USER: str
-    EMAIL_PASSWORD: str
+    
+    # some
+    TIME_ZONE: str
+    LANGUAGE_CODE: str
 
     class Config:
         env_file = ".env"
+    
 
-# Create a single instance to import anywhere
 settings = Settings()

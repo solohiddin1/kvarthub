@@ -32,6 +32,7 @@ ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 
 APPS = [
     'apps.users',
+    'apps.shared',
 ]
 
 OUT = [
@@ -85,12 +86,12 @@ WSGI_APPLICATION = 'kvarthub.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': settings.ENGINE,
-        'NAME': settings.NAME,
-        'USER': settings.USER,
-        'PASSWORD': settings.PASSWORD,
-        'HOST': settings.HOST,
-        'PORT': settings.PORT,
+        'ENGINE': settings.DATABASE_ENGINE,
+        'NAME': settings.DATABASE_NAME,
+        'USER': settings.DATABASE_USER,
+        'PASSWORD': settings.DATABASE_PASSWORD,
+        'HOST': settings.DATABASE_HOST,
+        'PORT': settings.DATABASE_PORT,
     }
 }
 
@@ -130,3 +131,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+AUTH_USER_MODEL = 'users.User'
