@@ -10,7 +10,7 @@ import json
 from typing import Any, Dict, List
 import datetime
 
-from arena.settings import BASE_DIR
+from kvarthub.settings import BASE_DIR
 
 
 def SuccessResponse(result=None):
@@ -114,16 +114,16 @@ def clean_ckeditor_content(raw_html):
 import requests
 from config.config import settings
 
-TELEGRAM_TOKEN = settings.TELEGRAM_TOKEN
-CHAT_ID = settings.CHAT_ID
+# TELEGRAM_TOKEN = settings.TELEGRAM_TOKEN
+# CHAT_ID = settings.CHAT_ID
 
-def send_telegram_message(text: str):
-    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-    payload = {
-        "chat_id": CHAT_ID,
-        "text": text
-    }
-    requests.post(url, data=payload)
+# def send_telegram_message(text: str):
+#     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+#     payload = {
+#         "chat_id": CHAT_ID,
+#         "text": text
+#     }
+#     requests.post(url, data=payload)
     
 
 LOG_DIR = os.path.join(BASE_DIR, "logs")

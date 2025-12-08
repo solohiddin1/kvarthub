@@ -17,7 +17,8 @@ from rest_framework.parsers import MultiPartParser
 from apps.shared.enum import ResultCodes
 from apps.shared.utils import ErrorResponse, SuccessResponse
 from apps.shared.utils import SuccessResponse
-from apps.shared.utils import send_telegram_message, get_logger
+from apps.shared.utils import get_logger
+# from apps.shared.utils import send_telegram_message, get_logger
 from apps.shared.send_email import send_email_from_server_from_brevo
 from apps.shared.swagger.parameters import ACCEPT_LANGUAGE_HEADER
 from apps.users.tasks import send_telegram_message_celery
@@ -54,8 +55,8 @@ class RegisterUser(GenericAPIView):
         user = get_user_by_username(req_body["email"])
         # send_telegram_message(f"user is registering with email: {req_body['email']}," \
         #                       f"and first_name: {req_body.get('first_name','')} with password: {req_body['password']}")
-        send_telegram_message_celery.delay(f"user is registering with email: {req_body['email']}," \
-                                      f"and first_name: {req_body.get('first_name','')} with password: {req_body['password']}")
+        # send_telegram_message_celery.delay(f"user is registering with email: {req_body['email']}," \
+        #                               f"and first_name: {req_body.get('first_name','')} with password: {req_body['password']}")
         logger.info(f"user is registered with email: {req_body['email']}")
         if user is None:
             user = create_user(email=req_body["email"],
