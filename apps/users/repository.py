@@ -11,7 +11,8 @@ from django.core.mail import send_mail as send_otp
 from django.core.mail import BadHeaderError
 from django.conf import settings
 from django.db import IntegrityError
-from apps.shared.utils import send_telegram_message, ErrorResponse
+from apps.shared.utils import ErrorResponse
+# from apps.shared.utils import send_telegram_message, ErrorResponse
 from apps.shared import enum
 
 def generate_otp():

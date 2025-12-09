@@ -21,7 +21,7 @@ from apps.shared.utils import get_logger
 # from apps.shared.utils import send_telegram_message, get_logger
 from apps.shared.send_email import send_email_from_server_from_brevo
 from apps.shared.swagger.parameters import ACCEPT_LANGUAGE_HEADER
-from apps.users.tasks import send_telegram_message_celery
+# from apps.users.tasks import send_telegram_message_celery
 from .repository import *
 from .serialziers import (ApplyNewPasswordSerializer, OtpForgotPasswordSerializer,\
                            RegisterSerializer,AuthenticationSerializer, UserProfileImageUpdateSerializer,\

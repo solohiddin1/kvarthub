@@ -37,6 +37,7 @@ APPS = [
 
 OUT = [
     'rest_framework',
+    'drf_spectacular',
     # 'corsheaders',
 ]
 
@@ -77,6 +78,12 @@ TEMPLATES = [
         },
     },
 ]
+
+REST_FRAMEWORK = {
+    # ... other DRF settings
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
 
 WSGI_APPLICATION = 'kvarthub.wsgi.application'
 
