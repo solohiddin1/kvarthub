@@ -24,5 +24,9 @@ urlpatterns = [
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('admin/', admin.site.urls),
     path('api/users/', include('apps.users.urls')),
+
+    path("accounts/", include("allauth.urls")),            # Google login redirect URLs
+    path("auth/", include("dj_rest_auth.urls")),           # API auth endpoints
+    path("auth/registration/", include("dj_rest_auth.registration.urls")),
     
 ]

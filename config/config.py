@@ -35,6 +35,9 @@ class Settings(BaseSettings):
     SERVER_EMAIL: str
     EMAIL_BACKEND: str
 
+    # google auth
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_CLIENT_SECRET: str
     
     # some
     TIME_ZONE: str
