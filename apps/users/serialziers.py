@@ -175,6 +175,13 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         model = User
         fields = ['first_name', 'last_name', 'phone_number', 'email', 'language']
 
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'phone_number', 'email', 'password', 'language']
+
+
 class UserSetLocation(serializers.Serializer):
     lat = serializers.FloatField(required=True)
     longitude = serializers.FloatField(required=True)

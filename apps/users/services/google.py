@@ -6,6 +6,8 @@ from rest_framework.views import APIView
 from django.shortcuts import redirect
 from config.config import settings
 from rest_framework_simplejwt.tokens import RefreshToken
+from apps.shared.enum import ResultCodes
+
 
 GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID
 GOOGLE_CLIENT_SECRET = settings.GOOGLE_CLIENT_SECRET
@@ -34,7 +36,7 @@ class GoogleCallback(APIView):
     def get(self, request):
         code = request.query_params.get("code")
         if not code:
-            return ErrorResponse({"error": "No code provided"}, status=status.HTTP_400_BAD_REQUEST)
+            return ErrorResponse(ResultCodes.NO_CODE_PROVIDED)
 
         # Exchange code for tokens
         token_url = "https://oauth2.googleapis.com/token"
@@ -51,7 +53,7 @@ class GoogleCallback(APIView):
         access_token = token_response.get("access_token")
 
         if not id_token:
-            return ErrorResponse({"error": "Failed to get id_token"}, status=status.HTTP_400_BAD_REQUEST)
+            return ErrorResponse(ResultCodes.FAILED_TO_OBTAIN_TOKEN)
 
         # Get user info from Google
         userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
@@ -71,6 +73,7 @@ class GoogleCallback(APIView):
         # Store extra Google data if needed
         user.google_picture_url = user_info.get("picture", "")
         user.is_verified = True
+        user.is_from_social = True
         user.save()
 
         # Here you can generate token (JWT or DRF token)

@@ -26,6 +26,9 @@ class ResultCodes(Enum):
     OTP_INCORRECT = -59
     INVALID_RESET_TOKEN = -60
     OTP_ALREADY_SENT = -61
+    FAILED_TO_OBTAIN_TOKEN = -62
+    NO_CODE_PROVIDED = -63
+
 
 
 ResultMessages = {
@@ -143,5 +146,15 @@ ResultMessages = {
         "uz": "OTP allaqachon yuborilgan! Iltimos, biroz kuting va qayta urinib ko‘ring.",
         "en": "OTP has already been sent! Please wait a moment and try again.",
         "ru": "OTP уже был отправлен! Пожалуйста, подождите немного и попробуйте снова."
+    },
+    "FAILED_TO_OBTAIN_TOKEN": {
+        "uz": "Token olishda xatolik yuz berdi!",
+        "en": "Failed to obtain token!",
+        "ru": "Не удалось получить токен!"
+    },
+    "NO_CODE_PROVIDED": {
+        "uz": "Kod taqdim etilmadi!",
+        "en": "No code provided!",
+        "ru": "Код не предоставлен!"
     },
 }
