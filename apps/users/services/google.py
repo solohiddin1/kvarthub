@@ -5,7 +5,7 @@ from apps.users.models import User
 from rest_framework.views import APIView
 from django.shortcuts import redirect
 from config.config import settings
-
+from rest_framework_simplejwt.tokens import RefreshToken
 
 GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID
 GOOGLE_CLIENT_SECRET = settings.GOOGLE_CLIENT_SECRET
@@ -70,13 +70,16 @@ class GoogleCallback(APIView):
 
         # Store extra Google data if needed
         user.google_picture_url = user_info.get("picture", "")
+        user.is_verified = True
         user.save()
 
         # Here you can generate token (JWT or DRF token)
         # Example using DRF Token:
         from rest_framework.authtoken.models import Token
-        token, _ = Token.objects.get_or_create(user=user)
+        # token, _ = Token.objects.get_or_create(user=user)
+        token = RefreshToken.for_user(user)
 
         # Redirect or return token as JSON
-        redirect_url = f"/?token={token.key}"
+        redirect_url = f"/?token={token.access_token}"
+        # redirect_url = f"/?token={token.key}"
         return redirect(redirect_url)
