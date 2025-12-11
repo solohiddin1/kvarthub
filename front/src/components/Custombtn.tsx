@@ -1,16 +1,24 @@
 import React from 'react';
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
-import {  Input, Space } from 'antd';
+import { Input, Space } from 'antd';
 
-const Custombtn: React.FC = () => {
+interface CustombtnProps {
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const Custombtn: React.FC<CustombtnProps> = ({ value, onChange }) => {
 
   return (
-        <Space vertical className='w-full mt-[12px]'>
-        <Input.Password required
-            placeholder="Password" className="  ant-input  !py-[12px] !pl-[24px] !w-full !rounded-[30px] !font-normal !text-[18px] !placeholder:text-[#1C1C1C] !bg-[#0000000D] !outline-none border-[1px] !border-transparent !duration-300  hover:!bg-[#4DB2700D] hover:!placeholder:text-[#00000080] hover:!border-[1px] hover:!border-[#28A453]  !box-shadow:none !outline-none"
-            iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
-        />
-        </Space>
+    <Space vertical className='w-full mt-[12px]'>
+      <Input.Password
+        required
+        value={value}
+        onChange={onChange}
+        placeholder="Password" className="  ant-input  !py-[12px] !pl-[24px] !w-full !rounded-[30px] !font-normal !text-[18px] !placeholder:text-[#1C1C1C] !bg-[#0000000D] !outline-none border-[1px] !border-transparent !duration-300  hover:!bg-[#4DB2700D] hover:!placeholder:text-[#00000080] hover:!border-[1px] hover:!border-[#28A453]  !box-shadow:none !outline-none"
+        iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+      />
+    </Space>
   );
 };
 

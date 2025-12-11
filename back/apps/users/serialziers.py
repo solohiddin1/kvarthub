@@ -60,7 +60,7 @@ class AuthenticationSerializer(serializers.Serializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    first_name = serializers.CharField(required=False, max_length=150, min_length=1)
+    # first_name = serializers.CharField(required=False, max_length=150, min_length=1)
     email = serializers.CharField(required=True, max_length=150, min_length=5)
     password = serializers.CharField(required=True, max_length=150, min_length=5)
     phone_number = serializers.CharField(required=False, max_length=12, min_length=12, help_text="Phone number must be in the format: '998901234567'.")
