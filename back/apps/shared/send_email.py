@@ -19,7 +19,12 @@ def send_email_from_server_from_brevo(to_email, content):
 
     try:
         response = api_instance.send_transac_email(email)
-        return response
+        # Normalize SDK response into JSON-serializable data for API responses
+        if hasattr(response, "to_dict"):
+            return response.to_dict()
+        if hasattr(response, "message_id"):
+            return {"message_id": response.message_id}
+        return {"detail": str(response)}
     except ApiException as e:
         print("Error sending email:", e)
         return None

@@ -28,6 +28,7 @@ class ResultCodes(Enum):
     OTP_ALREADY_SENT = -61
     FAILED_TO_OBTAIN_TOKEN = -62
     NO_CODE_PROVIDED = -63
+    ERROR_SMS_SERVICE = -64
 
 
 
@@ -156,5 +157,10 @@ ResultMessages = {
         "uz": "Kod taqdim etilmadi!",
         "en": "No code provided!",
         "ru": "Код не предоставлен!"
+    },
+    "ERROR_SMS_SERVICE": {
+        "uz": "SMS xizmatida xatolik yuz berdi!",
+        "en": "Error in SMS service!",
+        "ru": "Ошибка в SMS сервисе!"
     },
 }

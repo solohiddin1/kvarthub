@@ -137,7 +137,7 @@ class RegisterUser(GenericAPIView):
         if not send_result:
             return ErrorResponse(ResultCodes.ERROR_SMS_SERVICE)
 
-        return SuccessResponse({
+        return SuccessResponse(result={
             "id": user.id,
             "first_name": user.first_name,
             "last_name": user.last_name,
