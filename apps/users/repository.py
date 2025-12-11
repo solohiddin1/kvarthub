@@ -4,7 +4,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from apps.shared.models import logger
-from apps.users.models import User, UserDevice, UserAuthOtp, UserPasswordReset, OtpSentLog
+from apps.users.models import User, UserAuthOtp, UserPasswordReset, OtpSentLog
 from django.core.mail import send_mail as send_otp
 from django.core.mail import BadHeaderError
 from django.conf import settings
@@ -340,50 +340,19 @@ def update_user_set_verified(user_id, is_verified=True, is_active=True):
 #         raise e
 
 
-def get_user_device_by_user_role_device(user, role, device_id):
-    try:
-        return UserDevice.objects.select_related('user').filter(
-            user=user,
-            role=role,
-            device_id=device_id
-        ).first()
-    except Exception as e:
-        logger.exception(e)
-        raise e
 
 
-def create_user_device(user, role, device_id, device_type, fcm_token):
-    try:
-        device = UserDevice.objects.create(
-            user=user,
-            role=role,
-            device_id=device_id,
-            device_type=device_type,
-            fcm_token=fcm_token
-        )
-        device.save()
-        return device
-    except Exception as e:
-        logger.exception(e)
-        raise e
 
 
-def update_user_device_fcm_token(device, fcm_token):
-    try:
-        device.fcm_token = fcm_token
-        device.save()
-        return device
-    except Exception as e:
-        logger.exception(e)
-        raise e
+# def update_user_device_fcm_token(device, fcm_token):
+#     try:
+#         device.fcm_token = fcm_token
+#         device.save()
+#         return device
+#     except Exception as e:
+#         logger.exception(e)
+#         raise e
 
-
-def delete_user_device_by_user_role_device(user, role, device_id):
-    try:
-        return UserDevice.objects.filter(user=user, role=role, device_id=device_id).delete()
-    except Exception as e:
-        logger.exception(e)
-        raise e
 
 
 # def get_user_role_by_user(user):
@@ -522,13 +491,6 @@ def check_user_exists_by_phone(phone):
         logger.exception(e)
         raise e
 
-
-def check_user_device_exists(device_id):
-    try:
-        return UserDevice.objects.filter(device_id=device_id).exists()
-    except Exception as e:
-        logger.exception(e)
-        raise e
 
 
 def get_user_by_id(user_id, is_active=True):
