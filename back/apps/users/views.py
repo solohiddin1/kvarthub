@@ -81,7 +81,7 @@ class RegisterUser(GenericAPIView):
         logger.info(f"user is registered with email: {req_body['email']}")
         if user is None:
             user = create_user(email=req_body["email"],
-                                first_name=req_body.get("first_name",""),
+                                # first_name=req_body.get("first_name",""),
                                 phone_number=req_body.get("phone_number",""),
                                 otp=otp,
                                 otp_created_at=timezone.now(),
