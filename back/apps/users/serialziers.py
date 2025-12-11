@@ -6,7 +6,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from rest_framework_simplejwt.settings import api_settings
 
-from apps.users.models import User, UserDevice,VersionControl
+from apps.users.models import User
 from apps.shared.models import Region , District
 # from .repository import 
 
@@ -60,15 +60,10 @@ class AuthenticationSerializer(serializers.Serializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(required=False, max_length=150, min_length=1)
     email = serializers.CharField(required=True, max_length=150, min_length=5)
     password = serializers.CharField(required=True, max_length=150, min_length=5)
-    first_name = serializers.CharField(required=True, max_length=150, min_length=1)
-    last_name = serializers.CharField(required=True, max_length=150, min_length=1)
-    phone_number = serializers.CharField(required=True, max_length=12, min_length=12)
-    age = serializers.IntegerField(required=True)
-    lat = serializers.FloatField(required=False)
-    long = serializers.FloatField(required=False)
-    lang = serializers.CharField(required=False, max_length=2, min_length=2, default="UZ")
+    phone_number = serializers.CharField(required=False, max_length=12, min_length=12, help_text="Phone number must be in the format: '998901234567'.")
     # region = serializers.IntegerField(
     #     required=False, allow_null=False,
     #     help_text="Region ID"
@@ -84,14 +79,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             "email",
             "password",
             "first_name",
-            "last_name",
             "phone_number",
-            "age",
-            "lat",
-            "long",
-            "lang",
-            "region",
-            "district",
         )
         extra_kwargs = {'password': {'write_only': True}}
 
@@ -117,7 +105,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UserVerifySerializer(serializers.Serializer):
-    user_id = serializers.IntegerField(required=True, allow_null=False)
+    email = serializers.CharField(required=True, allow_null=False)
     code = serializers.CharField(required=True, max_length=4)
 
 
@@ -145,10 +133,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "last_name",
             "phone_number",
             "image",
-            "age",
-            "lat",
-            "longitude",
-            "language",
             "region",
             "district",
             "is_active",
@@ -173,11 +157,8 @@ class UserProfileImageUpdateSerializer(serializers.ModelSerializer):
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'phone_number', 'email', 'language']
+        fields = ['first_name', 'last_name', 'phone_number', 'email']
 
-class UserSetLocation(serializers.Serializer):
-    lat = serializers.FloatField(required=True)
-    longitude = serializers.FloatField(required=True)
 
 
 class OtpForgotPasswordSerializer(serializers.Serializer):
