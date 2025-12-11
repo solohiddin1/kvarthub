@@ -13,6 +13,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.parsers import MultiPartParser
+import json
 
 from apps.shared.enum import ResultCodes
 from apps.shared.utils import ErrorResponse, SuccessResponse, ErrorResponseWithEmailResult
@@ -56,17 +57,18 @@ class RegisterUser(GenericAPIView):
         # send_telegram_message_celery.delay(f"user is registering with email: {req_body['email']}," \
         def send_otp(email, otp, timeout=8):
             def try_send():
-                # try:
-                #     # Primary provider
-                #     return send_email_from_server_from_brevo(email, otp)
-                # except Exception as e:
-                #     logger.info(f"Primary provider failed: {e}")
                 try:
-                    return send_otp_email(email, otp)
-                    # Fallback
-                except Exception as e2:
-                    logger.info(f"Both providers failed: {e2}")
-                    raise Exception("Unable to send OTP")
+                    # Primary provider
+                    return json.dumps(send_email_from_server_from_brevo(email, otp))
+                    
+                except Exception as e:
+                    logger.info(f"Primary provider failed: {e}")
+                    try:
+                        return send_otp_email(email, otp)
+                        # Fallback
+                    except Exception as e2:
+                        logger.info(f"Both providers failed: {e2}")
+                        raise Exception("Unable to send OTP")
 
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 future = executor.submit(try_send)
