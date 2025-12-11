@@ -255,7 +255,7 @@ def create_user(email, first_name, phone_number,
 
 def update_user(email, first_name, last_name, phone_number,
                 otp, otp_created_at, region, district,
-                password, language="UZ", is_active=True):
+                password, is_active=True):
     try:
         # Ensure `username` (which is unique on the AbstractUser) is set
         # When USERNAME_FIELD is changed to `email` but the `username` column still
@@ -269,7 +269,6 @@ def update_user(email, first_name, last_name, phone_number,
         user.phone_number=phone_number
         user.otp=otp
         user.otp_created_at=otp_created_at
-        user.language=language
         user.region=region
         user.district=district
         

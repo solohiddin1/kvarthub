@@ -99,7 +99,6 @@ class RegisterUser(GenericAPIView):
                                 phone_number=req_body.get("phone_number",""),
                                 otp=otp,
                                 otp_created_at=timezone.now(),
-                                language=req_body.get("language","UZ"),
                                 password=req_body["password"],
                                 region=req_body.get("region",None),
                                 district=req_body.get("district",None),
@@ -120,7 +119,6 @@ class RegisterUser(GenericAPIView):
                 "role": self.role,
                 "is_verified": False,
                 "otp": otp,
-                "language": user.language,
                 "send_result": send_result
                 })
 
