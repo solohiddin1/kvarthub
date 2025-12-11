@@ -56,11 +56,11 @@ class RegisterUser(GenericAPIView):
         # send_telegram_message_celery.delay(f"user is registering with email: {req_body['email']}," \
         def send_otp(email, otp, timeout=8):
             def try_send():
-                # try:
-                #     # Primary provider
-                #     return send_email_from_server_from_brevo(email, otp)
-                # except Exception as e:
-                #     logger.info(f"Primary provider failed: {e}")
+                try:
+                    # Primary provider
+                    return send_email_from_server_from_brevo(email, otp)
+                except Exception as e:
+                    logger.info(f"Primary provider failed: {e}")
                 try:
                     return send_otp_email(email, otp)
                     # Fallback
@@ -135,7 +135,7 @@ class RegisterUser(GenericAPIView):
         if not send_result:
             return ErrorResponse(ResultCodes.ERROR_SMS_SERVICE)
 
-        return SuccessResponse({
+        return SuccessResponse(result={
             "id": user.id,
             "first_name": user.first_name,
             "last_name": user.last_name,
