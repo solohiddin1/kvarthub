@@ -20,7 +20,6 @@ from apps.shared.utils import SuccessResponse
 from apps.shared.utils import get_logger
 # from apps.shared.utils import send_telegram_message, get_logger
 from apps.shared.send_email import send_email_from_server_from_brevo
-from apps.shared.swagger.parameters import ACCEPT_LANGUAGE_HEADER
 # from apps.users.tasks import send_telegram_message_celery
 from .repository import *
 from .serialziers import (ApplyNewPasswordSerializer, OtpForgotPasswordSerializer,\
@@ -33,7 +32,6 @@ logger = get_logger()
 
 
 @extend_schema(
-    parameters=ACCEPT_LANGUAGE_HEADER,
     summary='to register user'
 )
 class RegisterUser(GenericAPIView):
@@ -61,14 +59,9 @@ class RegisterUser(GenericAPIView):
         if user is None:
             user = create_user(email=req_body["email"],
                                 first_name=req_body.get("first_name",""),
-                                last_name=req_body.get("last_name",""),
                                 phone_number=req_body.get("phone_number",""),
-                                age=req_body.get("age",0),
                                 otp=otp,
                                 otp_created_at=timezone.now(),
-                                lat=req_body.get("lat",0.0),
-                                longitude=req_body.get("longitude",0.0),
-                                language=req_body.get("language","UZ"),
                                 password=req_body["password"],
                                 region=req_body.get("region",None),
                                 district=req_body.get("district",None),
@@ -118,10 +111,8 @@ class RegisterUser(GenericAPIView):
             "last_name": user.last_name,
             "email": user.email,
             "phone_number": user.phone_number,
-            "role": self.role,
             "is_verified": False,
             "otp": otp,
-            "language": user.language,
         })
 
 

@@ -60,15 +60,10 @@ class AuthenticationSerializer(serializers.Serializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(required=False, max_length=150, min_length=1)
     email = serializers.CharField(required=True, max_length=150, min_length=5)
     password = serializers.CharField(required=True, max_length=150, min_length=5)
-    first_name = serializers.CharField(required=True, max_length=150, min_length=1)
-    last_name = serializers.CharField(required=True, max_length=150, min_length=1)
-    phone_number = serializers.CharField(required=True, max_length=12, min_length=12)
-    age = serializers.IntegerField(required=True)
-    lat = serializers.FloatField(required=False)
-    long = serializers.FloatField(required=False)
-    lang = serializers.CharField(required=False, max_length=2, min_length=2, default="UZ")
+    phone_number = serializers.CharField(required=False, max_length=12, min_length=12, help_text="Phone number must be in the format: '998901234567'.")
     # region = serializers.IntegerField(
     #     required=False, allow_null=False,
     #     help_text="Region ID"
@@ -84,14 +79,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             "email",
             "password",
             "first_name",
-            "last_name",
             "phone_number",
-            "age",
-            "lat",
-            "long",
-            "lang",
-            "region",
-            "district",
         )
         extra_kwargs = {'password': {'write_only': True}}
 
@@ -179,7 +167,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'phone_number', 'email', 'password', 'language']
+        fields = ['first_name', 'last_name', 'phone_number', 'email', 'password']
 
 
 class UserSetLocation(serializers.Serializer):
