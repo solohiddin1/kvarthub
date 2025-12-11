@@ -14,7 +14,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (LoginUser, UserProfileView, UserUpdate, 
                     UserUpdateProfileImage, UserUpdateProfileImage, 
-                    VerifyOtp, RegisterUser, UserLocationUpdate,
+                    VerifyOtp, RegisterUser,
                     ApplyNewPassword, OtpForgotPassword, VerifyForgotPassword)
 
 urlpatterns = [
@@ -38,7 +38,6 @@ urlpatterns = [
     path("password-reset/", ApplyNewPassword.as_view(), name="password_reset"),
 
 
-    path('profile-location-update/', UserLocationUpdate.as_view(), name='profile_location_update'),
 
 ]
 

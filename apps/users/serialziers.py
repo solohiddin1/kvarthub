@@ -65,9 +65,6 @@ class RegisterSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(required=True, max_length=150, min_length=1)
     last_name = serializers.CharField(required=True, max_length=150, min_length=1)
     phone_number = serializers.CharField(required=True, max_length=12, min_length=12)
-    age = serializers.IntegerField(required=True)
-    lat = serializers.FloatField(required=False)
-    long = serializers.FloatField(required=False)
     lang = serializers.CharField(required=False, max_length=2, min_length=2, default="UZ")
     # region = serializers.IntegerField(
     #     required=False, allow_null=False,
@@ -86,9 +83,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "phone_number",
-            "age",
-            "lat",
-            "long",
             "lang",
             "region",
             "district",
@@ -117,7 +111,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UserVerifySerializer(serializers.Serializer):
-    user_id = serializers.IntegerField(required=True, allow_null=False)
+    email = serializers.CharField(required=True, allow_null=False)
     code = serializers.CharField(required=True, max_length=4)
 
 
@@ -145,9 +139,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "last_name",
             "phone_number",
             "image",
-            "age",
-            "lat",
-            "longitude",
             "language",
             "region",
             "district",
@@ -174,10 +165,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'phone_number', 'email', 'language']
-
-class UserSetLocation(serializers.Serializer):
-    lat = serializers.FloatField(required=True)
-    longitude = serializers.FloatField(required=True)
 
 
 class OtpForgotPasswordSerializer(serializers.Serializer):

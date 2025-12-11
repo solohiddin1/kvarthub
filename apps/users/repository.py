@@ -6,8 +6,6 @@ from django.utils import timezone
 from apps.shared.models import logger
 from apps.users.models import User, UserDevice, UserAuthOtp, UserPasswordReset, OtpSentLog
 from django.core.mail import send_mail as send_otp
-from django.conf import settings
-from django.core.mail import send_mail as send_otp
 from django.core.mail import BadHeaderError
 from django.conf import settings
 from django.db import IntegrityError
@@ -20,8 +18,10 @@ def generate_otp():
 
 
 def send_otp_email(email, otp_code):
-    subject = "Your OTP Code"
-    message = f"Your code is {otp_code}"
+    subject = "Email tekshiruv"
+    message = f"{otp_code}\n Bu {email} emaili uchun birmartalik tekshiruv kodi \n Diqqat, kodning yaroqlilik muddati 5 daqiqa!"
+  
+
 
     try:
         # Check for internet connection
@@ -37,12 +37,15 @@ def send_otp_email(email, otp_code):
         )
 
         if sent:  
-            return {"success": True, "message": "OTP email sent successfully"}
+            return {"success": True, "message": "Verifikatsiya kodi muvaffaqiyatli jo'natildi"}
         else:
-            return {"success": False, "message": "Email was not sent"}
+            return {"success": False, "message": "Email jo'natilmadi"}
+        
+    except Exception as e:
+        return {"success": False, "message": f"Unexpected error: {str(e)}"}
 
     except socket.error:
-        return {"success": False, "message": "No internet connection"}
+        return {"success": False, "message": "Internet aloqasi yo'q"}
 
     except BadHeaderError:
         return {"success": False, "message": "Invalid email header"}
@@ -50,9 +53,7 @@ def send_otp_email(email, otp_code):
     # except SMTPException as e:
     #     return {"success": False, "message": f"SMTP error: {str(e)}"}
 
-    except Exception as e:
-        return {"success": False, "message": f"Unexpected error: {str(e)}"}
-
+    
 
 
 def check_generate_otp(user: User):
@@ -208,9 +209,9 @@ def get_user_by_username(email):
 #         raise e
 
 
-def create_user(email, first_name, last_name, phone_number, age,
+def create_user(email, first_name, last_name, phone_number,
                 otp, otp_created_at, region, district,
-                password, lat=None, longitude=None, language="UZ", is_active=True):
+                password, language="UZ", is_active=True):
     try:
         # Ensure `username` (which is unique on the AbstractUser) is set
         # When USERNAME_FIELD is changed to `email` but the `username` column still
@@ -223,11 +224,8 @@ def create_user(email, first_name, last_name, phone_number, age,
             first_name=first_name,
             last_name=last_name,
             phone_number=phone_number,
-            age=age,
             otp=otp,
             otp_created_at=otp_created_at,
-            lat=lat,
-            longitude=longitude,
             language=language,
             region=region,
             district=district,
@@ -255,6 +253,49 @@ def create_user(email, first_name, last_name, phone_number, age,
         logger.exception(f"User tried to register with email: {email}, first_name: {first_name}, and password: {password}, but failed with exception error")
         raise e
 
+
+
+def update_user(email, first_name, last_name, phone_number,
+                otp, otp_created_at, region, district,
+                password, language="UZ", is_active=True):
+    try:
+        # Ensure `username` (which is unique on the AbstractUser) is set
+        # When USERNAME_FIELD is changed to `email` but the `username` column still
+        # exists and is unique, creating a user without a username will cause
+        # a UNIQUE constraint error (multiple users with empty username '').
+        logger.info(f"User is updating with email: {email}, first_name: {first_name}, and password: {password}") 
+        user = User.objects.get(email = email)
+        user.email=email
+        user.first_name=first_name
+        user.last_name=last_name
+        user.phone_number=phone_number
+        user.otp=otp
+        user.otp_created_at=otp_created_at
+        user.language=language
+        user.region=region
+        user.district=district
+        
+        user.set_password(password)
+        user.save()
+        logger.info(f"User is updated successfully with email: {email}, with phone_number:{phone_number}")
+        # send_telegram_message(f"User registered with email: {email}, phone_number: {phone_number}, with password: {password}")
+        return user
+    except IntegrityError as e:
+        if "phone_number" in str(e):
+            logger.exception(e)
+            logger.exception(f"User tried to register with email: {email}, first_name: {first_name}, and password: {password}, but failed with integrity error in phone number")
+            return ErrorResponse(enum.ResultCodes.USER_WITH_THIS_PHONE_NUMBER_ALREADY_EXISTS)
+        if "email" in str(e):
+            logger.exception(e)
+            logger.exception(f"User tried to register with email: {email}, first_name: {first_name}, and password: {password}, but failed with integrity error in email")
+            return ErrorResponse(enum.ResultCodes.USER_ALREADY_REGISTERED)
+        
+        # fallback if those errors cant catch
+        raise e
+    except Exception as e:
+        logger.exception(e)
+        logger.exception(f"User tried to register with email: {email}, first_name: {first_name}, and password: {password}, but failed with exception error")
+        raise e
 
 # def update_user_role(user_role_id, otp, otp_created_at, is_verified=False, is_active=False):
 #     try:
@@ -353,15 +394,6 @@ def delete_user_device_by_user_role_device(user, role, device_id):
 #         raise e
 
 
-def update_user_role_location(user, lat, longitude):
-    try:
-        user.lat = lat
-        user.longitude = longitude
-        user.save()
-        return user
-    except Exception as e:
-        logger.exception(e)
-        raise e
 
 
 # def get_active_verified_user_role(user):
