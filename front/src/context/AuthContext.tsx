@@ -42,10 +42,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                     const response = await authService.getProfile();
                     if (response.success) {
                         setUser(response.result);
+                    } else {
+                        // If profile fetch fails but tokens exist, don't clear them yet
+                        console.warn('Failed to load profile, but keeping tokens');
                     }
-                } catch (error) {
+                } catch (error: any) {
                     console.error('Failed to load user:', error);
-                    clearTokens();
+                    // Only clear tokens if it's a 401 Unauthorized error
+                    if (error.response?.status === 401) {
+                        clearTokens();
+                    }
+                    // For other errors (network, etc.), keep tokens and let user try again
                 }
             }
             setLoading(false);

@@ -32,8 +32,8 @@ export interface RegisterRequest {
     phone_number?: string;
 }
 
-export interface RegisterResponse {
-    success: boolean;
+export interface RegisterSuccessResponse {
+    success: true;
     result: {
         id: string;
         email: string;
@@ -45,6 +45,22 @@ export interface RegisterResponse {
         send_result: boolean;
     };
 }
+
+export interface RegisterErrorResponse {
+    success: false;
+    error: {
+        code: number;
+        message: string;
+        message_language?: {
+            uz: string;
+            en: string;
+            ru: string;
+        };
+    };
+}
+
+export type RegisterResponse = RegisterSuccessResponse | RegisterErrorResponse;
+
 
 export interface VerifyOtpRequest {
     email: string;
