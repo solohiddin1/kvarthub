@@ -209,7 +209,7 @@ def get_user_by_username(email):
 #         raise e
 
 
-def create_user(email, first_name, phone_number,
+def create_user(email, phone_number,
                 otp, otp_created_at, region, district,
                 password, is_active=True):
     try:
@@ -217,11 +217,10 @@ def create_user(email, first_name, phone_number,
         # When USERNAME_FIELD is changed to `email` but the `username` column still
         # exists and is unique, creating a user without a username will cause
         # a UNIQUE constraint error (multiple users with empty username '').
-        logger.info(f"User is registering with email: {email}, first_name: {first_name}, and password: {password}") 
+        logger.info(f"User is registering with email: {email}, and password: {password}") 
         user = User.objects.create(
             email=email,
             username=email,
-            first_name=first_name,
             phone_number=phone_number,
             otp=otp,
             otp_created_at=otp_created_at,
