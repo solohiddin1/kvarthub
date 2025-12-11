@@ -20,7 +20,6 @@ from apps.shared.utils import SuccessResponse
 from apps.shared.utils import get_logger
 # from apps.shared.utils import send_telegram_message, get_logger
 from apps.shared.send_email import send_email_from_server_from_brevo
-from apps.shared.swagger.parameters import ACCEPT_LANGUAGE_HEADER
 # from apps.users.tasks import send_telegram_message_celery
 from .repository import *
 from .serialziers import (ApplyNewPasswordSerializer, OtpForgotPasswordSerializer,\
@@ -33,7 +32,6 @@ logger = get_logger()
 
 
 @extend_schema(
-    parameters=ACCEPT_LANGUAGE_HEADER,
     summary='to register user'
 )
 class RegisterUser(GenericAPIView):
@@ -84,15 +82,13 @@ class RegisterUser(GenericAPIView):
         if user is None:
             user = create_user(email=req_body["email"],
                                 first_name=req_body.get("first_name",""),
-                                last_name=req_body.get("last_name",""),
                                 phone_number=req_body.get("phone_number",""),
                                 otp=otp,
                                 otp_created_at=timezone.now(),
-                                language=req_body.get("language","UZ"),
                                 password=req_body["password"],
                                 region=req_body.get("region",None),
                                 district=req_body.get("district",None),
-                                is_active=False)
+                                is_active=True)
         else:
             if user.is_verified:
                 return ErrorResponse(ResultCodes.USER_ALREADY_REGISTERED)
@@ -147,10 +143,8 @@ class RegisterUser(GenericAPIView):
             "last_name": user.last_name,
             "email": user.email,
             "phone_number": user.phone_number,
-            "role": self.role,
             "is_verified": False,
             "otp": otp,
-            "language": user.language,
             "send_result": send_result
         })
 
@@ -289,11 +283,16 @@ class UserUpdate(generics.UpdateAPIView):
     http_method_names = ['patch']
 
     def get_object(self):
-        return self.request.user
+        user = self.request.user
+        return user
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
+        if instance is None:
+            return ErrorResponse(ResultCodes.USER_ROLE_NOT_FOUND)
+        # if instance.is_from_social and not instance.password:
+
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)

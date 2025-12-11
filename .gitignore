@@ -8,3 +8,17 @@ __pycache__/
 .idea/
 *.log
 migrations/
+
+# Python
+backend/venv/
+backend/__pycache__/
+backend/*.pyc
+
+# Django
+backend/media/
+backend/staticfiles/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.next/

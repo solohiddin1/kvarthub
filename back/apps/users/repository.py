@@ -209,9 +209,9 @@ def get_user_by_username(email):
 #         raise e
 
 
-def create_user(email, first_name, last_name, phone_number,
+def create_user(email, first_name, phone_number,
                 otp, otp_created_at, region, district,
-                password, language="UZ", is_active=True):
+                password, is_active=True):
     try:
         # Ensure `username` (which is unique on the AbstractUser) is set
         # When USERNAME_FIELD is changed to `email` but the `username` column still
@@ -222,14 +222,12 @@ def create_user(email, first_name, last_name, phone_number,
             email=email,
             username=email,
             first_name=first_name,
-            last_name=last_name,
             phone_number=phone_number,
             otp=otp,
             otp_created_at=otp_created_at,
-            language=language,
             region=region,
             district=district,
-            # is_active=is_active
+            is_active=is_active
         )
         user.set_password(password)
         user.save()
