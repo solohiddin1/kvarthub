@@ -58,39 +58,6 @@ class UserAuthOtp(BaseModel):
     verified = models.BooleanField(default=False, verbose_name=_('verified'))
 
 
-class VersionControl(BaseModel):
-    DEVICE_TYPE_CHOICES = (
-        ("IOS", "IOS"),
-        ("ANDROID", "ANDROID")
-    )
-    device_type = models.CharField(max_length=10, choices=DEVICE_TYPE_CHOICES, verbose_name=_("device_type"))
-    current_version = models.CharField(max_length=10, verbose_name=_("current_version"))
-    is_active = models.BooleanField(default=False, verbose_name=_("is_active"))
-    force_update = models.BooleanField(default=False, verbose_name=_("force_update"))
-
-    def __str__(self):
-        return f"{self.device_type} - {self.current_version}"
-
-    class Meta:
-        verbose_name = _("App Version Control")
-        verbose_name_plural = _("App Version Controls")
-        db_table = "app_version_control"
-
-
-class UserDevice(BaseModel):
-    DEVICE_TYPE_CHOICES = (
-        ("IOS", "IOS"),
-        ("ANDROID", "ANDROID")
-    )
-
-    user = models.ForeignKey(User, models.CASCADE, "user_devices", verbose_name=_("user"))
-    role = models.CharField(max_length=20, verbose_name=_("role"))
-    device_id = models.CharField(max_length=50, verbose_name=_("device_id"))
-    device_type = models.CharField(max_length=10, choices=DEVICE_TYPE_CHOICES, verbose_name=_("device_type"))
-
-    class Meta:
-        unique_together = ('user', 'device_id', 'role')
-
 
 class OtpSentLog(BaseModel):
     email = models.CharField(max_length=12, verbose_name=_("email"), blank=True, null=True)

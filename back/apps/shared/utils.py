@@ -19,6 +19,38 @@ def SuccessResponse(result=None):
         "result": result
     }, status=status.HTTP_200_OK)
 
+def ErrorResponseWithEmailResult(result: ResultCodes,email_result, message=None ):
+    if message:
+        return Response({
+            "success": False,
+            "error": {
+                "code": result.value,
+                "message": message["en"],
+                "message_language": {
+                    "uz": message["uz"],
+                    "en": message["en"],
+                    "ru": message["ru"],
+                }
+                
+            },
+            "email_result":email_result
+        }, status=status.HTTP_200_OK)
+
+    return Response({
+        "success": False,
+        "error": {
+            "code": result.value,
+            "message": ResultMessages[result.name]["en"],
+            "message_language": {
+                "uz": ResultMessages[result.name]["uz"],
+                "en": ResultMessages[result.name]["en"],
+                "ru": ResultMessages[result.name]["ru"],
+            }
+        },
+        "email_result":email_result
+    }, status=status.HTTP_200_OK)
+
+
 def ErrorResponse(result: ResultCodes, message=None):
     if message:
         return Response({

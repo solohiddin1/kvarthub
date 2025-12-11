@@ -6,7 +6,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from rest_framework_simplejwt.settings import api_settings
 
-from apps.users.models import User, UserDevice,VersionControl
+from apps.users.models import User
 from apps.shared.models import Region , District
 # from .repository import 
 
@@ -105,7 +105,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UserVerifySerializer(serializers.Serializer):
-    user_id = serializers.IntegerField(required=True, allow_null=False)
+    email = serializers.CharField(required=True, allow_null=False)
     code = serializers.CharField(required=True, max_length=4)
 
 
@@ -133,10 +133,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "last_name",
             "phone_number",
             "image",
-            "age",
-            "lat",
-            "longitude",
-            "language",
             "region",
             "district",
             "is_active",
@@ -161,18 +157,8 @@ class UserProfileImageUpdateSerializer(serializers.ModelSerializer):
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'phone_number', 'email', 'language']
+        fields = ['first_name', 'last_name', 'phone_number', 'email']
 
-
-class UserUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'phone_number', 'email', 'password']
-
-
-class UserSetLocation(serializers.Serializer):
-    lat = serializers.FloatField(required=True)
-    longitude = serializers.FloatField(required=True)
 
 
 class OtpForgotPasswordSerializer(serializers.Serializer):

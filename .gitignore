@@ -1,3 +1,14 @@
+media/
+static/
+.env
+venv/
+db.sqlite3
+__pycache__/
+*.pyc
+.idea/
+*.log
+migrations/
+
 # Python
 backend/venv/
 backend/__pycache__/

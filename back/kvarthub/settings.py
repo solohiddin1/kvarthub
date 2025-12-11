@@ -15,7 +15,10 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 from config.config import settings
+from dotenv import load_dotenv
+load_dotenv()
 
+from os import getenv
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
@@ -213,3 +216,10 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
 AUTH_USER_MODEL = 'users.User'
+
+EMAIL_BACKEND = getenv("EMAIL_BACKEND")
+EMAIL_HOST = getenv("EMAIL_HOST")
+EMAIL_PORT = getenv("EMAIL_PORT")
+EMAIL_USE_TLS = getenv("EMAIL_USE_TLS")
+EMAIL_HOST_USER = getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = getenv("EMAIL_HOST_PASSWORD")
