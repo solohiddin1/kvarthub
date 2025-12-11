@@ -40,6 +40,10 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_SECRET: str
     GOOGLE_REDIRECT_URI: str
     
+    # brevo email
+    BREVO_EMAIL_API_KEY: str
+    BREVO_EMAIL_API_EMAIL: str
+    
     # some
     TIME_ZONE: str
     LANGUAGE_CODE: str

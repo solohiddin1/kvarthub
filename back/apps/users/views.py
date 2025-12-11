@@ -93,6 +93,7 @@ class RegisterUser(GenericAPIView):
                 except Exception as e:
                     logger.info(f"Primary provider failed: {e}")
                     try:
+                        logger.info("sending otp email via send_otp_email function")
                         return send_otp_email(email, otp)
                         # Fallback
                     except Exception as e2:

@@ -6,8 +6,6 @@ from django.utils import timezone
 from apps.shared.models import logger
 from apps.users.models import User, UserDevice, UserAuthOtp, UserPasswordReset, OtpSentLog
 from django.core.mail import send_mail as send_otp
-from django.conf import settings
-from django.core.mail import send_mail as send_otp
 from django.core.mail import BadHeaderError
 from django.conf import settings
 from django.db import IntegrityError
