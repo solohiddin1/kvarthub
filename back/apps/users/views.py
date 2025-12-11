@@ -65,7 +65,7 @@ class RegisterUser(GenericAPIView):
                                 password=req_body["password"],
                                 region=req_body.get("region",None),
                                 district=req_body.get("district",None),
-                                is_active=False)
+                                is_active=True)
         else:
             if user.is_verified:
                 return ErrorResponse(ResultCodes.USER_ALREADY_REGISTERED)
