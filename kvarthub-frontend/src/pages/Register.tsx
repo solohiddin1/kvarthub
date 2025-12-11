@@ -34,7 +34,7 @@ const Register = () => {
         </NavLink>
       </div>
 
-      <div className="flex items-center justify-center mt-[40px] gap-[5px] max-w-[260px] md:max-w-[350px] mx-auto rounded-[30px] py-[15px] bg-[#0000001A] px-[14px]">
+      <div className="flex items-center justify-center mt-[40px] gap-[5px] max-w-[260px] md:max-w-[350px] mx-auto rounded-[30px] py-[15px] bg-[#0000001A] px-[14px] cursor-pointer">
         <img src={GoogleLogo} alt="Googlelogo" width={24} height={24} />
         <span className="text-[#333333] text-[20px] font-semibold">
           Continue with google
@@ -49,14 +49,14 @@ const Register = () => {
 
       <form className="w-full px-[14px] md:w-[400px] md:mx-auto ">
         <input
-          type="text"
+          type="email"
           placeholder="Email"
-          className="py-[12px] pl-[24px] rounded-[30px] font-semibold text-[18px]  bg-[#0000000D] placeholder:text-[#1C1C1C] w-full outline-none border-[1px] border-transparent duration-300  hover:bg-[#4DB2700D] hover:placeholder:text-[#00000080] hover:border-[1px] hover:border-[#28A453]"
+          className="py-[12px] pl-[24px] rounded-[30px] font-semibold text-[18px]  bg-[#0000000D] placeholder:text-[#1C1C1C] w-full outline-none border-[1px] border-transparent duration-300  hover:bg-[#4DB2700D]  hover:border-[1px] hover:border-[#28A453]"
           required
         />
         <Custombtn />
         <div className="relative w-full mt-[12px] bg-[#0000000D]  rounded-[32px]">
-          <span className="text-[18px] !text-[#1C1C1C] absolute left-[20px] top-[12px] !hover:text-[#00000080]">
+          <span className="text-[18px] !text-[#1C1C1C]  absolute left-[20px] top-[12px] !hover:text-[#00000080]">
             +998
           </span>
           <div className="w-[1px] h-[20px] bg-[#BFBFBF] block absolute left-18 top-4"></div>
@@ -69,7 +69,7 @@ const Register = () => {
           />
         </div>
 
-        <button className="w-full py-[15px] mt-[24px] bg-[#28A453] rounded-[32px] text-[20px] font-semibold text-white">
+        <button className="w-full py-[15px] mt-[24px] bg-[#28A453] rounded-[32px] text-[20px] font-semibold text-white cursor-pointer hover:opacity-[70%] duration-300 active:scale-98">
           Register
         </button>
       </form>

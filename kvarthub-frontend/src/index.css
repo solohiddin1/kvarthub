@@ -31,3 +31,14 @@ body{
 .custom-input input::placeholder {
   color: #1C1C1C !important;
 }
+
+
+.ant-input {
+    --ant-input-active-shadow: none !important ;
+    
+}
+.ant-input::placeholder{
+  color: #1C1C1C;
+  font-weight: 700;
+}
+
