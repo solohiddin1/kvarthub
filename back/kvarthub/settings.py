@@ -51,7 +51,8 @@ OUT = [
     'allauth.socialaccount.providers.google',
 
     # 'corsheaders',
-    
+    'corsheaders',
+
     # REST
     'dj_rest_auth',
     'dj_rest_auth.registration',
@@ -82,6 +83,9 @@ MIDDLEWARE = [
 
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # cors-middleware
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'kvarthub.urls'
@@ -107,7 +111,10 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES':['rest_framework.permission.AllowAny'],
 }
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 
 WSGI_APPLICATION = 'kvarthub.wsgi.application'
