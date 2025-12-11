@@ -30,13 +30,10 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
     (response) => response,
     (error: AxiosError) => {
-        // Handle 401 Unauthorized
+        // Handle 401 Unauthorized - just clear tokens, don't redirect
+        // Let the component/context handle the redirect logic
         if (error.response?.status === 401) {
             clearTokens();
-            // Redirect to login if not already there
-            if (window.location.pathname !== '/login') {
-                window.location.href = '/login';
-            }
         }
         return Promise.reject(error);
     }

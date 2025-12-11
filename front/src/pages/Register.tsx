@@ -15,20 +15,35 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showOtpModal, setShowOtpModal] = useState(false);
+  const [isAlreadyRegistered, setIsAlreadyRegistered] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setIsAlreadyRegistered(false);
     setLoading(true);
 
     try {
       const response = await register(email, password, "", `998${phoneNumber}`);
       if (response.success) {
         setShowOtpModal(true);
+      } else if (response.error) {
+        // Handle error response from backend
+        const errorMessage = response.error.message || "Registration failed. Please try again.";
+        setError(errorMessage);
+        // Check if error code indicates user already registered (-2)
+        if (response.error.code === -2) {
+          setIsAlreadyRegistered(true);
+        }
       }
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error?.message || "Registration failed. Please try again.";
+      const errorData = err.response?.data;
+      const errorMessage = errorData?.error?.message || "Registration failed. Please try again.";
       setError(errorMessage);
+      // Check if error code indicates user already registered (-2)
+      if (errorData?.error?.code === -2) {
+        setIsAlreadyRegistered(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -116,7 +131,19 @@ const Register = () => {
           </div>
 
           {error && (
-            <p className="text-red-500 text-sm mt-2 text-center">{error}</p>
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-[20px]">
+              <p className="text-red-600 text-sm text-center">{error}</p>
+              {isAlreadyRegistered && (
+                <p className="text-center mt-2">
+                  <NavLink
+                    to="/login"
+                    className="text-[#28A453] font-semibold hover:underline"
+                  >
+                    Go to Login →
+                  </NavLink>
+                </p>
+              )}
+            </div>
           )}
 
           <button
