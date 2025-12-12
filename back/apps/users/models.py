@@ -24,7 +24,7 @@ class User(AbstractUser, BaseModel, PermissionsMixin):
 
     first_name = models.CharField(max_length=255,blank=True, null=True)
     last_name = models.CharField(max_length=255,blank=True, null=True)
-    email = models.EmailField(unique=False,blank=True, null=True, default=None)
+    email = models.EmailField(unique=True,blank=True, null=True, default=None)
     google_picture_url = models.URLField(blank=True, null=True)
     # email = models.EmailField(unique=True, default=None)
     phone_number = models.CharField(max_length=12, blank=True, null=True, validators=[phone_regex], verbose_name=_('phone_number'))
