@@ -74,6 +74,9 @@ class GoogleCallback(APIView):
         user.google_picture_url = user_info.get("picture", "")
         user.is_verified = True
         user.is_from_social = True
+        # Ensure password is marked unusable instead of None to avoid auth errors
+        if not user.has_usable_password():
+            user.set_unusable_password()
         user.save()
 
         # Here you can generate token (JWT or DRF token)
