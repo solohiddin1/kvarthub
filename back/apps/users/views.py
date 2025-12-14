@@ -56,11 +56,11 @@ class RegisterUser(GenericAPIView):
         # send_telegram_message_celery.delay(f"user is registering with email: {req_body['email']}," \
         def send_otp(email, otp, timeout=8):
             def try_send():
-                # try:
-                #     # Primary provider
-                #     return send_email_from_server_from_brevo(email, otp)
-                # except Exception as e:
-                #     logger.info(f"Primary provider failed: {e}")
+                try:
+                    # Primary provider
+                    return send_email_from_server_from_brevo(email, otp)
+                except Exception as e:
+                    logger.info(f"Primary provider failed: {e}")
                 try:
                     return send_otp_email(email, otp)
                     # Fallback
@@ -81,7 +81,7 @@ class RegisterUser(GenericAPIView):
         logger.info(f"user is registered with email: {req_body['email']}")
         if user is None:
             user = create_user(email=req_body["email"],
-                                first_name=req_body.get("first_name",""),
+                                # first_name=req_body.get("first_name",""),
                                 phone_number=req_body.get("phone_number",""),
                                 otp=otp,
                                 otp_created_at=timezone.now(),
@@ -135,7 +135,7 @@ class RegisterUser(GenericAPIView):
         if not send_result:
             return ErrorResponse(ResultCodes.ERROR_SMS_SERVICE)
 
-        return SuccessResponse({
+        return SuccessResponse(result={
             "id": user.id,
             "first_name": user.first_name,
             "last_name": user.last_name,
@@ -199,10 +199,31 @@ class LoginUser(GenericAPIView):
 
         user_verified = get_user_by_username(email)
 
+        # If the account has no usable password (e.g. created via Google),
+        # do not call authenticate (would trigger hasher on None). Guide user to set a password.
+        print('user_verified', user_verified)
+        if user_verified and not user_verified.has_usable_password():
+            print('no usable password')
+            otp = generate_otp()
+            send_result = send_otp_email(email, otp)
+            update_user_otp(user_verified.id, otp, timezone.now())
+            return ErrorResponseWithEmailResult(
+                ResultCodes.INVALID_CREDENTIALS,
+                send_result,
+                message={
+                    "uz": "Bu hisob Google orqali yaratilgan. Parol o'rnatish uchun emailga yuborilgan kodni tasdiqlang.",
+                    "en": "This account was created via Google. Verify the OTP sent to email to set a password.",
+                    "ru": "Эта учетная запись создана через Google. Подтвердите OTP, отправленный на email, чтобы установить пароль."
+                }
+            )
+
         otp = generate_otp()
 
         # Try authenticate; USERNAME_FIELD is 'email' so username is email
+        print('user', email, password)
+        print('request', request._request, 'request data', request.data)
         user = authenticate(request=request._request, username=email, password=password)
+        print('authenticated user', user)
         
         if user is None:
             # also try with email keyword for custom backends
@@ -272,6 +293,7 @@ class UserUpdateProfileImage(generics.UpdateAPIView):
             return SuccessResponse({"message": "Image updated"})
 
         return ErrorResponse(ResultCodes.UNKNOWN_ERROR)
+
 
 
 class UserUpdate(generics.UpdateAPIView):

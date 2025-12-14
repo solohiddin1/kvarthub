@@ -50,7 +50,7 @@ OUT = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
 
-    # 'corsheaders',
+    'corsheaders',
     
     # REST
     'dj_rest_auth',
@@ -73,6 +73,7 @@ INSTALLED_APPS = LIBS + OUT + APPS
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -215,6 +216,9 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 AUTH_USER_MODEL = 'users.User'
 
 EMAIL_BACKEND = getenv("EMAIL_BACKEND")
@@ -223,3 +227,23 @@ EMAIL_PORT = getenv("EMAIL_PORT")
 EMAIL_USE_TLS = getenv("EMAIL_USE_TLS")
 EMAIL_HOST_USER = getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = getenv("EMAIL_HOST_PASSWORD")
+
+# CORS Configuration
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]

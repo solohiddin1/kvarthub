@@ -74,6 +74,9 @@ class GoogleCallback(APIView):
         user.google_picture_url = user_info.get("picture", "")
         user.is_verified = True
         user.is_from_social = True
+        # Ensure password is marked unusable instead of None to avoid auth errors
+        if not user.has_usable_password():
+            user.set_unusable_password()
         user.save()
 
         # Here you can generate token (JWT or DRF token)
@@ -82,7 +85,7 @@ class GoogleCallback(APIView):
         # token, _ = Token.objects.get_or_create(user=user)
         token = RefreshToken.for_user(user)
 
-        # Redirect or return token as JSON
-        redirect_url = f"/?token={token.access_token}"
-        # redirect_url = f"/?token={token.key}"
+        # Redirect to frontend callback with tokens
+        redirect_url = f"http://localhost:5173/auth/callback?access={token.access_token}&refresh={str(token)}"
         return redirect(redirect_url)
+

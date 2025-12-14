@@ -10,15 +10,15 @@ __pycache__/
 migrations/
 
 # Python
-backend/venv/
-backend/__pycache__/
-backend/*.pyc
+back/venv/
+back/__pycache__/
+back/*.pyc
 
 # Django
-backend/media/
-backend/staticfiles/
+back/media/
+back/staticfiles/
 
 # Node
-frontend/node_modules/
-frontend/dist/
-frontend/.next/
+front/node_modules/
+front/dist/
+front/.next/
