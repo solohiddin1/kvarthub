@@ -107,7 +107,6 @@ class RegisterUser(GenericAPIView):
             send_result = send_otp(req_body["email"], otp)
 
             user = get_user_by_username(req_body["email"])
-            # print(user)
 
             if user_updated:
                 return SuccessResponse({
@@ -202,7 +201,6 @@ class LoginUser(GenericAPIView):
         # If the account has no usable password (e.g. created via Google),
         # do not call authenticate (would trigger hasher on None). Guide user to set a password.
         if user_verified and not user_verified.has_usable_password():
-            print('no usable password')
             otp = generate_otp()
             send_result = send_otp_email(email, otp)
             update_user_otp(user_verified.id, otp, timezone.now())
