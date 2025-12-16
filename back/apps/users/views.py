@@ -201,7 +201,6 @@ class LoginUser(GenericAPIView):
 
         # If the account has no usable password (e.g. created via Google),
         # do not call authenticate (would trigger hasher on None). Guide user to set a password.
-        print('user_verified', user_verified)
         if user_verified and not user_verified.has_usable_password():
             print('no usable password')
             otp = generate_otp()
@@ -220,10 +219,7 @@ class LoginUser(GenericAPIView):
         otp = generate_otp()
 
         # Try authenticate; USERNAME_FIELD is 'email' so username is email
-        print('user', email, password)
-        print('request', request._request, 'request data', request.data)
         user = authenticate(request=request._request, username=email, password=password)
-        print('authenticated user', user)
         
         if user is None:
             # also try with email keyword for custom backends
