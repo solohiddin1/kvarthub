@@ -1,14 +1,13 @@
 import uuid
 import datetime
 import concurrent.futures
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema
 from django.contrib.auth import authenticate
 from django.db import transaction
 from django.contrib.auth.hashers import make_password
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -20,7 +19,6 @@ from apps.shared.utils import SuccessResponse
 from apps.shared.utils import get_logger
 # from apps.shared.utils import send_telegram_message, get_logger
 from apps.shared.send_email import send_email_from_server_from_brevo
-# from apps.users.tasks import send_telegram_message_celery
 from .repository import *
 from .serialziers import (ApplyNewPasswordSerializer, OtpForgotPasswordSerializer,\
                            RegisterSerializer,AuthenticationSerializer, UserProfileImageUpdateSerializer,\
@@ -37,7 +35,6 @@ logger = get_logger()
 class RegisterUser(GenericAPIView):
     serializer_class = RegisterSerializer
     filter_backends=[DjangoFilterBackend]
-    # filterset_fields = ['region', 'district']
     role = "USER"
 
     @transaction.atomic
@@ -47,13 +44,7 @@ class RegisterUser(GenericAPIView):
         req_body = serializer.validated_data
 
         otp = generate_otp()
-        # if req_body["email"] == 'sirojiddinovsolohiddin961@gmail.com':
-        #     otp = "2222"
-
         user = get_user_by_username(req_body["email"])
-        # send_telegram_message(f"user is registering with email: {req_body['email']}," \
-        #                       f"and first_name: {req_body.get('first_name','')} with password: {req_body['password']}")
-        # send_telegram_message_celery.delay(f"user is registering with email: {req_body['email']}," \
         def send_otp(email, otp, timeout=8):
             def try_send():
                 try:
@@ -120,15 +111,7 @@ class RegisterUser(GenericAPIView):
                 "otp": otp,
                 "send_result": send_result
                 })
-
-        # if user.otp:
-        #     if timezone.now() - user.otp_created_at < datetime.timedelta(minutes=2):
-        #         return ErrorResponse(ResultCodes.OTP_ALREADY_SENT)
-        
-            # update_user_otp(user.id, otp, timezone.now())
-
-        # send_result = send_otp_email(req_body["email"], otp)
-
+            
         send_result = send_otp(req_body["email"], otp)
 
         if not send_result:
