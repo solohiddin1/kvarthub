@@ -29,6 +29,7 @@ class ResultCodes(Enum):
     FAILED_TO_OBTAIN_TOKEN = -62
     NO_CODE_PROVIDED = -63
     ERROR_SMS_SERVICE = -64
+    YOU_DO_NOT_HAVE_PERMISSION = -100
 
 
 
@@ -162,5 +163,10 @@ ResultMessages = {
         "uz": "SMS xizmatida xatolik yuz berdi!",
         "en": "Error in SMS service!",
         "ru": "Ошибка в SMS сервисе!"
+    },
+    "YOU_DO_NOT_HAVE_PERMISSION": {
+        "uz": "Sizda ruxsat yo'q!",
+        "en": "You do not have permission!",
+        "ru": "У вас нет разрешения!"
     },
 }

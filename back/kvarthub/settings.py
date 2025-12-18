@@ -36,6 +36,7 @@ ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 APPS = [
     'apps.users',
     'apps.shared',
+    'apps.listings',
 ]
 
 OUT = [
