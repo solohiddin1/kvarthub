@@ -3,7 +3,7 @@ from apps.shared.utils import SuccessResponse, ErrorResponse
 from apps.shared.enum import ResultCodes
 
 from apps.listings.models import Listing
-from apps.listings.serializers import ListingSerializer, BaseListingSerializer
+from apps.listings.serializers import ListingSerializer, BaseListingSerializer, ListingDetailSerializer
 
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -43,7 +43,7 @@ class ListingsListView(ListAPIView):
 class ListingRetrieveView(RetrieveAPIView):
     """Retrieve a single listing"""
     queryset = Listing.objects.all()
-    serializer_class = ListingSerializer
+    serializer_class = ListingDetailSerializer
     lookup_field = 'id'
 
     def retrieve(self, request, *args, **kwargs):

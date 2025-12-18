@@ -1,6 +1,14 @@
 from apps.users.models import User
 from rest_framework import serializers
-from apps.listings.models import Listing
+from apps.listings.models import Listing, ListingImage
+
+class ListingImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ListingImage
+        fields = [
+            'listing',
+            'image'
+        ]
 
 class BaseListingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -60,3 +68,45 @@ class ListingSerializer(serializers.ModelSerializer):
             'listings_images', 
             'facilities'
             ]
+    
+class ListingDetailSerializer(ListingSerializer):
+    listings_images = serializers.SerializerMethodField(required=False)
+    facilities = serializers.StringRelatedField(many=True, read_only=True)
+    host = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=True)
+
+    class Meta:
+        model = Listing
+        fields = [
+            'id',
+            'title',
+            'description',
+            'host',
+            'price',
+            'location',
+            'lat',
+            'long',
+            'rooms',
+            'beds',
+            'bathrooms',
+            'max_people',
+            'phone_number',
+            'total_floor_of_building',
+            'floor_of_this_apartment',  
+            'square_meters',
+            'region',
+            'district',
+            'is_active',
+            'listings_images',
+            'facilities',
+        ]
+        read_only_fields = [
+            'id', 
+            'is_active', 
+            'listings_images', 
+            'facilities'
+            ]
+        
+    def get_listings_images(self, obj):
+        images = ListingImage.objects.filter(listing=obj)
+        data = ListingImageSerializer(images, many=True, context=self.context)
+        return data.data
