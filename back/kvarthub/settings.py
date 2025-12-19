@@ -233,6 +233,7 @@ EMAIL_HOST_PASSWORD = getenv("EMAIL_HOST_PASSWORD")
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    'https://c65b8ab0e6c9.ngrok-free.app',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
