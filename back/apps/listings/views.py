@@ -2,31 +2,44 @@ from apps.users.models import User
 from apps.shared.utils import SuccessResponse, ErrorResponse
 from apps.shared.enum import ResultCodes
 
-from apps.listings.models import Listing
+from apps.listings.models import Listing, ListingImage
 from apps.listings.serializers import ListingSerializer, BaseListingSerializer, ListingDetailSerializer
 
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser
+from drf_spectacular.utils import extend_schema
 
 
 # Create your views here.
 
 class ListingCreateView(CreateAPIView):
-    """Create a new listing"""
+    """Create a new listing with optional image uploads"""
     queryset = Listing.objects.all()
     serializer_class = ListingSerializer
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
+    @extend_schema(
+        summary="Create a new listing",
+        description="Create a new listing. Frontend can send images in 'images_upload' field as multipart.",
+    )
     def create(self, request, *args, **kwargs):
         user = request.user
         if user is None or not user.is_authenticated:
             return SuccessResponse(result="User is not authenticated.")
+        
         data = request.data.copy()
         data['host'] = user.id
+        
+        # Serializer handles image creation automatically
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        return SuccessResponse(serializer.data)
+        
+        # Return listing with images
+        listing_serializer = self.get_serializer(serializer.instance)
+        return SuccessResponse(listing_serializer.data)
 
 
 class ListingsListView(ListAPIView):

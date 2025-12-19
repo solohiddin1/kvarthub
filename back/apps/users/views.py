@@ -17,8 +17,7 @@ from apps.shared.enum import ResultCodes
 from apps.shared.utils import ErrorResponse, SuccessResponse, ErrorResponseWithEmailResult
 from apps.shared.utils import SuccessResponse
 from apps.shared.utils import get_logger
-# from apps.shared.utils import send_telegram_message, get_logger
-from apps.shared.send_email import send_email_from_server_from_brevo
+from apps.shared.send_email import send_otp_with_fallback
 from .repository import *
 from .serialziers import (ApplyNewPasswordSerializer, OtpForgotPasswordSerializer,\
                            RegisterSerializer,AuthenticationSerializer, UserProfileImageUpdateSerializer,\
@@ -45,29 +44,6 @@ class RegisterUser(GenericAPIView):
 
         otp = generate_otp()
         user = get_user_by_username(req_body["email"])
-        def send_otp(email, otp, timeout=8):
-            def try_send():
-                try:
-                    # Primary provider
-                    return send_email_from_server_from_brevo(email, otp)
-                except Exception as e:
-                    logger.info(f"Primary provider failed: {e}")
-                try:
-                    return send_otp_email(email, otp)
-                    # Fallback
-                except Exception as e2:
-                    logger.info(f"Both providers failed: {e2}")
-                    raise Exception("Unable to send OTP")
-
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                future = executor.submit(try_send)
-                try:
-                    return future.result(timeout=timeout)  # seconds
-                except concurrent.futures.TimeoutError:
-                    raise Exception("OTP sending timed out")
-                
-
-        #f"and first_name: {req_body.get('first_name','')} with password: {req_body['password']}")
         
         logger.info(f"user is registered with email: {req_body['email']}")
         if user is None:
@@ -95,7 +71,7 @@ class RegisterUser(GenericAPIView):
                                 district=req_body.get("district",None),
                                 is_active=False)
             
-            send_result = send_otp(req_body["email"], otp)
+            send_result = send_otp_with_fallback(req_body["email"], otp)
 
             user = get_user_by_username(req_body["email"])
 
@@ -112,7 +88,7 @@ class RegisterUser(GenericAPIView):
                 "send_result": send_result
                 })
             
-        send_result = send_otp(req_body["email"], otp)
+        send_result = send_otp_with_fallback(req_body["email"], otp)
 
         if not send_result:
             return ErrorResponse(ResultCodes.ERROR_SMS_SERVICE)
@@ -319,29 +295,8 @@ class OtpForgotPassword(GenericAPIView):
         otp = check_generate_otp(user)
 
         if not otp: return ErrorResponse(ResultCodes.DAILY_LIMIT_REACHED)
-        def send_otp(email, otp, timeout=5):
-            def try_send():
-                try:
-                    # Primary provider
-                    return send_email_from_server_from_brevo(email, otp)
-                except Exception as e:
-                    logger.info(f"Primary provider failed: {e}")
-                    try:
-                        return send_otp_email(email, otp)
-                        # Fallback
-                    except Exception as e2:
-                        logger.info(f"Both providers failed: {e2}")
-                        raise Exception("Unable to send OTP")
-
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                future = executor.submit(try_send)
-                try:
-                    return future.result(timeout=timeout)  # seconds
-                except concurrent.futures.TimeoutError:
-                    raise Exception("OTP sending timed out")
-
-        sms_res = send_otp(serializer.validated_data["email"], otp.code)
-        # sms_res = send_otp_email(serializer.validated_data["email"], otp.code)
+        
+        sms_res = send_otp_with_fallback(serializer.validated_data["email"], otp.code, timeout=5)
 
         if not sms_res: return ErrorResponse(ResultCodes.ERROR_SMS_SERVICE)
 
