@@ -6,11 +6,10 @@ import { Footer, Header } from "../modules"
 import { Skleton } from "../components"
 
 const Home = () => {
-
-  const [products,setProducts] = useState([])
+  const [products,setProducts] = useState<ProductsType[]>([])
   const [loading,setLoading] = useState(false)
   const [productsCount,setProductsCount] = useState<number>(30)
-  const [savedCard,satsavedCard] = useState<ProductsType[]>(() =>{
+  const [savedCard,setSavedCard] = useState(() =>{
     const saved = localStorage.getItem("savedCard")
      return  saved ? JSON.parse(saved) : []
   })
@@ -24,13 +23,13 @@ const Home = () => {
   function SavedCard(id:number){
     if(likedBtnId.includes(id)){
       setLikedBtnId(likedBtnId.filter(item => item !== id))
-      satsavedCard(savedCard.filter((item:ProductsType) => item.id !== id))
+      setSavedCard(savedCard.filter((item:ProductsType) => item.id !== id))
     }
 
     else{
       const card = products.find((item:ProductsType) => item.id === id)
       if(!card) return null
-      satsavedCard([...savedCard,card])
+      setSavedCard([...savedCard,card])
       setLikedBtnId([...likedBtnId,id])
     }  
 }
@@ -93,7 +92,6 @@ return (
                       <p className="text-[#757575]">{item.price}</p>
                       <p className="text-[14px] text-[#A6A6A6]">{item.rating}</p>
                     </div>
-
                   </div>
                 </div>
               ) )

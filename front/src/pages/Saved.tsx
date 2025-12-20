@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LikedFilledIcon, LikedIcon } from "../assets/icons";
 import type { ProductsType } from "../types/auth";
 
 const Saved = () => {
-  const saved = localStorage.getItem("savedCard");
-  const savedCard = saved ? JSON.parse(saved) : [];
-  const [likedBtnId,setlikedBtnId] = useState(() =>{
+  const [savedCard,setSavedCard] = useState(() =>{
+    const saved = localStorage.getItem("savedCard");
+    return saved ? JSON.parse(saved) : [];
+
+  })
+  const [likedBtnId,setLikedBtnId] = useState(() =>{
     const likedBtnId = localStorage.getItem("likedBtnId");
     return likedBtnId ? JSON.parse(likedBtnId) : [];
 
@@ -13,9 +16,21 @@ const Saved = () => {
 
   function SavedCard(id:number){
      if(likedBtnId.includes(id)){
-      setlikedBtnId(likedBtnId.filter((item:number )=> item !== id))
+      setLikedBtnId(likedBtnId.filter((item:number )=> item !== id))
+      setSavedCard(savedCard.filter((item:ProductsType) => item.id !== id))
+
   }
 }
+
+
+useEffect(() =>{
+  localStorage.setItem("likedBtnId",JSON.stringify(likedBtnId))
+},[likedBtnId])
+
+
+useEffect(() =>{
+  localStorage.setItem("savedCard",JSON.stringify(savedCard))
+},[savedCard])
 
   return (
     <div className="min-h-screen bg-linear-to-b from-gray-50 to-blue-50 py-8 px-4 md:px-8">

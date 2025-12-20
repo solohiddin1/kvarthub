@@ -29,12 +29,6 @@ class RefreshTokenSerializer(TokenRefreshSerializer):
                 "no_active_account",
             )
 
-        # if not exists_user_role_by_userid_role(user_id, role, is_active=True, is_verified=True):
-        #     raise AuthenticationFailed(
-        #         self.error_messages["no_active_account"],
-        #         "no_active_account",
-        #     )
-
         data = {"access": str(refresh.access_token)}
 
         if api_settings.ROTATE_REFRESH_TOKENS:
@@ -64,14 +58,6 @@ class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.CharField(required=True, max_length=150, min_length=5)
     password = serializers.CharField(required=True, max_length=150, min_length=5)
     phone_number = serializers.CharField(required=False, max_length=12, min_length=12, help_text="Phone number must be in the format: '998901234567'.")
-    # region = serializers.IntegerField(
-    #     required=False, allow_null=False,
-    #     help_text="Region ID"
-    #     )
-    # district = serializers.IntegerField(
-    #     required=False, allow_null=False,
-    #     help_text="District ID"
-    #     )
 
     class Meta:
         model = User
@@ -157,7 +143,12 @@ class UserProfileImageUpdateSerializer(serializers.ModelSerializer):
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'phone_number', 'email']
+        fields = [
+        'first_name', 
+        'last_name', 
+        'phone_number', 
+        'image',
+        ]
 
 
 
