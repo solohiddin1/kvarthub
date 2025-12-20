@@ -84,3 +84,12 @@ export interface ApiError {
         message: string;
     };
 }
+
+export interface ProductsType {
+    id: number,
+    title:string,
+    description:string,
+    price:string,
+    rating:string,
+    images:string[]
+}

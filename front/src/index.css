@@ -18,8 +18,7 @@
 
 body{
     font-family: 'Outfit', sans-serif;
-    padding-right: 20px;
-    padding-left: 20px;
+   
 
     
 }
@@ -42,3 +41,17 @@ body{
   font-weight: 700;
 }
 
+.div{
+ background: rgba(229, 229, 229, 0.5); 
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(204, 204, 204, 0.5);
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hidden {
+  -ms-overflow-style: none;  /* IE va Edge */
+  scrollbar-width: none;     /* Firefox */
+}
