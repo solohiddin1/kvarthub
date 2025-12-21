@@ -1,14 +1,13 @@
 import uuid
 import datetime
 import concurrent.futures
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema
 from django.contrib.auth import authenticate
 from django.db import transaction
 from django.contrib.auth.hashers import make_password
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -19,9 +18,7 @@ from apps.shared.enum import ResultCodes
 from apps.shared.utils import ErrorResponse, SuccessResponse, ErrorResponseWithEmailResult
 from apps.shared.utils import SuccessResponse
 from apps.shared.utils import get_logger
-# from apps.shared.utils import send_telegram_message, get_logger
-from apps.shared.send_email import send_email_from_server_from_brevo
-# from apps.users.tasks import send_telegram_message_celery
+from apps.shared.send_email import send_otp_with_fallback
 from .repository import *
 from .serialziers import (ApplyNewPasswordSerializer, OtpForgotPasswordSerializer,\
                            RegisterSerializer,AuthenticationSerializer, UserProfileImageUpdateSerializer,\
@@ -38,7 +35,6 @@ logger = get_logger()
 class RegisterUser(GenericAPIView):
     serializer_class = RegisterSerializer
     filter_backends=[DjangoFilterBackend]
-    # filterset_fields = ['region', 'district']
     role = "USER"
 
     @transaction.atomic
@@ -48,37 +44,7 @@ class RegisterUser(GenericAPIView):
         req_body = serializer.validated_data
 
         otp = generate_otp()
-        # if req_body["email"] == 'sirojiddinovsolohiddin961@gmail.com':
-        #     otp = "2222"
-
         user = get_user_by_username(req_body["email"])
-        # send_telegram_message(f"user is registering with email: {req_body['email']}," \
-        #                       f"and first_name: {req_body.get('first_name','')} with password: {req_body['password']}")
-        # send_telegram_message_celery.delay(f"user is registering with email: {req_body['email']}," \
-        def send_otp(email, otp, timeout=8):
-            def try_send():
-                try:
-                    # Primary provider
-                    return json.dumps(send_email_from_server_from_brevo(email, otp))
-                    
-                except Exception as e:
-                    logger.info(f"Primary provider failed: {e}")
-                    try:
-                        return send_otp_email(email, otp)
-                        # Fallback
-                    except Exception as e2:
-                        logger.info(f"Both providers failed: {e2}")
-                        raise Exception("Unable to send OTP")
-
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                future = executor.submit(try_send)
-                try:
-                    return future.result(timeout=timeout)  # seconds
-                except concurrent.futures.TimeoutError:
-                    raise Exception("OTP sending timed out")
-                
-
-        #f"and first_name: {req_body.get('first_name','')} with password: {req_body['password']}")
         
         logger.info(f"user is registered with email: {req_body['email']}")
         if user is None:
@@ -106,10 +72,9 @@ class RegisterUser(GenericAPIView):
                                 district=req_body.get("district",None),
                                 is_active=False)
             
-            send_result = send_otp(req_body["email"], otp)
+            send_result = send_otp_with_fallback(req_body["email"], otp)
 
             user = get_user_by_username(req_body["email"])
-            # print(user)
 
             if user_updated:
                 return SuccessResponse({
@@ -123,16 +88,8 @@ class RegisterUser(GenericAPIView):
                 "otp": otp,
                 "send_result": send_result
                 })
-
-        # if user.otp:
-        #     if timezone.now() - user.otp_created_at < datetime.timedelta(minutes=2):
-        #         return ErrorResponse(ResultCodes.OTP_ALREADY_SENT)
-        
-            # update_user_otp(user.id, otp, timezone.now())
-
-        # send_result = send_otp_email(req_body["email"], otp)
-
-        send_result = send_otp(req_body["email"], otp)
+            
+        send_result = send_otp_with_fallback(req_body["email"], otp)
 
         if not send_result:
             return ErrorResponse(ResultCodes.ERROR_SMS_SERVICE)
@@ -200,6 +157,22 @@ class LoginUser(GenericAPIView):
         password = serializer.validated_data.get("password")
 
         user_verified = get_user_by_username(email)
+
+        # If the account has no usable password (e.g. created via Google),
+        # do not call authenticate (would trigger hasher on None). Guide user to set a password.
+        if user_verified and not user_verified.has_usable_password():
+            otp = generate_otp()
+            send_result = send_otp_email(email, otp)
+            update_user_otp(user_verified.id, otp, timezone.now())
+            return ErrorResponseWithEmailResult(
+                ResultCodes.INVALID_CREDENTIALS,
+                send_result,
+                message={
+                    "uz": "Bu hisob Google orqali yaratilgan. Parol o'rnatish uchun emailga yuborilgan kodni tasdiqlang.",
+                    "en": "This account was created via Google. Verify the OTP sent to email to set a password.",
+                    "ru": "Эта учетная запись создана через Google. Подтвердите OTP, отправленный на email, чтобы установить пароль."
+                }
+            )
 
         otp = generate_otp()
 
@@ -276,6 +249,7 @@ class UserUpdateProfileImage(generics.UpdateAPIView):
         return ErrorResponse(ResultCodes.UNKNOWN_ERROR)
 
 
+
 class UserUpdate(generics.UpdateAPIView):
     queryset = User.objects.all()
     permission_classes = [IsAuthenticated]
@@ -290,7 +264,7 @@ class UserUpdate(generics.UpdateAPIView):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         if instance is None:
-            return ErrorResponse(ResultCodes.USER_ROLE_NOT_FOUND)
+            return ErrorResponse(ResultCodes.USER_NOT_FOUND)
         # if instance.is_from_social and not instance.password:
 
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
@@ -322,29 +296,8 @@ class OtpForgotPassword(GenericAPIView):
         otp = check_generate_otp(user)
 
         if not otp: return ErrorResponse(ResultCodes.DAILY_LIMIT_REACHED)
-        def send_otp(email, otp, timeout=5):
-            def try_send():
-                try:
-                    # Primary provider
-                    return send_email_from_server_from_brevo(email, otp)
-                except Exception as e:
-                    logger.info(f"Primary provider failed: {e}")
-                    try:
-                        return send_otp_email(email, otp)
-                        # Fallback
-                    except Exception as e2:
-                        logger.info(f"Both providers failed: {e2}")
-                        raise Exception("Unable to send OTP")
-
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                future = executor.submit(try_send)
-                try:
-                    return future.result(timeout=timeout)  # seconds
-                except concurrent.futures.TimeoutError:
-                    raise Exception("OTP sending timed out")
-
-        sms_res = send_otp(serializer.validated_data["email"], otp.code)
-        # sms_res = send_otp_email(serializer.validated_data["email"], otp.code)
+        
+        sms_res = send_otp_with_fallback(serializer.validated_data["email"], otp.code, timeout=5)
 
         if not sms_res: return ErrorResponse(ResultCodes.ERROR_SMS_SERVICE)
 

@@ -36,6 +36,7 @@ ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 APPS = [
     'apps.users',
     'apps.shared',
+    'apps.listings',
 ]
 
 OUT = [
@@ -45,17 +46,17 @@ OUT = [
     'rest_framework_simplejwt.token_blacklist',
     
     # auth
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
+    # 'allauth',
+    # 'allauth.account',
+    # 'allauth.socialaccount',
+    # 'allauth.socialaccount.providers.google',
 
     # 'corsheaders',
     'corsheaders',
 
     # REST
-    'dj_rest_auth',
-    'dj_rest_auth.registration',
+    # 'dj_rest_auth',
+    # 'dj_rest_auth.registration',
 ]
 
 
@@ -80,7 +81,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 
     # auth
-    'allauth.account.middleware.AccountMiddleware',
+    # 'allauth.account.middleware.AccountMiddleware',
 
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -139,7 +140,7 @@ SITE_ID = 1
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
+    # 'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -223,6 +224,9 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 AUTH_USER_MODEL = 'users.User'
 
 EMAIL_BACKEND = getenv("EMAIL_BACKEND")
@@ -236,6 +240,7 @@ EMAIL_HOST_PASSWORD = getenv("EMAIL_HOST_PASSWORD")
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    'https://c65b8ab0e6c9.ngrok-free.app',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
