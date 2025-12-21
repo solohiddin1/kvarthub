@@ -7,7 +7,7 @@ class DistrictSerializer(serializers.ModelSerializer):
         model = District
         fields = ['id', 'soato_id', 'name_uz', 'name_ru', 'name_en', 'region']
 
-class RegionSerializer(serializers.ModelSerializer):
+class RegionDistrictSerializer(serializers.ModelSerializer):
     disctricts = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -17,3 +17,8 @@ class RegionSerializer(serializers.ModelSerializer):
     def get_disctricts(self, obj):
         districts = District.objects.filter(region=obj)
         return DistrictSerializer(districts, many=True).data
+
+class RegionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Region
+        fields = ['id', 'soato_id', 'name_uz', 'name_ru', 'name_en']
