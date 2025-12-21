@@ -13,7 +13,7 @@ urlpatterns = [
     path('listings/', ListingsListView.as_view(), name='listing_list'),
     
     # Create a new listing
-    path('listings/create/', ListingCreateView.as_view(), name='listing_create'),
+    path('create/', ListingCreateView.as_view(), name='listing_create'),
     
     # Retrieve a listing by ID
     path('listings/<int:id>/', ListingRetrieveView.as_view(), name='listing_retrieve'),

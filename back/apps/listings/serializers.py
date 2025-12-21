@@ -11,6 +11,8 @@ class ListingImageSerializer(serializers.ModelSerializer):
         ]
 
 class BaseListingSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Listing
         fields = [
@@ -28,8 +30,14 @@ class BaseListingSerializer(serializers.ModelSerializer):
             'region',
             'district',
             'is_active',
+            'images',
         ]
         read_only_fields = ['id', 'is_active']
+        
+    def get_images(self, obj):
+        """Return serialized images for the listing"""
+        images = ListingImage.objects.filter(listing=obj)
+        return ListingImageSerializer(images, many=True, context=self.context).data
 
 
 class ListingSerializer(serializers.ModelSerializer):
