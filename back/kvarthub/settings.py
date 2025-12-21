@@ -42,6 +42,7 @@ APPS = [
 OUT = [
     'rest_framework',
     'drf_spectacular',
+    'django_filters',
     'rest_framework.authtoken',
     'rest_framework_simplejwt.token_blacklist',
     
@@ -114,6 +115,9 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES':['rest_framework.permissions.AllowAny'],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ]
 }
 
 CORS_ORIGIN_ALLOW_ALL = True

@@ -9,6 +9,7 @@ from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIVie
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from drf_spectacular.utils import extend_schema
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 # Create your views here.
@@ -44,13 +45,17 @@ class ListingCreateView(CreateAPIView):
 
 class ListingsListView(ListAPIView):
     """List all listings"""
-    queryset = Listing.objects.all()
+    queryset = Listing.objects.filter(is_active=True)
     serializer_class = BaseListingSerializer
+    filter_backends = [DjangoFilterBackend]
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return SuccessResponse(serializer.data)
+    filterset_fields = {
+        'price': ['gte', 'lte'],
+        'region': ['exact'],
+        'district': ['exact'],
+        'floor_of_this_apartment': ['exact'],
+        'rooms': ['exact'],
+    }
 
 
 class ListingRetrieveView(RetrieveAPIView):
