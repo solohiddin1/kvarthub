@@ -104,3 +104,18 @@ class ListingDestroyView(DestroyAPIView):
             return ErrorResponse(result=ResultCodes.YOU_DO_NOT_HAVE_PERMISSION)
         self.perform_destroy(instance)
         return SuccessResponse(result="Listing deleted successfully.")
+
+
+class MyListingsListView(ListAPIView):
+    """List all listings of the authenticated user"""
+    serializer_class = BaseListingSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Listing.objects.filter(host=user)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return SuccessResponse(serializer.data)

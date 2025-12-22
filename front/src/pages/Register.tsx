@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { GoogleLogo } from "../assets/images";
-import Custombtn from "../components/Custombtn";
-import OtpVerification from "../components/OtpVerification";
+import { GoogleLogo, HeaderImg } from "../assets/images";
 import { useAuth } from "../context/AuthContext";
+import { Custombtn, OtpVerification } from "../components";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -60,14 +59,15 @@ const Register = () => {
   };
 
   return (
-    <>
-      <div className="w-full max-w-[400px] md:w-[472px] bg-[#F2F2F2] rounded-[24px] pt-[24px] pb-[40px] md:pb-[48px] mx-auto">
-        <div className="flex justify-between border-b-[2px] border-[#D9D9D9] relative">
+    <div className="px-5 containers">
+       <img className="pt-10" src={HeaderImg} alt="Header Logo" width={150} height={40}/>
+      <div className="w-full max-w-[400px] md:w-[472px] bg-[#F2F2F2] rounded-3xl pt-6 pb-10 md:pb-12 mx-auto mt-[100px] md:mt-[100px]">
+        <div className="flex justify-between border-b-2 border-[#D9D9D9] relative">
           <NavLink
             to="/login"
             className={({ isActive }) =>
               `block flex-1 text-center pb-2 text-[24px] font-normal relative ${isActive
-                ? "text-[#0F0F0F] border-b-[2px] border-[#0F0F0F] mb-[-1px]"
+                ? "text-[#0F0F0F] border-b-2 border-[#0F0F0F] mb-px"
                 : "text-[#5C5C5C]"
               }`
             }
@@ -79,7 +79,7 @@ const Register = () => {
             to="/register"
             className={({ isActive }) =>
               `block flex-1 text-center pb-2 text-[24px] font-normal relative ${isActive
-                ? "text-black border-b-2 border-black -mb-[1px]"
+                ? "text-black border-b-2 border-black -mb-px"
                 : "text-[#5C5C5C]"
               }`
             }
@@ -90,35 +90,35 @@ const Register = () => {
 
         <div
           onClick={handleGoogleLogin}
-          className="flex items-center justify-center mt-[40px] gap-[5px] max-w-[260px] md:max-w-[350px] mx-auto rounded-[30px] py-[15px] bg-[#0000001A] px-[14px] cursor-pointer hover:opacity-80 transition-opacity"
+          className="flex items-center justify-center mt-10 gap-[5px] w-[90%] md:w-[350px] mx-auto rounded-[30px] py-[15px] bg-[#0000001A] px-3.5 cursor-pointer hover:opacity-80 transition-opacity"
         >
-          <img src={GoogleLogo} alt="Googlelogo" width={24} height={24} />
-          <span className="text-[#333333] text-[20px] font-semibold">
+          <img className="w-5 h-5 md:w-6 md:h-6" src={GoogleLogo} alt="Googlelogo" width={24} height={24} />
+          <span className="text-[#333333] text-[18px] md:text-[20px] font-semibold">
             Continue with google
           </span>
         </div>
 
-        <div className="flex items-center gap-[7px] my-[16px] px-[4] md:px-[32px]">
-          <div className="flex-1 h-[1px] bg-[#0000000D]"></div>
+        <div className="flex items-center gap-[7px] my-4  px-8">
+          <div className="flex-1 h-px bg-[#0000000D]"></div>
           <span className="text-[#00000066]">or</span>
-          <div className="flex-1 h-[1px] bg-[#0000000D]"></div>
+          <div className="flex-1 h-px bg-[#0000000D]"></div>
         </div>
 
-        <form onSubmit={handleSubmit} className="w-full px-[14px] md:w-[400px] md:mx-auto ">
+        <form onSubmit={handleSubmit} className="w-full px-3.5 md:w-[400px] md:mx-auto ">
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="py-[12px] pl-[24px] rounded-[30px] font-semibold text-[18px]  bg-[#0000000D] placeholder:text-[#1C1C1C] w-full outline-none border-[1px] border-transparent duration-300  hover:bg-[#4DB2700D]  hover:border-[1px] hover:border-[#28A453]"
+            className="py-3 pl-6 rounded-[30px] font-semibold text-[18px]  bg-[#0000000D] placeholder:text-[#1C1C1C] w-full outline-none border border-transparent duration-300  hover:bg-[#4DB2700D]  hover:border hover:border-[#28A453]"
             required
           />
           <Custombtn value={password} onChange={(e) => setPassword(e.target.value)} />
-          <div className="relative w-full mt-[12px] bg-[#0000000D]  rounded-[32px]">
-            <span className="text-[18px] !text-[#1C1C1C]  absolute left-[20px] top-[12px] !hover:text-[#00000080]">
+          <div className="relative w-full mt-3 bg-[#0000000D]  rounded-4xl">
+            <span className="text-[18px] text-[#1C1C1C]!  absolute left-5 top-3 !hover:text-[#00000080]">
               +998
             </span>
-            <div className="w-[1px] h-[20px] bg-[#BFBFBF] block absolute left-18 top-4"></div>
+            <div className="w-px h-5 bg-[#BFBFBF] block absolute left-18 top-4"></div>
             <input
               type="tel"
               maxLength={9}
@@ -126,7 +126,7 @@ const Register = () => {
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
               required
-              className="py-[12px] pl-[85px] w-full rounded-[30px] font-normal text-[18px]  outline-none border-[1px] border-transparent duration-300  hover:bg-[#4DB2700D] hover:placeholder:text-[#00000080] hover:border-[1px] hover:border-[#28A453]"
+              className="py-3 pl-[85px] w-full rounded-[30px] font-normal text-[18px]  outline-none border border-transparent duration-300  hover:bg-[#4DB2700D] hover:placeholder:text-[#00000080] hover:border hover:border-[#28A453]"
             />
           </div>
 
@@ -149,7 +149,7 @@ const Register = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-[15px] mt-[24px] bg-[#28A453] rounded-[32px] text-[20px] font-semibold text-white cursor-pointer hover:opacity-[70%] duration-300 active:scale-98 disabled:opacity-50"
+            className="w-full py-[15px] mt-6 bg-[#28A453] rounded-4xl text-[20px] font-semibold text-white cursor-pointer hover:opacity-70 duration-300 active:scale-98 disabled:opacity-50"
           >
             {loading ? "Registering..." : "Register"}
           </button>
@@ -163,7 +163,7 @@ const Register = () => {
           onClose={() => setShowOtpModal(false)}
         />
       )}
-    </>
+    </div>
   );
 };
 

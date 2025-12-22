@@ -2,11 +2,12 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { authService } from '../services/auth';
 import { hasTokens, clearTokens } from '../utils/storage';
-import type { User } from '../types/auth';
+import type { ProductsType, User } from '../types/auth';
 
 interface AuthContextType {
     user: User | null;
     loading: boolean;
+    saved: ProductsType[]; 
     isAuthenticated: boolean;
     login: (email: string, password: string) => Promise<void>;
     register: (email: string, password: string, firstName?: string, phoneNumber?: string) => Promise<any>;
@@ -14,6 +15,7 @@ interface AuthContextType {
     logout: () => void;
     loginWithGoogle: () => void;
     refreshUser: () => Promise<void>;
+    setSaved: React.Dispatch<React.SetStateAction<ProductsType[]>>; 
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,6 +35,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [saved,setSaved] = useState<ProductsType[]>([])
 
     // Load user on mount if tokens exist
     useEffect(() => {
@@ -138,12 +141,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         user,
         loading,
         isAuthenticated: !!user,
+        saved,
         login,
         register,
         verifyOtp,
         logout,
         loginWithGoogle,
         refreshUser,
+        setSaved
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

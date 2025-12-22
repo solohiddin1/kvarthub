@@ -15,6 +15,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/', include('apps.users.urls')),
     path('api/listings/', include('apps.listings.urls')),
+    path('api/shared/', include('apps.shared.urls')),
 
 ]
 
