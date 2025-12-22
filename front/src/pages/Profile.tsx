@@ -91,10 +91,18 @@ const Profile = () => {
           </div>
         </div>
 
+        {/* My Listings Button */}
+        <button
+          onClick={() => navigate("/my-listings")}
+          className="w-full py-[15px] mt-4 bg-[#2196F3] rounded-4xl text-[20px] font-semibold text-white cursor-pointer hover:opacity-70 duration-300 active:scale-98"
+        >
+          My Listings
+        </button>
+
         {/* Logout Button */}
         <button
           onClick={logout}
-          className="w-full py-[15px] mt-6 bg-[#28A453] rounded-4xl text-[20px] font-semibold text-white cursor-pointer hover:opacity-70 duration-300 active:scale-98"
+          className="w-full py-[15px] mt-4 bg-[#28A453] rounded-4xl text-[20px] font-semibold text-white cursor-pointer hover:opacity-70 duration-300 active:scale-98"
         >
           Logout
         </button>

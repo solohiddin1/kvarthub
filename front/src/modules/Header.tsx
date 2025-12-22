@@ -1,8 +1,11 @@
 import { useNavigate } from "react-router"
 import { FiltrIcon, LikedIcon, NoteIcon, PlusIcon, ProfileIcon, SearchIcon,} from "../assets/icons"
 import { HeaderImg } from "../assets/images"
+import { useAuth } from "../context/AuthContext"
+
 const Header = () => {
   const navigate = useNavigate()
+  const { user, isAuthenticated } = useAuth()
   return (
     <>
     <div className='containers flex items-center justify-between py-[15px] sm:py-[30px] px-5 '>
@@ -14,12 +17,19 @@ const Header = () => {
           <li className="p-3.5 rounded-[50%] text-[#5C5C5C] bg-[#0000000D] cursor-pointer ">
             <NoteIcon/>
           </li>
-          <li onClick={() => (navigate("/login"))} className="p-3.5 text-[#333333] rounded-[50%] bg-[#0000000D] cursor-pointer hidden lg:flex">
-            <ProfileIcon/>
+          <li onClick={() => isAuthenticated ? navigate("/profile") : navigate("/login")} className="p-3.5 text-[#333333] rounded-[50%] bg-[#0000000D] cursor-pointer hidden lg:flex hover:bg-gray-200" title={user?.email || "Login"}>
+            {isAuthenticated ? (
+              <div className="flex items-center gap-2 px-2">
+                <ProfileIcon/>
+                <span className="text-sm font-medium">{user?.first_name || "Profile"}</span>
+              </div>
+            ) : (
+              <ProfileIcon/>
+            )}
           </li>
-          <li className=" items-center py-3 px-4 text-[#28A453] rounded-full bg-[#D6F5E1] cursor-pointer hidden lg:flex">
+          <li onClick={() => navigate("/create-listing")} className=" items-center py-3 px-4 text-[#28A453] rounded-full bg-[#D6F5E1] cursor-pointer hidden lg:flex">
            <PlusIcon/>
-            <span className="text-[#28A453] font-medium ">E’lon joylash</span>
+            <span className="text-[#28A453] font-medium ">E'lon joylash</span>
           </li>
         </ul>
     </div>
