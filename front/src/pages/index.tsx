@@ -6,5 +6,6 @@ import AuthCallback from "./AuthCallback";
 import Saved from "./Saved";
 import CreateListing from "./CreateListing";
 import MyListings from "./MyListings";
+import ListingDetail from "./ListingDetail";
 
-export {Login,Register,Home,Profile,AuthCallback,Saved,CreateListing,MyListings}
+export {Login,Register,Home,Profile,AuthCallback,Saved,CreateListing,MyListings,ListingDetail}

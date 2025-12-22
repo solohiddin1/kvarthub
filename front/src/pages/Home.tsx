@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import type { ProductsType } from "../types/auth"
 import { LikedFilledIcon, LikedIcon } from "../assets/icons"
 import { Footer, Header } from "../modules"
@@ -15,6 +16,7 @@ interface Region {
 }
 
 const Home = () => {
+  const navigate = useNavigate()
   const [products, setProducts] = useState<ProductsType[]>([])
   const [loading, setLoading] = useState(false)
   const [productsCount, setProductsCount] = useState<number>(0)
@@ -135,9 +137,16 @@ return (
         <div className="containers  grid grid-cols-1 md:grid-cols-3 lg:flex lg:flex-wrap lg:justify-between  gap-3 py-5 px-5">
           {
               products.map((item:ProductsType) => (
-                <div  key={item.id} className=" bg-red-500 lg:w-[300px] rounded-[20px] relative">
+                <div 
+                  key={item.id} 
+                  onClick={() => navigate(`/listing/${item.id}`)}
+                  className=" bg-red-500 lg:w-[300px] rounded-[20px] relative cursor-pointer hover:shadow-lg transition-shadow"
+                >
                   {/* liked button start */}
-                  <div onClick={() => SavedCard(item.id)} className= "w-10 md:w-12 h-10 md:h-12 flex justify-center items-center rounded-xl bg-[#FFFFFF4D] absolute top-2 right-2 cursor-pointer">
+                  <div onClick={(e) => {
+                    e.stopPropagation()
+                    SavedCard(item.id)
+                  }} className= "w-10 md:w-12 h-10 md:h-12 flex justify-center items-center rounded-xl bg-[#FFFFFF4D] absolute top-2 right-2 cursor-pointer">
                     {
                     likedBtnId.includes(item.id) ? (
                      <LikedFilledIcon/>
