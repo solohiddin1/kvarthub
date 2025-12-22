@@ -57,7 +57,7 @@ return (
     <div>
         <Header/>
         <ul className=" containers pt-5 pb-6 lg:pb-[63px] flex justify-between    gap-2 overflow-x-auto scrollbar-hidden scroll-smooth">
-          <li className="py-[13px] px-6 rounded-[30px] bg-[#0000000D]">Yunusobod</li>
+          <li className="py-[13px] px-6 rounded-[30px] bg-[#0000000D] border border-transparent duration-300 hover:border-[#28A453] cursor-pointer">Yunusobod</li>
           <li className="py-[13px] px-6 rounded-[30px] bg-[#0000000D]">Yunusobod</li>
           <li className="py-[13px] px-6 rounded-[30px] bg-[#0000000D]">Yunusobod</li>
           <li className="py-[13px] px-6 rounded-[30px] bg-[#0000000D]">Yunusobod</li>

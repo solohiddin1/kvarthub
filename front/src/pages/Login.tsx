@@ -7,6 +7,9 @@ import { Custombtn } from "../components";
 const Login = () => {
   const navigate = useNavigate();
   const { login, loginWithGoogle } = useAuth();
+  
+  console.log(loginWithGoogle);
+  
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -86,7 +89,7 @@ const Login = () => {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="py-3 pl-6 rounded-[30px] font-semibold text-[18px]  bg-[#0000000D] placeholder:text-[#1C1C1C] w-full outline-none px-10 border border-transparent duration-300  hover:bg-[#4DB2700D]  hover:border hover:border-[#28A453]"
+            className="py-3 pl-6 rounded-[30px] font-semibold text-[18px]  bg-[#0000000D] placeholder:text-[#1C1C1C] w-full outline-none px-10 border border-transparent duration-300!  hover:bg-[#4DB2700D]  hover:placeholder:text-[#5C5C5C] hover:border hover:border-[#28A453]"
             required
           />
           <Custombtn value={password} onChange={(e) => setPassword(e.target.value)} />

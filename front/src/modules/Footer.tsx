@@ -6,7 +6,6 @@ import {
   LinkedinIcon,
   PlusIcon,
   ProfileIcon,
-  SearchIcon,
   XlogoIcon,
 } from "../assets/icons";
 import { DiscordIcon, HeaderImg, YoutubeIcon } from "../assets/images";
@@ -91,18 +90,6 @@ const Footer = () => {
         >
           <HomeIcon className="w-6 h-6" />
         </NavLink>
-
-        <NavLink
-          to="/search"
-          className={({ isActive }) =>
-            `flex items-center justify-center w-12 h-12 rounded-full ${
-              isActive ? "bg-[#28A453] text-white" : "bg-white text-black"
-            }`
-          }
-        >
-          <SearchIcon className="w-6 h-6" />
-        </NavLink>
-
         <NavLink
           to="/login"
           className={({ isActive }) =>
@@ -113,7 +100,6 @@ const Footer = () => {
         >
           <PlusIcon className="w-6 h-6" />
         </NavLink>
-
         <NavLink
           to="/saved"
           className={({ isActive }) =>
@@ -124,7 +110,6 @@ const Footer = () => {
         >
           <LikedIcon className="w-6 h-6" />
         </NavLink>
-
         <NavLink
           to="/profile"
           className={({ isActive }) =>

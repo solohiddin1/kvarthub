@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { LikedFilledIcon, LikedIcon } from "../assets/icons";
 import type { ProductsType } from "../types/auth";
+import { useNavigate } from "react-router";
 
 const Saved = () => {
+   const navigate = useNavigate()
+
   const [savedCard,setSavedCard] = useState(() =>{
     const saved = localStorage.getItem("savedCard");
     return saved ? JSON.parse(saved) : [];
@@ -84,7 +87,7 @@ useEffect(() =>{
               Mahsulotlarni saqlash uchun ♡ belgisini bosing. Saqlangan
               mahsulotlar shu yerda ko'rinadi.
             </p>
-            <button className="px-8 py-3 bg-linear-to-r from-blue-500 to-blue-600 text-white font-medium rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md hover:shadow-lg">
+            <button onClick={() => navigate(-1)}  className="px-8 py-3 bg-linear-to-r from-blue-500 to-blue-600 text-white font-medium rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md hover:shadow-lg cursor-pointer">
               Mahsulotlarni ko'rish
             </button>
           </div>

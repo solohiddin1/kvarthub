@@ -4,8 +4,6 @@ import {  useEffect } from "react";
 
 const Profile = () => {
   const { user, isAuthenticated, loading, logout } = useAuth();
-  console.log(user);
-  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,7 +24,8 @@ const Profile = () => {
     return ;
   }
 
-  return (
+  return user ? (
+
     <div className="w-full max-w-[600px] mx-auto">
       {/* Profile Card */}
       <div className="bg-[#F2F2F2] rounded-3xl p-8 mb-6">
@@ -110,7 +109,9 @@ const Profile = () => {
         </p>
       </div>
     </div>
-  );
+  ):(
+    ""
+  )
 };
 
 export default Profile;

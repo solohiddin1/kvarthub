@@ -63,7 +63,7 @@ export const authService = {
     // Logout user
     logout(): void {
         clearTokens();
-        window.location.href = '/login';
+        window.location.href = '/';
     },
 
     // Redirect to Google OAuth
