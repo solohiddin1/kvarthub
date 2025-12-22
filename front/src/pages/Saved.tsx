@@ -110,14 +110,14 @@ useEffect(() =>{
                 
               </div>
               {/* liked button end */}
-              <img src={item.images[0]} alt="logo" width={357} height={320} />
+              <img src={item.images && item.images.length > 0 ? item.images[0].image : '/placeholder.jpg'} alt={item.title} width={357} height={320} />
               <div className="pt-4  p-5  pb-7">
                 <h2 className="line-clamp-2 font-medium text-[#000000] text-[18px]">
-                  {item.description}
+                  {item.title}
                 </h2>
                 <div className="flex items-center justify-between mt-3">
-                  <p className="text-[#757575]">{item.price}</p>
-                  <p className="text-[14px] text-[#A6A6A6]">{item.rating}</p>
+                  <p className="text-[#757575]">${item.price}</p>
+                  <p className="text-[14px] text-[#A6A6A6]">{item.rooms} rooms</p>
                 </div>
               </div>
             </div>
