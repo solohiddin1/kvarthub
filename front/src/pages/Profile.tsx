@@ -35,18 +35,7 @@ const Profile = () => {
           Welcome Back!
         </h1>
 
-        {/* User Info */}
-        <div className="space-y-4">
-          {/* Profile Picture */}
-          {user.google_picture_url && (
-            <div className="flex justify-center mb-6">
-              <img
-                src={user.google_picture_url}
-                alt="Profile"
-                className="w-24 h-24 rounded-full border-4 border-[#28A453]"
-              />
-            </div>
-          )}
+        
 
           {/* Name */}
           {(user.first_name || user.last_name) && (

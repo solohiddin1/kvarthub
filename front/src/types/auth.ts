@@ -7,7 +7,6 @@ export interface User {
     last_name: string;
     phone_number?: string;
     is_verified: boolean;
-    google_picture_url?: string;
 }
 
 export interface AuthTokens {
