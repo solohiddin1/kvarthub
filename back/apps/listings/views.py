@@ -1,5 +1,5 @@
 from apps.users.models import User
-from apps.shared.utils import SuccessResponse, ErrorResponse
+from apps.shared.utils import SuccessResponse, ErrorResponse, detect_nsfw, get_logger
 from apps.shared.enum import ResultCodes
 
 from apps.listings.models import Listing, ListingImage
@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from drf_spectacular.utils import extend_schema
 
-
+logger = get_logger()
 # Create your views here.
 
 class ListingCreateView(CreateAPIView):
@@ -31,6 +31,21 @@ class ListingCreateView(CreateAPIView):
         
         data = request.data.copy()
         data['host'] = user.id
+        
+        # Check for NSFW content in uploaded images
+        images_upload = request.FILES.getlist('images_upload')
+        if images_upload:
+            logger.info(f"Checking {len(images_upload)} images for NSFW content.")
+            for image in images_upload:
+                is_nsfw, confidence = detect_nsfw(image)
+                if is_nsfw:
+                    return ErrorResponse(
+                        result=ResultCodes.VALIDATION_ERROR,
+                        message={
+                            "en": f"Image contains inappropriate content (confidence: {confidence:.2%}). Please upload appropriate property images.",
+                            "uz": f"Rasm nomaqbul kontent o'z ichiga oladi (ishonch: {confidence:.2%}). Iltimos, tegishli uy rasmlarini yuklang."
+                        }
+                    )
         
         # Serializer handles image creation automatically
         serializer = self.get_serializer(data=data)

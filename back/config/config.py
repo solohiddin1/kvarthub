@@ -44,6 +44,11 @@ class Settings(BaseSettings):
     # some
     TIME_ZONE: str
     LANGUAGE_CODE: str
+    
+    WORKFLOW_ID: str
+    WORKFLOW_USER: str
+    WORKFLOW_SECRET: str
+
 
     class Config:
         env_file = ".env"
