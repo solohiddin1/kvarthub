@@ -43,6 +43,7 @@ class ListingCreateView(CreateAPIView):
                         result=ResultCodes.VALIDATION_ERROR,
                         message={
                             "en": f"Image contains inappropriate content (confidence: {confidence:.2%}). Please upload appropriate property images.",
+                            "ru": f"Изображение содержит неприемлемый контент (уверенность: {confidence:.2%}). Пожалуйста, загрузите соответствующие изображения недвижимости.",
                             "uz": f"Rasm nomaqbul kontent o'z ichiga oladi (ishonch: {confidence:.2%}). Iltimos, tegishli uy rasmlarini yuklang."
                         }
                     )
