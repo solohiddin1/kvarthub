@@ -1,5 +1,5 @@
 from apps.users.models import User
-from apps.shared.utils import SuccessResponse, ErrorResponse
+from apps.shared.utils import SuccessResponse, ErrorResponse, detect_nsfw, get_logger
 from apps.shared.enum import ResultCodes
 
 from apps.listings.models import Listing, ListingImage
@@ -11,7 +11,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from drf_spectacular.utils import extend_schema
 from django_filters.rest_framework import DjangoFilterBackend
 
-
+logger = get_logger()
 # Create your views here.
 
 class ListingCreateView(CreateAPIView):
@@ -32,6 +32,22 @@ class ListingCreateView(CreateAPIView):
         
         data = request.data.copy()
         data['host'] = user.id
+        
+        # Check for NSFW content in uploaded images
+        images_upload = request.FILES.getlist('images_upload')
+        if images_upload:
+            logger.info(f"Checking {len(images_upload)} images for NSFW content.")
+            for image in images_upload:
+                is_nsfw, confidence = detect_nsfw(image)
+                if is_nsfw:
+                    return ErrorResponse(
+                        result=ResultCodes.VALIDATION_ERROR,
+                        message={
+                            "en": f"Image contains inappropriate content (confidence: {confidence:.2%}). Please upload appropriate property images.",
+                            "ru": f"Изображение содержит неприемлемый контент (уверенность: {confidence:.2%}). Пожалуйста, загрузите соответствующие изображения недвижимости.",
+                            "uz": f"Rasm nomaqbul kontent o'z ichiga oladi (ishonch: {confidence:.2%}). Iltimos, tegishli uy rasmlarini yuklang."
+                        }
+                    )
         
         # Serializer handles image creation automatically
         serializer = self.get_serializer(data=data)
@@ -109,3 +125,18 @@ class ListingDestroyView(DestroyAPIView):
             return ErrorResponse(result=ResultCodes.YOU_DO_NOT_HAVE_PERMISSION)
         self.perform_destroy(instance)
         return SuccessResponse(result="Listing deleted successfully.")
+
+
+class MyListingsListView(ListAPIView):
+    """List all listings of the authenticated user"""
+    serializer_class = BaseListingSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Listing.objects.filter(host=user)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return SuccessResponse(serializer.data)

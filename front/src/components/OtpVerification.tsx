@@ -48,7 +48,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-[#F2F2F2] rounded-[24px] p-8 max-w-md w-full mx-4">
+            <div className="bg-[#F2F2F2] rounded-3xl p-8 max-w-md w-full mx-4">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-semibold">Verify OTP</h2>
                     <button
@@ -69,7 +69,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
                         value={code}
                         onChange={(e) => setCode(e.target.value)}
                         placeholder="Enter OTP code"
-                        className="py-[12px] pl-[24px] rounded-[30px] font-semibold text-[18px] bg-[#0000000D] placeholder:text-[#1C1C1C] w-full outline-none border-[1px] border-transparent duration-300 hover:bg-[#4DB2700D] hover:border-[1px] hover:border-[#28A453]"
+                        className="py-4 pl-6 rounded-[30px] font-semibold text-[18px] bg-[#0000000D] placeholder:text-[#1C1C1C] w-full outline-none border border-transparent duration-300 hover:bg-[#4DB2700D] hover:border hover:border-[#28A453]"
                         required
                         maxLength={6}
                     />
@@ -81,7 +81,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-[15px] mt-[24px] bg-[#28A453] rounded-[32px] text-[20px] font-semibold text-white cursor-pointer hover:opacity-[70%] duration-300 active:scale-98 disabled:opacity-50"
+                        className="w-full py-[15px] mt-6 bg-[#28A453] rounded-4xl text-[20px] font-semibold text-white cursor-pointer hover:opacity-70 duration-300 active:scale-98 disabled:opacity-50"
                     >
                         {loading ? 'Verifying...' : 'Verify'}
                     </button>

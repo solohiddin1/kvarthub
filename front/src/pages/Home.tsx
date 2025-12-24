@@ -1,113 +1,177 @@
-import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import type { ProductsType } from "../types/auth"
+import { LikedFilledIcon, LikedIcon } from "../assets/icons"
+import { Footer, Header } from "../modules"
+import { Skleton } from "../components"
+import { API_BASE_URL, API_ENDPOINTS } from "../config/api"
+import apiClient from "../services/api"
+
+interface Region {
+  id: number
+  name_uz: string
+  name_ru: string
+  name_en: string
+  soato_id: number
+}
 
 const Home = () => {
-  const { user, isAuthenticated, loading, logout } = useAuth();
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+  const [products, setProducts] = useState<ProductsType[]>([])
+  const [loading, setLoading] = useState(false)
+  const [productsCount, setProductsCount] = useState<number>(0)
+  const [regions, setRegions] = useState<Region[]>([])
+  const [regionsLoading, setRegionsLoading] = useState(false)
+  const [savedCard, setSavedCard] = useState(() => {
+    const saved = localStorage.getItem("savedCard")
+    return saved ? JSON.parse(saved) : []
+  })
+  const [likedBtnId, setLikedBtnId] = useState<number[]>(() => {
+    const data = localStorage.getItem("likedBtnId")
+    return data ? JSON.parse(data) : []
+  })
+
+  // Fetch listings from backend
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        setLoading(true)
+        const response = await apiClient.get('/api/listings/listings/')
+        
+        console.log('API Response:', response.data) // Debug log
+        
+        if (response.data?.result && Array.isArray(response.data.result)) {
+          setProducts(response.data.result)
+          setProductsCount(response.data.result.length)
+        } else if (Array.isArray(response.data)) {
+          setProducts(response.data)
+          setProductsCount(response.data.length)
+        } else {
+          console.warn('Unexpected response format:', response.data)
+          setProducts([])
+          setProductsCount(0)
+        }
+      } catch (error) {
+        console.error('Failed to fetch listings:', error)
+        setProducts([])
+        setProductsCount(0)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchListings()
+  }, [])
+
+  // Fetch regions from backend
+  useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        setRegionsLoading(true)
+        const response = await apiClient.get('/api/shared/regions/')
+        
+        if (response.data?.result && Array.isArray(response.data.result)) {
+          setRegions(response.data.result)
+        } else {
+          console.warn('Unexpected regions response format:', response.data)
+          setRegions([])
+        }
+      } catch (error) {
+        console.error('Failed to fetch regions:', error)
+        setRegions([])
+      } finally {
+        setRegionsLoading(false)
+      }
+    }
+
+    fetchRegions()
+  }, [])
+
+  // saved card start 
+  function SavedCard(id: number) {
+    if (likedBtnId.includes(id)) {
+      setLikedBtnId(likedBtnId.filter(item => item !== id))
+      setSavedCard(savedCard.filter((item: ProductsType) => item.id !== id))
+    } else {
+      const card = products.find((item: ProductsType) => item.id === id)
+      if (!card) return null
+      setSavedCard([...savedCard, card])
+      setLikedBtnId([...likedBtnId, id])
+    }
+  }
+
+  // click like
+  useEffect(() => {
+    localStorage.setItem("likedBtnId", JSON.stringify(likedBtnId))
+  }, [likedBtnId])
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      navigate("/login");
-    }
-  }, [loading, isAuthenticated, navigate]);
+    localStorage.setItem("savedCard", JSON.stringify(savedCard))
+  }, [savedCard])
+  // saved card end
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#28A453]"></div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
-
-  return (
-    <div className="w-full max-w-[600px] mx-auto">
-      {/* Profile Card */}
-      <div className="bg-[#F2F2F2] rounded-[24px] p-8 mb-6">
-        <h1 className="text-[32px] font-semibold text-[#0F0F0F] mb-6">
-          Welcome Back!
-        </h1>
-
-        {/* User Info */}
-        <div className="space-y-4">
-          {/* Profile Picture */}
-          {user.google_picture_url && (
-            <div className="flex justify-center mb-6">
-              <img
-                src={user.google_picture_url}
-                alt="Profile"
-                className="w-24 h-24 rounded-full border-4 border-[#28A453]"
-              />
-            </div>
+return (
+    <div>
+        <Header/>
+        <ul className=" containers pt-5 pb-6 lg:pb-[63px] flex justify-between    gap-2 overflow-x-auto scrollbar-hidden scroll-smooth">
+          {regionsLoading ? (
+            <li className="py-[13px] px-6 rounded-[30px] bg-[#0000000D] text-gray-500">Loading...</li>
+          ) : regions.length > 0 ? (
+            regions.map((region) => (
+              <li key={region.id} className="py-[13px] px-6 rounded-[30px] bg-[#0000000D] cursor-pointer hover:bg-gray-300 transition">
+                {region.name_uz}
+              </li>
+            ))
+          ) : (
+            <li className="py-[13px] px-6 rounded-[30px] bg-[#0000000D] text-gray-500">No regions available</li>
           )}
-
-          {/* Name */}
-          {(user.first_name || user.last_name) && (
-            <div className="bg-white rounded-[20px] p-4">
-              <p className="text-[14px] text-[#5C5C5C] mb-1">Name</p>
-              <p className="text-[18px] font-semibold text-[#0F0F0F]">
-                {user.first_name} {user.last_name}
-              </p>
-            </div>
-          )}
-
-          {/* Email */}
-          <div className="bg-white rounded-[20px] p-4">
-            <p className="text-[14px] text-[#5C5C5C] mb-1">Email</p>
-            <p className="text-[18px] font-semibold text-[#0F0F0F]">
-              {user.email}
-            </p>
+          
+        </ul>
+        <Skleton loading={loading} productsCount={productsCount}/>
+        {!loading && products.length === 0 && (
+          <div className="containers py-10 text-center">
+            <p className="text-gray-500 text-lg">No listings available yet</p>
           </div>
-
-          {/* Phone Number */}
-          {user.phone_number && (
-            <div className="bg-white rounded-[20px] p-4">
-              <p className="text-[14px] text-[#5C5C5C] mb-1">Phone Number</p>
-              <p className="text-[18px] font-semibold text-[#0F0F0F]">
-                +{user.phone_number}
-              </p>
-            </div>
-          )}
-
-          {/* Account Status */}
-          <div className="bg-white rounded-[20px] p-4">
-            <p className="text-[14px] text-[#5C5C5C] mb-1">Account Status</p>
-            <div className="flex items-center gap-2">
-              <div
-                className={`w-3 h-3 rounded-full ${user.is_verified ? "bg-[#28A453]" : "bg-orange-500"
-                  }`}
-              ></div>
-              <p className="text-[18px] font-semibold text-[#0F0F0F]">
-                {user.is_verified ? "Verified" : "Not Verified"}
-              </p>
-            </div>
-          </div>
+        )}
+        {!loading && products.length > 0 && (
+        <div className="containers  grid grid-cols-1 md:grid-cols-3 lg:flex lg:flex-wrap lg:justify-between  gap-3 py-5 px-5">
+          {
+              products.map((item:ProductsType) => (
+                <div 
+                  key={item.id} 
+                  onClick={() => navigate(`/listing/${item.id}`)}
+                  className=" bg-red-500 lg:w-[300px] rounded-[20px] relative cursor-pointer hover:shadow-lg transition-shadow"
+                >
+                  {/* liked button start */}
+                  <div onClick={(e) => {
+                    e.stopPropagation()
+                    SavedCard(item.id)
+                  }} className= "w-10 md:w-12 h-10 md:h-12 flex justify-center items-center rounded-xl bg-[#FFFFFF4D] absolute top-2 right-2 cursor-pointer">
+                    {
+                    likedBtnId.includes(item.id) ? (
+                     <LikedFilledIcon/>
+                    ):(
+                      <LikedIcon/>
+                    )
+                  }
+                  </div>
+                  {/* liked button end */}
+                  <img src={item.images && item.images.length > 0 ? item.images[0].image : '/placeholder.jpg'} alt={item.title} width={357} height={320} />
+                  <div className="pt-4  p-5  pb-7">
+                    <h2 className="line-clamp-2 font-medium text-[#000000] text-[18px]">{item.title}</h2>
+                    <div className="flex items-center justify-between mt-3">
+                      <p className="text-[#757575]">${item.price}</p>
+                      <p className="text-[14px] text-[#A6A6A6]">{item.rooms} rooms</p>
+                    </div>
+                  </div>
+                </div>
+              ) )
+            }
         </div>
-
-        {/* Logout Button */}
-        <button
-          onClick={logout}
-          className="w-full py-[15px] mt-6 bg-[#28A453] rounded-[32px] text-[20px] font-semibold text-white cursor-pointer hover:opacity-[70%] duration-300 active:scale-98"
-        >
-          Logout
-        </button>
-      </div>
-
-      {/* Additional Info Card */}
-      <div className="bg-[#E8F5E9] rounded-[24px] p-6 text-center">
-        <p className="text-[16px] text-[#0F0F0F]">
-          You are successfully logged in! 🎉
-        </p>
-        <p className="text-[14px] text-[#5C5C5C] mt-2">
-          Your account is ready to use.
-        </p>
-      </div>
+        )}
+        <Footer/>
     </div>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home
