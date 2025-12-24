@@ -16,7 +16,7 @@ def send_email_from_server_from_brevo(to_email, content):
 
     email = sib_api_v3_sdk.SendSmtpEmail(
         to=[{"email": to_email}],
-        sender={"email": settings.BREVO_EMAIL_API_EMAIL, "name": "Your App"},
+        sender={"email": settings.BREVO_EMAIL_API_EMAIL, "name": "Kvarthub"},
         subject="Otp",
         html_content=content,
     )

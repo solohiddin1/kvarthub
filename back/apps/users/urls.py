@@ -1,7 +1,7 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (LoginUser, UserProfileView, UserUpdate, 
-                    UserUpdateProfileImage, UserUpdateProfileImage, 
+                    # UserUpdateProfileImage, UserUpdateProfileImage, 
                     VerifyOtp, RegisterUser,
                     ApplyNewPassword, OtpForgotPassword, VerifyForgotPassword)
 from apps.users.services.google import GoogleLoginRedirect, GoogleCallback
@@ -19,7 +19,7 @@ urlpatterns = [
     path('auth/login/', LoginUser.as_view(), name='login'),
 
     path('get-profile/', UserProfileView.as_view(), name='get_profile'),
-    path('profile-image-update/', UserUpdateProfileImage.as_view(), name='profile_image_update'),
+    # path('profile-image-update/', UserUpdateProfileImage.as_view(), name='profile_image_update'),
     path('profile-update/', UserUpdate.as_view(), name='profile_update'),
 
     # password

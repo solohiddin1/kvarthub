@@ -6,13 +6,13 @@ from django.utils.html import format_html
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ['id', 'email', 'phone_number', 'is_staff', 'is_active', 'is_superuser', 'is_verified', 'show_avatar']
+    list_display = ['id', 'email', 'phone_number', 'is_staff', 'is_active', 'is_superuser', 'is_verified' ]
     search_fields = ['email', 'phone_number']
 
-    def show_avatar(self, obj):
-        if obj.image:
-            return format_html('<img src="{}" width="40" style="border-radius: 50%;" />', obj.image.url)
-        return "-"
+    # def show_avatar(self, obj):
+    #     if obj.image:
+    #         return format_html('<img src="{}" width="40" style="border-radius: 50%;" />', obj.image.url)
+    #     return "-"
 
 
 

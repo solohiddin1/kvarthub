@@ -54,7 +54,7 @@ class AuthenticationSerializer(serializers.Serializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    # first_name = serializers.CharField(required=False, max_length=150, min_length=1)
+    # full_name = serializers.CharField(required=False, max_length=150, min_length=1)
     email = serializers.CharField(required=True, max_length=150, min_length=5)
     password = serializers.CharField(required=True, max_length=150, min_length=5)
     phone_number = serializers.CharField(required=False, max_length=12, min_length=12, help_text="Phone number must be in the format: '998901234567'.")
@@ -64,7 +64,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = (
             "email",
             "password",
-            "first_name",
+            "full_name",
             "phone_number",
         )
         extra_kwargs = {'password': {'write_only': True}}
@@ -115,12 +115,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "email",
-            "first_name",
-            "last_name",
+            "full_name",
             "phone_number",
-            "image",
-            "region",
-            "district",
             "is_active",
             "is_verified",
         )
@@ -134,20 +130,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return instance
 
 
-class UserProfileImageUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["image"]
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-        'first_name', 
-        'last_name', 
+        'full_name', 
         'phone_number', 
-        'image',
         ]
 
 

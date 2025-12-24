@@ -105,7 +105,7 @@ def get_user_by_username(email):
         raise e
 
 def create_user(email, phone_number,
-                otp, otp_created_at, region, district,
+                otp, otp_created_at,
                 password, is_active=True):
     try:
         # Ensure `username` (which is unique on the AbstractUser) is set
@@ -119,8 +119,6 @@ def create_user(email, phone_number,
             phone_number=phone_number,
             otp=otp,
             otp_created_at=otp_created_at,
-            region=region,
-            district=district,
             is_active=is_active
         )
         user.set_password(password)
@@ -131,40 +129,37 @@ def create_user(email, phone_number,
     except IntegrityError as e:
         if "phone_number" in str(e):
             logger.exception(e)
-            logger.exception(f"User tried to register with email: {email}, first_name:  and password: {password}, but failed with integrity error in phone number")
+            logger.exception(f"User tried to register with email: {email}, full_name:  and password: {password}, but failed with integrity error in phone number")
             return ErrorResponse(enum.ResultCodes.USER_WITH_THIS_PHONE_NUMBER_ALREADY_EXISTS)
         if "email" in str(e):
             logger.exception(e)
-            logger.exception(f"User tried to register with email: {email}, first_name:  and password: {password}, but failed with integrity error in email")
+            logger.exception(f"User tried to register with email: {email}, full_name:  and password: {password}, but failed with integrity error in email")
             return ErrorResponse(enum.ResultCodes.USER_ALREADY_REGISTERED)
         
         # fallback if those errors cant catch
         raise e
     except Exception as e:
         logger.exception(e)
-        logger.exception(f"User tried to register with email: {email}, first_name:  and password: {password}, but failed with exception error")
+        logger.exception(f"User tried to register with email: {email}, full_name:  and password: {password}, but failed with exception error")
         raise e
 
 
 
-def update_user(email, first_name, last_name, phone_number,
-                otp, otp_created_at, region, district,
+def update_user(email, full_name, phone_number,
+                otp, otp_created_at,
                 password, is_active=True):
     try:
         # Ensure `username` (which is unique on the AbstractUser) is set
         # When USERNAME_FIELD is changed to `email` but the `username` column still
         # exists and is unique, creating a user without a username will cause
         # a UNIQUE constraint error (multiple users with empty username '').
-        logger.info(f"User is updating with email: {email}, first_name: {first_name}, and password: {password}") 
+        logger.info(f"User is updating with email: {email}, full_name: {full_name}, and password: {password}") 
         user = User.objects.get(email = email)
         user.email=email
-        user.first_name=first_name
-        user.last_name=last_name
+        user.full_name=full_name
         user.phone_number=phone_number
         user.otp=otp
         user.otp_created_at=otp_created_at
-        user.region=region
-        user.district=district
         
         user.set_password(password)
         user.save()
@@ -174,18 +169,18 @@ def update_user(email, first_name, last_name, phone_number,
     except IntegrityError as e:
         if "phone_number" in str(e):
             logger.exception(e)
-            logger.exception(f"User tried to register with email: {email}, first_name: {first_name}, and password: {password}, but failed with integrity error in phone number")
+            logger.exception(f"User tried to register with email: {email}, full_name: {full_name}, and password: {password}, but failed with integrity error in phone number")
             return ErrorResponse(enum.ResultCodes.USER_WITH_THIS_PHONE_NUMBER_ALREADY_EXISTS)
         if "email" in str(e):
             logger.exception(e)
-            logger.exception(f"User tried to register with email: {email}, first_name: {first_name}, and password: {password}, but failed with integrity error in email")
+            logger.exception(f"User tried to register with email: {email}, full_name: {full_name}, and password: {password}, but failed with integrity error in email")
             return ErrorResponse(enum.ResultCodes.USER_ALREADY_REGISTERED)
         
         # fallback if those errors cant catch
         raise e
     except Exception as e:
         logger.exception(e)
-        logger.exception(f"User tried to register with email: {email}, first_name: {first_name}, and password: {password}, but failed with exception error")
+        logger.exception(f"User tried to register with email: {email}, full_name: {full_name}, and password: {password}, but failed with exception error")
         raise e
 
 def update_user_set_verified(user_id, is_verified=True, is_active=True):
@@ -307,13 +302,12 @@ def get_user_by_userid(id):
         raise e
 
 
-def create_user_simple(username, first_name, last_name, phone=None, email=None):
+def create_user_simple(username, full_name, phone=None, email=None):
     """Create a simple user without password (for OAuth/Click integration)"""
     try:
         user = User.objects.create(
             username=username,
-            first_name=first_name,
-            last_name=last_name,
+            full_name=full_name,
             phone=phone,
             email=email
         )
