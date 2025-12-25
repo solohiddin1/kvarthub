@@ -1,8 +1,12 @@
 
-import { FiltrIcon, SearchIcon,} from "../assets/icons"
-import HeaderPart from "../components/HeaderPart"
+import { useNavigate } from "react-router-dom"
+import { FiltrIcon, LikedIcon, NoteIcon, PlusIcon, ProfileIcon, SearchIcon } from "../assets/icons"
+import { HeaderImg } from "../assets/images"
+import { useAuth } from "../context/AuthContext"
 
 const Header = () => {
+  const navigate = useNavigate()
+  const { user, isAuthenticated } = useAuth()
 
   return (
     <>
@@ -19,7 +23,7 @@ const Header = () => {
             {isAuthenticated ? (
               <div className="flex items-center gap-2 px-2">
                 <ProfileIcon/>
-                <span className="text-sm font-medium">{user?.full_name || "Profile"}</span>
+                {/* <span className="text-sm font-medium">{"Profile"}</span> */}
               </div>
             ) : (
               <ProfileIcon/>
