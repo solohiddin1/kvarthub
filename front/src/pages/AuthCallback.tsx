@@ -7,6 +7,8 @@ const AuthCallback = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const { refreshUser } = useAuth();
+    console.log(refreshUser);
+    
 
     useEffect(() => {
         const access = searchParams.get('access');
@@ -19,7 +21,7 @@ const AuthCallback = () => {
             // Refresh user data
             refreshUser().then(() => {
                 // Redirect to home
-                navigate('/');
+                navigate('/profile');
             });
         } else {
             // No tokens found, redirect to login

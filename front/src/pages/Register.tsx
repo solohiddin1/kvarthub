@@ -106,13 +106,14 @@ const Register = () => {
 
         <form onSubmit={handleSubmit} className="w-full px-3.5 md:w-[400px] md:mx-auto ">
           <input
-            type="email"
-            placeholder="Email"
+            type="text"
+            placeholder="Name"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="py-3 pl-6 rounded-[30px] font-semibold text-[18px]  bg-[#0000000D] placeholder:text-[#1C1C1C] w-full outline-none border border-transparent duration-300  hover:bg-[#4DB2700D]  hover:border hover:border-[#28A453]"
+            className="py-3 pl-6 rounded-[30px] font-semibold text-[18px]  bg-[#0000000D] placeholder:text-[#1C1C1C] w-full outline-none border border-transparent duration-300  hover:bg-[#4DB2700D]  hover:placeholder:text-[#5C5C5C] hover:border hover:border-[#28A453]"
             required
           />
+
           <Custombtn value={password} onChange={(e) => setPassword(e.target.value)} />
           <div className="relative w-full mt-3 bg-[#0000000D]  rounded-4xl">
             <span className="text-[18px] text-[#1C1C1C]!  absolute left-5 top-3 !hover:text-[#00000080]">

@@ -52,6 +52,14 @@ body{
   display: none;
 }
 .scrollbar-hidden {
-  -ms-overflow-style: none;  /* IE va Edge */
-  scrollbar-width: none;     /* Firefox */
+  -ms-overflow-style: none;  
+  scrollbar-width: none;   
+}
+
+.custom-password-input .ant-input::placeholder {
+  transition: all 0.3s;
+}
+
+.custom-password-input .ant-input:hover::placeholder {
+  color: #5C5C5C !important;
 }

@@ -82,11 +82,16 @@ export interface ApiError {
     };
 }
 
+interface ImageType {
+  image: string
+}
+
 export interface ProductsType {
-    id: number,
-    title:string,
-    description:string,
-    price:string,
-    rating:string,
-    images:string[]
+  id: number
+  title: string
+  description: string
+  price: string
+  rating: string
+  images: ImageType[]
+  rooms: number
 }

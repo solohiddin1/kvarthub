@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, } from "react-router-dom";
 import {
   HomeIcon,
   InstagramIcon,
@@ -6,12 +6,16 @@ import {
   LinkedinIcon,
   PlusIcon,
   ProfileIcon,
-  SearchIcon,
   XlogoIcon,
 } from "../assets/icons";
 import { DiscordIcon, HeaderImg, YoutubeIcon } from "../assets/images";
+import { useAuth } from "../context/AuthContext";
+
 
 const Footer = () => {
+  const {  isAuthenticated } = useAuth()
+  console.log(isAuthenticated);
+  
   const district = [
     { id: 1, title: "Yunusobod" },
     { id: 2, title: "Mirobod" },
@@ -91,20 +95,8 @@ const Footer = () => {
         >
           <HomeIcon className="w-6 h-6" />
         </NavLink>
-
-        <NavLink
-          to="/search"
-          className={({ isActive }) =>
-            `flex items-center justify-center w-12 h-12 rounded-full ${
-              isActive ? "bg-[#28A453] text-white" : "bg-white text-black"
-            }`
-          }
-        >
-          <SearchIcon className="w-6 h-6" />
-        </NavLink>
-
-        <NavLink
-          to="/login"
+        <NavLink to={isAuthenticated ? "/create-listing":"/login"}
+          
           className={({ isActive }) =>
             `flex items-center justify-center w-12 h-12 rounded-full ${
               isActive ? "bg-[#28A453] text-white" : "bg-white text-black"
@@ -113,7 +105,6 @@ const Footer = () => {
         >
           <PlusIcon className="w-6 h-6" />
         </NavLink>
-
         <NavLink
           to="/saved"
           className={({ isActive }) =>
@@ -124,7 +115,6 @@ const Footer = () => {
         >
           <LikedIcon className="w-6 h-6" />
         </NavLink>
-
         <NavLink
           to="/profile"
           className={({ isActive }) =>

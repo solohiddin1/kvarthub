@@ -1,6 +1,6 @@
 
 import { Routes, Route } from "react-router-dom"
-import { AuthCallback, Home, Login, Profile, Register, Saved, CreateListing, MyListings, ListingDetail } from "../pages"
+import { AuthCallback, Home, Login, Profile, Register, Saved, CreateListing, MyListings, ListingDetail, Notification } from "../pages"
 
 const AppRoutes = () => {
   return (
@@ -17,6 +17,7 @@ const AppRoutes = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/saved" element={<Saved/>}/>
+            <Route path="/notification" element={<Notification/>}/>
           </Routes>
         </div>
       </div>

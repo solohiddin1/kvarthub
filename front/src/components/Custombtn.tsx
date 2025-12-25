@@ -15,7 +15,8 @@ const Custombtn: React.FC<CustombtnProps> = ({ value, onChange }) => {
         required
         value={value}
         onChange={onChange}
-        placeholder="Password" className=" ant-input  py-3! pl-6! w-full! rounded-[30px]! font-normal! text-[18px]! !placeholder:text-[#1C1C1C] bg-[#0000000D]! outline-none! border border-transparent! duration-300!  hover:bg-[#4DB2700D]! hover:!placeholder:text-[#00000080] hover:border! hover:border-[#28A453]!  !box-shadow:none "
+        placeholder="Password" 
+        className="ant-input custom-password-input duration-300! py-3! pl-6! w-full! rounded-[30px]! font-normal! text-[18px]! text-[#1C1C1C]! !placeholder:text-[#1C1C1C] bg-[#0000000D]! outline-none! border border-transparent!  hover:bg-[#4DB2700D]! hover:text-[#5C5C5C]! hover:!placeholder:text-[#5C5C5C] hover:border! hover:border-[#28A453]! !box-shadow:none"
         iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
       />
     </Space>

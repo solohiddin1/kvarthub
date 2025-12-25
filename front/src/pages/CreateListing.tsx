@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Header, Footer } from "../modules";
 import apiClient from "../services/api";
+import { HeaderPart } from "../components";
 
 const CreateListing = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -125,7 +126,7 @@ const CreateListing = () => {
 
   return (
     <div>
-      <Header />
+      <HeaderPart/>
       <div className="containers max-w-2xl mx-auto py-8 px-5">
         <h1 className="text-[32px] font-semibold text-[#0F0F0F] mb-8">
           Create New Listing

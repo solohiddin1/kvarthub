@@ -140,23 +140,24 @@ return (
                 <div 
                   key={item.id} 
                   onClick={() => navigate(`/listing/${item.id}`)}
-                  className=" bg-red-500 lg:w-[300px] rounded-[20px] relative cursor-pointer hover:shadow-lg transition-shadow"
+                  className=" bg-[#0000000D] lg:w-[357px] rounded-[20px] relative cursor-pointer  transition-shadow"
                 >
                   {/* liked button start */}
                   <div onClick={(e) => {
                     e.stopPropagation()
                     SavedCard(item.id)
-                  }} className= "w-10 md:w-12 h-10 md:h-12 flex justify-center items-center rounded-xl bg-[#FFFFFF4D] absolute top-2 right-2 cursor-pointer">
+                  }} className= {`w-10 md:w-12 h-10 md:h-12 flex justify-center items-center rounded-xl bg-[#FFFFFF4D] absolute top-2 right-2 cursor-pointer ${likedBtnId.includes(item.id) ? "text-[#FF383C]":"text-black"}`}>
                     {
                     likedBtnId.includes(item.id) ? (
-                     <LikedFilledIcon/>
+
+                     <LikedFilledIcon />
                     ):(
                       <LikedIcon/>
                     )
                   }
                   </div>
                   {/* liked button end */}
-                  <img src={item.images && item.images.length > 0 ? item.images[0].image : '/placeholder.jpg'} alt={item.title} width={357} height={320} />
+                  <img className="rounded-[20px] w-[357px] h-80" src={item.images && item.images.length > 0 ? item.images[0].image : '/placeholder.jpg'} alt={item.title} width={357} height={320} />
                   <div className="pt-4  p-5  pb-7">
                     <h2 className="line-clamp-2 font-medium text-[#000000] text-[18px]">{item.title}</h2>
                     <div className="flex items-center justify-between mt-3">
