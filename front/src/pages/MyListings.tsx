@@ -38,7 +38,6 @@ const MyListings = () => {
   const [editFormData, setEditFormData] = useState<Partial<Listing>>({});
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [deletedImageIds, setDeletedImageIds] = useState<number[]>([]);
-  console.log(imageFiles);
   
   
   
@@ -122,8 +121,21 @@ const MyListings = () => {
   };
 
   const handleDeleteExistingImage = (imageId: number) => {
-    setDeletedImageIds(prev => [...prev, imageId]);
-  };
+  // 1. UI dan olib tashlash
+  setListings(prev =>
+    prev.map(listing =>
+      listing.id === editingId
+        ? {
+            ...listing,
+            images: listing.images.filter(img => img.id !== imageId),
+          }
+        : listing
+    )
+  );
+
+  setDeletedImageIds(prev => [...prev, imageId]);
+};
+
 
   const handleUpdateListing = async (id: number) => {
     try {
@@ -144,10 +156,6 @@ const MyListings = () => {
       console.log(deletedImageIds);
       
       if (deletedImageIds.length > 0) {
-        // API field nomini tekshiring:
-        // 1. 'deleted_images' (eng keng tarqalgan)
-        // 2. 'delete_images' 
-        // 3. 'images_to_delete'
         deletedImageIds.forEach(imageId => {
           formData.append('deleted_images', imageId.toString());
         });

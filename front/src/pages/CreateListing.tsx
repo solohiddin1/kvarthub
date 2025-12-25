@@ -33,6 +33,8 @@ const CreateListing = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
+  
+
   useEffect(() => {
     if (!loading && !isAuthenticated) {
       navigate("/login");
@@ -50,15 +52,22 @@ const CreateListing = () => {
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setImages(Array.from(e.target.files));
-    }
-  };
+  if (!e.target.files) return;
+
+  const files = Array.from(e.target.files);
+
+  setImages((prev) => [...prev, ...files]);
+
+  e.target.value = ""; // muhim!
+};
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setSubmitting(true);
+     if (images.length === 0) {
+    alert("Iltimos, kamida 1 ta rasm tanlang");
+  }
 
     try {
       const form = new FormData();
@@ -362,7 +371,7 @@ const CreateListing = () => {
             <label className="block text-sm font-medium text-[#0F0F0F] mb-2">
               Property Images
             </label>
-            <input required
+            <input 
               type="file"
               multiple
               accept="image/*"

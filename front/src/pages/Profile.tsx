@@ -1,8 +1,10 @@
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {  useEffect } from "react";
 import { Footer } from "../modules";
 import { HeaderPart } from "../components";
+import { ProfileIcon } from "../assets/icons";
+import { RightOutlined } from "@ant-design/icons";
 
 const Profile = () => {
   const { user, isAuthenticated, loading, logout } = useAuth();
@@ -22,7 +24,7 @@ const Profile = () => {
     );
   }
 
-  console.log("User",user);
+
   if (!user) {
     return ;
   }
@@ -30,9 +32,8 @@ const Profile = () => {
   return (
     <>
     <HeaderPart/>
-    
    { user ? (
-  
+     <>
       <div className="w-full max-w-[600px] mx-auto my-10">
         {/* Profile Card */}
         <div className="bg-[#F2F2F2] rounded-3xl p-8 mb-6">
@@ -116,6 +117,8 @@ const Profile = () => {
   
         
       </div>
+   
+     </>
     ):(
     
       ""
