@@ -5,7 +5,7 @@ from apps.listings.models import Listing, ListingImage, Facility
 
 @admin.register(ListingImage)
 class ListingImageAdmin(admin.ModelAdmin):
-    list_display = ('listing', 'image')
+    list_display = ('id', 'listing', 'image')
     search_fields = ('listing__title',)
     # model = Listing
     # extra = 1

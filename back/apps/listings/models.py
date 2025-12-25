@@ -14,11 +14,9 @@ class Listing(BaseModel):
     location = models.CharField(max_length=255)
     rooms = models.IntegerField(default=1)
     state = models.CharField(max_length=10, choices=state, default='ACCEPTED')
-    max_people = models.IntegerField(default=1)
     phone_number = models.CharField(max_length=15, null=True, blank=True)
     total_floor_of_building = models.IntegerField(null=True, blank=True)
     floor_of_this_apartment = models.IntegerField(null=True, blank=True)
-    square_meters = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
     region = models.ForeignKey('shared.Region', on_delete=models.SET_NULL, null=True, blank=True)
     district = models.ForeignKey('shared.District', on_delete=models.SET_NULL, null=True, blank=True)
 

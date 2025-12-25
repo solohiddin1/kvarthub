@@ -20,11 +20,9 @@ interface Listing {
   rooms: number;
   beds: number;
   bathrooms: number;
-  max_people: number;
   phone_number: string;
   total_floor_of_building: number;
   floor_of_this_apartment: number;
-  square_meters: string;
   region: number;
   district: number;
   is_active: boolean;
@@ -188,7 +186,7 @@ const ListingDetail = () => {
                   {listing.rooms}
                 </p>
               </div>
-              <div className="bg-white border border-gray-300 rounded-lg p-4">
+              {/* <div className="bg-white border border-gray-300 rounded-lg p-4">
                 <p className="text-gray-600 text-sm">Beds</p>
                 <p className="text-2xl font-semibold text-gray-800">
                   {listing.beds}
@@ -199,23 +197,23 @@ const ListingDetail = () => {
                 <p className="text-2xl font-semibold text-gray-800">
                   {listing.bathrooms}
                 </p>
-              </div>
-              <div className="bg-white border border-gray-300 rounded-lg p-4">
+              </div> */}
+              {/* <div className="bg-white border border-gray-300 rounded-lg p-4">
                 <p className="text-gray-600 text-sm">Max People</p>
                 <p className="text-2xl font-semibold text-gray-800">
                   {listing.max_people}
                 </p>
-              </div>
+              </div> */}
             </div>
 
             {/* Additional Info */}
             <div className="space-y-3 mb-6">
-              <div className="flex justify-between">
+              {/* <div className="flex justify-between">
                 <span className="text-gray-600">Square Meters:</span>
                 <span className="font-semibold text-gray-800">
                   {listing.square_meters} m²
                 </span>
-              </div>
+              </div> */}
               <div className="flex justify-between">
                 <span className="text-gray-600">Floor:</span>
                 <span className="font-semibold text-gray-800">
@@ -248,7 +246,7 @@ const ListingDetail = () => {
             )}
 
             {/* Coordinates */}
-            {listing.lat && listing.long && (
+            {/* {listing.lat && listing.long && (
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="bg-white border border-gray-300 rounded-lg p-4">
                   <p className="text-gray-600 text-sm">Latitude</p>
@@ -259,7 +257,7 @@ const ListingDetail = () => {
                   <p className="font-semibold text-gray-800">{listing.long}</p>
                 </div>
               </div>
-            )}
+            )} */}
 
             {/* Contact Button */}
             <button className="w-full py-3 bg-[#28A453] text-white rounded-lg font-semibold hover:opacity-90 mb-4">

@@ -18,10 +18,8 @@ interface Listing {
   rooms: number;
   beds: number;
   bathrooms: number;
-  max_people: number;
   total_floor_of_building: number;
   floor_of_this_apartment: number;
-  square_meters: string;
   region: number;
   district: number;
   is_active: boolean;
@@ -77,10 +75,8 @@ const MyListings = () => {
       rooms: listing.rooms,
       beds: listing.beds,
       bathrooms: listing.bathrooms,
-      max_people: listing.max_people,
       total_floor_of_building: listing.total_floor_of_building,
       floor_of_this_apartment: listing.floor_of_this_apartment,
-      square_meters: listing.square_meters,
       region: listing.region,
       district: listing.district,
       is_active: listing.is_active,
@@ -252,7 +248,7 @@ const MyListings = () => {
                         />
                       </div>
 
-                      <div>
+                      {/* <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Beds
                         </label>
@@ -264,9 +260,9 @@ const MyListings = () => {
                           min="1"
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
                         />
-                      </div>
+                      </div> */}
 
-                      <div>
+                      {/* <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Bathrooms
                         </label>
@@ -278,9 +274,9 @@ const MyListings = () => {
                           min="1"
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
                         />
-                      </div>
+                      </div> */}
 
-                      <div>
+                      {/* <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Max People
                         </label>
@@ -292,9 +288,9 @@ const MyListings = () => {
                           min="1"
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
                         />
-                      </div>
+                      </div> */}
 
-                      <div>
+                      {/* <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Square Meters
                         </label>
@@ -306,7 +302,7 @@ const MyListings = () => {
                           step="0.01"
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
                         />
-                      </div>
+                      </div> */}
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -416,7 +412,7 @@ const MyListings = () => {
                               {listing.rooms}
                             </p>
                           </div>
-                          <div>
+                          {/* <div>
                             <p className="text-gray-600 text-sm">Beds</p>
                             <p className="text-xl font-semibold">{listing.beds}</p>
                           </div>
@@ -431,11 +427,11 @@ const MyListings = () => {
                             <p className="text-xl font-semibold">
                               {listing.max_people}
                             </p>
-                          </div>
+                          </div> */}
                         </div>
 
                         <p className="text-gray-600 mb-6">
-                          {listing.square_meters} m² • Floor{" "}
+                          Floor{" "}
                           {listing.floor_of_this_apartment} of{" "}
                           {listing.total_floor_of_building}
                         </p>

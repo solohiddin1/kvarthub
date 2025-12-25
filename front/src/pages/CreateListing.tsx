@@ -17,11 +17,9 @@ const CreateListing = () => {
     rooms: 1,
     beds: 1,
     bathrooms: 1,
-    max_people: 1,
     phone_number: "",
     total_floor_of_building: 1,
     floor_of_this_apartment: 1,
-    square_meters: "",
     region: "",
     district: "",
     lat: "",
@@ -91,11 +89,9 @@ const CreateListing = () => {
           rooms: 1,
           beds: 1,
           bathrooms: 1,
-          max_people: 1,
           phone_number: "",
           total_floor_of_building: 1,
           floor_of_this_apartment: 1,
-          square_meters: "",
           region: "",
           district: "",
           lat: "",
@@ -225,7 +221,7 @@ const CreateListing = () => {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
               />
             </div>
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-[#0F0F0F] mb-2">
                 Beds
               </label>
@@ -250,8 +246,8 @@ const CreateListing = () => {
                 min="1"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
               />
-            </div>
-            <div>
+            </div> */}
+            {/* <div>
               <label className="block text-sm font-medium text-[#0F0F0F] mb-2">
                 Max People
               </label>
@@ -263,11 +259,11 @@ const CreateListing = () => {
                 min="1"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
               />
-            </div>
+            </div> */}
           </div>
 
           {/* Square Meters */}
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium text-[#0F0F0F] mb-2">
               Square Meters
             </label>
@@ -280,7 +276,7 @@ const CreateListing = () => {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
               placeholder="e.g., 100"
             />
-          </div>
+          </div> */}
 
           {/* Building Floors */}
           <div className="grid grid-cols-2 gap-4">
@@ -313,7 +309,7 @@ const CreateListing = () => {
           </div>
 
           {/* Coordinates */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[#0F0F0F] mb-2">
                 Latitude
@@ -340,7 +336,7 @@ const CreateListing = () => {
                 placeholder="e.g., 69.2401"
               />
             </div>
-          </div>
+          </div> */}
 
           {/* Phone Number */}
           <div>

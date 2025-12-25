@@ -5,10 +5,10 @@ from apps.shared.enum import ResultCodes
 from apps.listings.models import Listing, ListingImage
 from apps.listings.serializers import ListingSerializer, BaseListingSerializer, ListingDetailSerializer
 
-from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView, ListAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView, ListAPIView, GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from django_filters.rest_framework import DjangoFilterBackend
 
 logger = get_logger()
@@ -140,3 +140,31 @@ class MyListingsListView(ListAPIView):
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         return SuccessResponse(serializer.data)
+    
+class ProductImageDeleteView(GenericAPIView):
+    permissions_classes = [IsAuthenticated]
+    queryset = ListingImage.objects.all()
+
+    @extend_schema(
+        tags=["product-image"],
+        parameters=[
+            OpenApiParameter(
+                name='id',
+                description='ID of the product image to delete',
+                required=True,
+                type=int,
+                location=OpenApiParameter.PATH
+            )
+        ],
+        summary="Delete product image",
+    )
+    def delete(self, request, pk, *args, **kwargs):
+        try:
+            image = self.get_queryset().get(pk=pk)
+            image.delete()
+            return SuccessResponse({"message": "Image deleted"})
+        except ListingImage.DoesNotExist:
+            return ErrorResponse(ResultCodes.PRODUCT_IMAGE_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"Error deleting product image: {str(e)}")
+            return ErrorResponse(ResultCodes.INTERNAL_SERVER_ERROR)
