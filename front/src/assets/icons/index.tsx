@@ -19,7 +19,7 @@ const LikedFilledIcon = () => (
     width="20"
     height="20"
     viewBox="0 0 20 20"
-    fill="#ef4444"
+    fill="currentColor"
     xmlns="http://www.w3.org/2000/svg"
   >
     <path d="M9.9999 17.5L3.16 11.01C1.2 9.04 1.2 5.96 3.16 3.99C5.12 2.03 8.29 2.03 10.25 3.99L10 4.24L10.25 3.99C12.21 2.03 15.38 2.03 17.34 3.99C19.3 5.96 19.3 9.04 17.34 11.01L9.9999 17.5Z" />
@@ -32,7 +32,7 @@ const NoteIcon = () => {
       width="20"
       height="20"
       viewBox="0 0 20 20"
-      fill="none"
+      fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
@@ -48,7 +48,7 @@ const ProfileIcon = (props:any) => {
       width="20"
       height="20"
       viewBox="0 0 20 20"
-      fill="none"
+      fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path

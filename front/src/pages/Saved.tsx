@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { LikedFilledIcon, LikedIcon } from "../assets/icons";
 import type { ProductsType } from "../types/auth";
 import { useNavigate } from "react-router";
+import { Footer } from "../modules";
+import { HeaderPart } from "../components";
 
 const Saved = () => {
    const navigate = useNavigate()
@@ -36,6 +38,8 @@ useEffect(() =>{
 },[savedCard])
 
   return (
+    <>
+    <HeaderPart/>
     <div className="min-h-screen bg-linear-to-b from-gray-50 to-blue-50 py-8 px-4 md:px-8">
       {/* Title part */}
       <div className="max-w-7xl mx-auto mb-10">
@@ -87,7 +91,7 @@ useEffect(() =>{
               Mahsulotlarni saqlash uchun ♡ belgisini bosing. Saqlangan
               mahsulotlar shu yerda ko'rinadi.
             </p>
-            <button onClick={() => navigate(-1)}  className="px-8 py-3 bg-linear-to-r from-blue-500 to-blue-600 text-white font-medium rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md hover:shadow-lg cursor-pointer">
+            <button onClick={() => navigate("/")}  className="px-8 py-3 bg-linear-to-r from-blue-500 to-blue-600 text-white font-medium rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md hover:shadow-lg cursor-pointer">
               Mahsulotlarni ko'rish
             </button>
           </div>
@@ -100,7 +104,7 @@ useEffect(() =>{
               className=" bg-red-500 lg:w-[300px] rounded-[20px] relative"
             >
               {/* liked button start */}
-              <div  onClick={() => SavedCard(item.id)} className="w-10 md:w-12 h-10 md:h-12 flex justify-center items-center rounded-xl bg-[#FFFFFF4D] absolute top-2 right-2 cursor-pointer">
+              <div  onClick={() => SavedCard(item.id)} className={`w-10 md:w-12 h-10 md:h-12 flex justify-center items-center rounded-xl bg-[#FFFFFF4D] absolute top-2 right-2 cursor-pointer ${likedBtnId.includes(item.id) ? "text-[#FF383C]":"text-black"}`}>
                    {
                     likedBtnId.includes(item.id) ? (
                       <LikedFilledIcon/>
@@ -109,18 +113,16 @@ useEffect(() =>{
 
                     )
                    }
-                  
-                
               </div>
               {/* liked button end */}
-              <img src={item.images[0]} alt="logo" width={357} height={320} />
+              <img src={item.images && item.images.length > 0 ? item.images[0].image : '/placeholder.jpg'} alt={item.title} width={357} height={320} />
               <div className="pt-4  p-5  pb-7">
                 <h2 className="line-clamp-2 font-medium text-[#000000] text-[18px]">
-                  {item.description}
+                  {item.title}
                 </h2>
                 <div className="flex items-center justify-between mt-3">
-                  <p className="text-[#757575]">{item.price}</p>
-                  <p className="text-[14px] text-[#A6A6A6]">{item.rating}</p>
+                  <p className="text-[#757575]">${item.price}</p>
+                  <p className="text-[14px] text-[#A6A6A6]">{item.rooms} rooms</p>
                 </div>
               </div>
             </div>
@@ -128,6 +130,8 @@ useEffect(() =>{
         </div>
       )}
     </div>
+    <Footer/>
+    </>
   );
 };
 
