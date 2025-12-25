@@ -101,7 +101,7 @@ useEffect(() =>{
           {savedCard.map((item: ProductsType) => (
             <div
               key={item.id}
-              className=" bg-red-500 lg:w-[300px] rounded-[20px] relative"
+              className=" bg-[#0000000D] lg:w-[300px] rounded-[20px] relative"
             >
               {/* liked button start */}
               <div  onClick={() => SavedCard(item.id)} className={`w-10 md:w-12 h-10 md:h-12 flex justify-center items-center rounded-xl bg-[#FFFFFF4D] absolute top-2 right-2 cursor-pointer ${likedBtnId.includes(item.id) ? "text-[#FF383C]":"text-black"}`}>

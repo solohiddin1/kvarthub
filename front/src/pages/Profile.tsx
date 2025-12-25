@@ -22,6 +22,7 @@ const Profile = () => {
     );
   }
 
+  console.log("User",user);
   if (!user) {
     return ;
   }
@@ -29,6 +30,7 @@ const Profile = () => {
   return (
     <>
     <HeaderPart/>
+    
    { user ? (
   
       <div className="w-full max-w-[600px] mx-auto my-10">
@@ -112,17 +114,10 @@ const Profile = () => {
           </button>
         </div>
   
-        {/* Additional Info Card */}
-        <div className="bg-[#E8F5E9] rounded-3xl p-6 text-center">
-          <p className="text-[16px] text-[#0F0F0F]">
-            You are successfully logged in! 🎉
-          </p>
-          <p className="text-[14px] text-[#5C5C5C] mt-2">
-            Your account is ready to use.
-          </p>
-        </div>
+        
       </div>
     ):(
+    
       ""
     ) }
     <Footer/>

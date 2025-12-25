@@ -127,7 +127,7 @@ const CreateListing = () => {
   return (
     <div>
       <HeaderPart/>
-      <div className="containers max-w-2xl mx-auto py-8 px-5">
+      <div className="containers max-w-2xl mx-auto py-8 px-5 pb-[100px]">
         <h1 className="text-[32px] font-semibold text-[#0F0F0F] mb-8">
           Create New Listing
         </h1>
@@ -362,7 +362,7 @@ const CreateListing = () => {
             <label className="block text-sm font-medium text-[#0F0F0F] mb-2">
               Property Images
             </label>
-            <input
+            <input required
               type="file"
               multiple
               accept="image/*"
