@@ -1,7 +1,7 @@
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Header, Footer } from "../modules";
+import { Footer } from "../modules";
 import apiClient from "../services/api";
 import { HeaderPart } from "../components";
 
