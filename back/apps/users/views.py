@@ -12,6 +12,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.parsers import MultiPartParser
+import json
 
 from apps.shared.enum import ResultCodes
 from apps.shared.utils import ErrorResponse, SuccessResponse, ErrorResponseWithEmailResult
@@ -20,7 +21,7 @@ from apps.shared.utils import get_logger
 from apps.shared.send_email import send_otp_with_fallback
 from .repository import *
 from .serialziers import (ApplyNewPasswordSerializer, OtpForgotPasswordSerializer,\
-                           RegisterSerializer,AuthenticationSerializer, UserProfileImageUpdateSerializer,\
+                           RegisterSerializer,AuthenticationSerializer, \
                              UserUpdateSerializer, 
                             UserVerifySerializer, AuthOtpSendSerializer, 
                             AuthOtpVerifySerializer, UserProfileSerializer, VerifyForgotPasswordSerializer)
@@ -48,27 +49,22 @@ class RegisterUser(GenericAPIView):
         logger.info(f"user is registered with email: {req_body['email']}")
         if user is None:
             user = create_user(email=req_body["email"],
-                                # first_name=req_body.get("first_name",""),
+                                # full_name=req_body.get("full_name",""),
                                 phone_number=req_body.get("phone_number",""),
                                 otp=otp,
                                 otp_created_at=timezone.now(),
                                 password=req_body["password"],
-                                region=req_body.get("region",None),
-                                district=req_body.get("district",None),
                                 is_active=True)
         else:
             if user.is_verified:
                 return ErrorResponse(ResultCodes.USER_ALREADY_REGISTERED)
             # update_user_otp(user.id, otp, timezone.now())
             user_updated = update_user(email=req_body["email"],
-                                first_name=req_body.get("first_name",""),
-                                last_name=req_body.get("last_name",""),
+                                full_name=req_body.get("full_name",""),
                                 phone_number=req_body.get("phone_number",""),
                                 otp=otp,
                                 otp_created_at=timezone.now(),
                                 password=req_body["password"],
-                                region=req_body.get("region",None),
-                                district=req_body.get("district",None),
                                 is_active=False)
             
             send_result = send_otp_with_fallback(req_body["email"], otp)
@@ -78,8 +74,7 @@ class RegisterUser(GenericAPIView):
             if user_updated:
                 return SuccessResponse({
                 "id": user.id,
-                "first_name": user.first_name,
-                "last_name": user.last_name,
+                "full_name": user.full_name,
                 "email": user.email,
                 "phone_number": user.phone_number,
                 "role": self.role,
@@ -95,8 +90,7 @@ class RegisterUser(GenericAPIView):
 
         return SuccessResponse(result={
             "id": user.id,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
+            "full_name": user.full_name,
             "email": user.email,
             "phone_number": user.phone_number,
             "is_verified": False,
@@ -217,35 +211,35 @@ class UserProfileView(GenericAPIView):
         return SuccessResponse(UserProfileSerializer(request.user, context={'request': request}).data)
 
 
-class UserUpdateProfileImage(generics.UpdateAPIView):
-    queryset = User.objects.all()
-    permission_classes = [IsAuthenticated]
-    serializer_class = UserProfileImageUpdateSerializer
-    parser_classes = [MultiPartParser]
-    http_method_names = ['patch']
+# class UserUpdateProfileImage(generics.UpdateAPIView):
+#     queryset = User.objects.all()
+#     permission_classes = [IsAuthenticated]
+#     serializer_class = UserProfileImageUpdateSerializer
+#     parser_classes = [MultiPartParser]
+#     http_method_names = ['patch']
 
-    def get_object(self):
-        return self.request.user
+#     def get_object(self):
+#         return self.request.user
 
-    @extend_schema(
-        request={
-            'multipart/form-data': {
-                'type': 'object',
-                'properties': {
-                    'image': {'type': 'string', 'format': 'binary'}
-                }
-            }
-        }
-    )
-    def patch(self, request, *args, **kwargs):
-        user = request.user
-        serializer = UserProfileImageUpdateSerializer(user, data=request.data, partial=True)
+#     @extend_schema(
+#         request={
+#             'multipart/form-data': {
+#                 'type': 'object',
+#                 'properties': {
+#                     # 'image': {'type': 'string', 'format': 'binary'}
+#                 }
+#             }
+#         }
+#     )
+#     def patch(self, request, *args, **kwargs):
+#         user = request.user
+#         serializer = UserProfileImageUpdateSerializer(user, data=request.data, partial=True)
 
-        if serializer.is_valid():
-            serializer.save()
-            return SuccessResponse({"message": "Image updated"})
+#         if serializer.is_valid():
+#             serializer.save()
+#             return SuccessResponse({"message": "Image updated"})
 
-        return ErrorResponse(ResultCodes.UNKNOWN_ERROR)
+#         return ErrorResponse(ResultCodes.UNKNOWN_ERROR)
 
 
 

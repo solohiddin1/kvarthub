@@ -64,14 +64,12 @@ class GoogleCallback(APIView):
         # Create or get user
         email = user_info.get("email")
         user, created = User.objects.get_or_create(email=email, defaults={
-            "first_name": user_info.get("given_name", ""),
-            "last_name": user_info.get("family_name", ""),
+            "full_name": user_info.get("given_name", ""),
             "username": email,
             "is_active": True,  # auto-activate
-        })
+        }) 
 
         # Store extra Google data if needed
-        user.google_picture_url = user_info.get("picture", "")
         user.is_verified = True
         user.is_from_social = True
         # Ensure password is marked unusable instead of None to avoid auth errors

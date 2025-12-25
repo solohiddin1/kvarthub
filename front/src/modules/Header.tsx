@@ -21,7 +21,7 @@ const Header = () => {
             {isAuthenticated ? (
               <div className="flex items-center gap-2 px-2">
                 <ProfileIcon/>
-                <span className="text-sm font-medium">{user?.first_name || "Profile"}</span>
+                <span className="text-sm font-medium">{user?.full_name || "Profile"}</span>
               </div>
             ) : (
               <ProfileIcon/>

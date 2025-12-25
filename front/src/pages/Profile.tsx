@@ -1,11 +1,9 @@
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import {  useEffect } from "react";
+import { useEffect } from "react";
 
 const Profile = () => {
   const { user, isAuthenticated, loading, logout } = useAuth();
-  console.log(user);
-  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,37 +21,27 @@ const Profile = () => {
   }
 
   if (!user) {
-    return ;
+    return null;
   }
 
   return (
     <div className="w-full max-w-[600px] mx-auto">
       {/* Profile Card */}
       <div className="bg-[#F2F2F2] rounded-3xl p-8 mb-6">
-      
+        
         <h1 className="text-[32px] font-semibold text-[#0F0F0F] mb-6">
           Welcome Back!
         </h1>
 
-        {/* User Info */}
-        <div className="space-y-4">
-          {/* Profile Picture */}
-          {user.google_picture_url && (
-            <div className="flex justify-center mb-6">
-              <img
-                src={user.google_picture_url}
-                alt="Profile"
-                className="w-24 h-24 rounded-full border-4 border-[#28A453]"
-              />
-            </div>
-          )}
-
-          {/* Name */}
-          {(user.first_name || user.last_name) && (
+        {/* Wrapper for info cards to keep spacing consistent */}
+        <div className="flex flex-col gap-4">
+          
+          {/* Name - Updated to use full_name only */}
+          {user.full_name && (
             <div className="bg-white rounded-[20px] p-4">
               <p className="text-[14px] text-[#5C5C5C] mb-1">Name</p>
               <p className="text-[18px] font-semibold text-[#0F0F0F]">
-                {user.first_name} {user.last_name}
+                {user.full_name}
               </p>
             </div>
           )}
@@ -81,20 +69,21 @@ const Profile = () => {
             <p className="text-[14px] text-[#5C5C5C] mb-1">Account Status</p>
             <div className="flex items-center gap-2">
               <div
-                className={`w-3 h-3 rounded-full ${user.is_verified ? "bg-[#28A453]" : "bg-orange-500"
-                  }`}
+                className={`w-3 h-3 rounded-full ${
+                  user.is_verified ? "bg-[#28A453]" : "bg-orange-500"
+                }`}
               ></div>
               <p className="text-[18px] font-semibold text-[#0F0F0F]">
                 {user.is_verified ? "Verified" : "Not Verified"}
               </p>
             </div>
           </div>
-        </div>
+        </div> {/* This closes the "flex flex-col gap-4" wrapper */}
 
         {/* My Listings Button */}
         <button
           onClick={() => navigate("/my-listings")}
-          className="w-full py-[15px] mt-4 bg-[#2196F3] rounded-4xl text-[20px] font-semibold text-white cursor-pointer hover:opacity-70 duration-300 active:scale-98"
+          className="w-full py-[15px] mt-8 bg-[#2196F3] rounded-4xl text-[20px] font-semibold text-white cursor-pointer hover:opacity-70 duration-300 active:scale-98"
         >
           My Listings
         </button>

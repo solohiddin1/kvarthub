@@ -9,14 +9,14 @@ logger = get_logger()
 def send_email_from_server_from_brevo(to_email, content):
     configuration = sib_api_v3_sdk.Configuration()
     configuration.api_key['api-key'] = settings.BREVO_EMAIL_API_KEY
-
+    
     api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
         sib_api_v3_sdk.ApiClient(configuration)
     )
 
     email = sib_api_v3_sdk.SendSmtpEmail(
         to=[{"email": to_email}],
-        sender={"email": settings.BREVO_EMAIL_API_EMAIL, "name": "Your App"},
+        sender={"email": settings.BREVO_EMAIL_API_EMAIL, "name": "Kvarthub"},
         subject="Otp",
         html_content=content,
     )
