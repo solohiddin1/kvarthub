@@ -22,20 +22,17 @@ class User(AbstractUser, BaseModel, PermissionsMixin):
         message="Telefon raqam '998XXXXXXXXX' formatida bo'lishi kerak!"
     )
 
-    first_name = models.CharField(max_length=255,blank=True, null=True)
-    last_name = models.CharField(max_length=255,blank=True, null=True)
+    full_name = models.CharField(max_length=255,blank=True, null=True)
+    first_name = None
+    last_name = None
     email = models.EmailField(unique=True,blank=True, null=True, default=None)
-    google_picture_url = models.URLField(blank=True, null=True)
     phone_number = models.CharField(max_length=12, blank=True, null=True, validators=[phone_regex], verbose_name=_('phone_number'))
-    image = models.ImageField(upload_to='user/images', blank=True, null=True, verbose_name=_('image'), default='user/user_default.jpeg')
     password = models.CharField(max_length=255,null=True, blank=True, verbose_name=_('password'))
     is_active = models.BooleanField(default=False, verbose_name=_('is_active'))
     is_verified = models.BooleanField(default=False, verbose_name=_('is_verified'))
     otp = models.CharField(max_length=4, null=True, blank=True, verbose_name=_("otp"))
     otp_created_at = models.DateTimeField(null=True, blank=True, verbose_name=_('otp_created_at'))
     is_from_social = models.BooleanField(default=False, verbose_name=_('is_from_social'))
-    region = models.ForeignKey('shared.Region', on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("region"))
-    district = models.ForeignKey('shared.District', on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("district"))
 
     objects = MyUserManager()
 
