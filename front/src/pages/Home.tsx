@@ -157,7 +157,7 @@ return (
                   }
                   </div>
                   {/* liked button end */}
-                  <img className="rounded-[20px] w-[357px] h-[320px]" src={item.images && item.images.length > 0 ? item.images[0].image : '/placeholder.jpg'} alt={item.title} width={357} height={320} />
+                  <img className="rounded-[20px] w-[357px] h-80" src={item.images && item.images.length > 0 ? item.images[0].image : '/placeholder.jpg'} alt={item.title} width={357} height={320} />
                   <div className="pt-4  p-5  pb-7">
                     <h2 className="line-clamp-2 font-medium text-[#000000] text-[18px]">{item.title}</h2>
                     <div className="flex items-center justify-between mt-3">
