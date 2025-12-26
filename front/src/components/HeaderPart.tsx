@@ -7,7 +7,7 @@ import {
   ProfileIcon,
 } from "../assets/icons";
 import { useAuth } from "../context/AuthContext";
-import { NavLink, useLocation, useNavigate } from "react-router";
+import { Link, NavLink, useLocation, useNavigate } from "react-router";
 
 const HeaderPart = () => {
   const navigate = useNavigate();
@@ -17,7 +17,9 @@ const HeaderPart = () => {
   return (
     <div className={`${isHome ? "bg-[#FFFFFF]" : "bg-[#F2F2F2]"}`}>
       <div className="containers flex items-center justify-between py-[15px] sm:py-[30px] px-5 ">
+      <Link to={"/"}>
         <img src={HeaderImg} alt="Header Logo" width={150} height={40} />
+      </Link>
         <div className="flex items-center gap-4">
           <NavLink
             to={"/saved"}

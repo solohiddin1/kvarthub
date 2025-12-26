@@ -31,6 +31,8 @@ const CreateListing = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
+  
+
   useEffect(() => {
     if (!loading && !isAuthenticated) {
       navigate("/login");
@@ -38,25 +40,44 @@ const CreateListing = () => {
   }, [loading, isAuthenticated, navigate]);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
+  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+) => {
+  const { name, value } = e.target;
+  
+  // Faqat title uchun maxsus qayta ishlash
+  if (name === 'title'|| name ==="location" || name ==="description" || name === "phone_number") {
     setFormData((prev) => ({
       ...prev,
-      [name]: isNaN(Number(value)) ? value : Number(value),
+      [name]: value, // To'g'ridan-to'g'ri string sifatida saqlash
     }));
-  };
-
+    return;
+  }
+  
+  // Qolganlari uchun eski mantiq
+  setFormData((prev) => ({
+    ...prev,
+    [name]: isNaN(Number(value)) ? value : Number(value),
+  }));
+};
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setImages(Array.from(e.target.files));
-    }
-  };
+  if (!e.target.files) return;
+
+  const files = Array.from(e.target.files);
+
+  setImages((prev) => [...prev, ...files]);
+
+  e.target.value = ""; // muhim!
+};
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setSubmitting(true);
+     if (images.length === 0) {
+      setSubmitting(false); // BU QATORNI QO'SHING
+    alert("Iltimos, kamida 1 ta rasm tanlang");
+    return; // return qilish muhim!
+  }
 
     try {
       const form = new FormData();
@@ -123,7 +144,7 @@ const CreateListing = () => {
   return (
     <div>
       <HeaderPart/>
-      <div className="containers max-w-2xl mx-auto py-8 px-5">
+      <div className="containers max-w-2xl mx-auto py-8 px-5 pb-[100px]">
         <h1 className="text-[32px] font-semibold text-[#0F0F0F] mb-8">
           Create New Listing
         </h1>
@@ -221,62 +242,10 @@ const CreateListing = () => {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
               />
             </div>
-            {/* <div>
-              <label className="block text-sm font-medium text-[#0F0F0F] mb-2">
-                Beds
-              </label>
-              <input
-                type="number"
-                name="beds"
-                value={formData.beds}
-                onChange={handleInputChange}
-                min="1"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-[#0F0F0F] mb-2">
-                Bathrooms
-              </label>
-              <input
-                type="number"
-                name="bathrooms"
-                value={formData.bathrooms}
-                onChange={handleInputChange}
-                min="1"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
-              />
-            </div> */}
-            {/* <div>
-              <label className="block text-sm font-medium text-[#0F0F0F] mb-2">
-                Max People
-              </label>
-              <input
-                type="number"
-                name="max_people"
-                value={formData.max_people}
-                onChange={handleInputChange}
-                min="1"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
-              />
-            </div> */}
+          
           </div>
 
-          {/* Square Meters */}
-          {/* <div>
-            <label className="block text-sm font-medium text-[#0F0F0F] mb-2">
-              Square Meters
-            </label>
-            <input
-              type="number"
-              name="square_meters"
-              value={formData.square_meters}
-              onChange={handleInputChange}
-              step="0.01"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
-              placeholder="e.g., 100"
-            />
-          </div> */}
+        
 
           {/* Building Floors */}
           <div className="grid grid-cols-2 gap-4">
@@ -308,35 +277,7 @@ const CreateListing = () => {
             </div>
           </div>
 
-          {/* Coordinates */}
-          {/* <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-[#0F0F0F] mb-2">
-                Latitude
-              </label>
-              <input
-                type="text"
-                name="lat"
-                value={formData.lat}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
-                placeholder="e.g., 41.2995"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-[#0F0F0F] mb-2">
-                Longitude
-              </label>
-              <input
-                type="text"
-                name="long"
-                value={formData.long}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
-                placeholder="e.g., 69.2401"
-              />
-            </div>
-          </div> */}
+          
 
           {/* Phone Number */}
           <div>
@@ -358,7 +299,7 @@ const CreateListing = () => {
             <label className="block text-sm font-medium text-[#0F0F0F] mb-2">
               Property Images
             </label>
-            <input
+            <input 
               type="file"
               multiple
               accept="image/*"
