@@ -198,26 +198,30 @@ def get_logger():
 # this example uses requests
 logger = get_logger()
 
-def detect_nsfw(image_url):
+def detect_nsfw(image_file):
     params = {
-    'workflow': settings.WORKFLOW_ID,
-    'api_user': settings.WORKFLOW_USER,
-    'api_secret': settings.WORKFLOW_SECRET
+        'workflow': settings.WORKFLOW_ID,
+        'api_user': settings.WORKFLOW_USER,
+        'api_secret': settings.WORKFLOW_SECRET
     }
-    files = {'media': image_url}
-    # files = {'media': open(image_url, 'rb')}
+    
+    # Properly format the file for requests library
+    # requests expects: {'file': (filename, file_object, content_type)}
+    files = {'media': (image_file.name, image_file.read(), image_file.content_type)}
+    
     r = requests.post('https://api.sightengine.com/1.0/check-workflow.json', files=files, data=params)
     logger.info(r.text)
     output = json.loads(r.text)
 
     if output['status'] == 'failure':
-    # handle failure
+        # handle failure
         logger.error(output['error'])
+        return False, 0.0
 
     if output['summary']['action'] == 'reject':
-    # handle image rejection
-    # the rejection probability is provided in output['summary']['reject_prob']
-    # and user readable reasons for the rejection are in the array output['summary']['reject_reason']
+        # handle image rejection
+        # the rejection probability is provided in output['summary']['reject_prob']
+        # and user readable reasons for the rejection are in the array output['summary']['reject_reason']
         logger.info(output['summary']['reject_reason'])
         return True, output['summary']['reject_prob']
     else:

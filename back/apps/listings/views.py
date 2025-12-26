@@ -30,15 +30,16 @@ class ListingCreateView(CreateAPIView):
         if user is None or not user.is_authenticated:
             return SuccessResponse(result="User is not authenticated.")
         
-        data = request.data.copy()
-        data['host'] = user.id
-        
-        # Check for NSFW content in uploaded images
+        # Check for NSFW content in uploaded images BEFORE copying data
         images_upload = request.FILES.getlist('images_upload')
         if images_upload:
             logger.info(f"Checking {len(images_upload)} images for NSFW content.")
             for image in images_upload:
+                # Reset file pointer to beginning
+                image.seek(0)
                 is_nsfw, confidence = detect_nsfw(image)
+                # Reset file pointer again for serializer to use
+                image.seek(0)
                 if is_nsfw:
                     return ErrorResponse(
                         result=ResultCodes.VALIDATION_ERROR,
@@ -48,6 +49,10 @@ class ListingCreateView(CreateAPIView):
                             "uz": f"Rasm nomaqbul kontent o'z ichiga oladi (ishonch: {confidence:.2%}). Iltimos, tegishli uy rasmlarini yuklang."
                         }
                     )
+        
+        # Create a mutable copy of data and add host
+        data = request.data.copy()
+        data['host'] = user.id
         
         # Serializer handles image creation automatically
         serializer = self.get_serializer(data=data)
