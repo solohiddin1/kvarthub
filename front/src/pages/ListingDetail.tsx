@@ -186,34 +186,12 @@ const ListingDetail = () => {
                   {listing.rooms}
                 </p>
               </div>
-              {/* <div className="bg-white border border-gray-300 rounded-lg p-4">
-                <p className="text-gray-600 text-sm">Beds</p>
-                <p className="text-2xl font-semibold text-gray-800">
-                  {listing.beds}
-                </p>
-              </div>
-              <div className="bg-white border border-gray-300 rounded-lg p-4">
-                <p className="text-gray-600 text-sm">Bathrooms</p>
-                <p className="text-2xl font-semibold text-gray-800">
-                  {listing.bathrooms}
-                </p>
-              </div> */}
-              {/* <div className="bg-white border border-gray-300 rounded-lg p-4">
-                <p className="text-gray-600 text-sm">Max People</p>
-                <p className="text-2xl font-semibold text-gray-800">
-                  {listing.max_people}
-                </p>
-              </div> */}
+              
             </div>
 
             {/* Additional Info */}
             <div className="space-y-3 mb-6">
-              {/* <div className="flex justify-between">
-                <span className="text-gray-600">Square Meters:</span>
-                <span className="font-semibold text-gray-800">
-                  {listing.square_meters} m²
-                </span>
-              </div> */}
+              
               <div className="flex justify-between">
                 <span className="text-gray-600">Floor:</span>
                 <span className="font-semibold text-gray-800">
@@ -245,19 +223,7 @@ const ListingDetail = () => {
               </div>
             )}
 
-            {/* Coordinates */}
-            {/* {listing.lat && listing.long && (
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-white border border-gray-300 rounded-lg p-4">
-                  <p className="text-gray-600 text-sm">Latitude</p>
-                  <p className="font-semibold text-gray-800">{listing.lat}</p>
-                </div>
-                <div className="bg-white border border-gray-300 rounded-lg p-4">
-                  <p className="text-gray-600 text-sm">Longitude</p>
-                  <p className="font-semibold text-gray-800">{listing.long}</p>
-                </div>
-              </div>
-            )} */}
+           
 
             {/* Contact Button */}
             <button className="w-full py-3 bg-[#28A453] text-white rounded-lg font-semibold hover:opacity-90 mb-4">
