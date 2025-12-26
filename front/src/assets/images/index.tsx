@@ -2,5 +2,6 @@ import HeaderImg from "./header-img.png"
 import GoogleLogo from "./google-img.svg"
 import YoutubeIcon from "./YoutubeImg.svg"
 import DiscordIcon from "./DiscordIcon.svg"
+import DarkMode from "./darkmode.svg"
 
-export {HeaderImg, GoogleLogo,YoutubeIcon,DiscordIcon}
+export {HeaderImg, GoogleLogo,YoutubeIcon,DiscordIcon,DarkMode}

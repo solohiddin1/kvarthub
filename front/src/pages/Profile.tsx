@@ -1,12 +1,27 @@
 import { useAuth } from "../context/AuthContext";
-import {  useNavigate } from "react-router-dom";
-import {  useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { Footer } from "../modules";
-import { HeaderPart } from "../components";
-
+import { HeaderPart, LogoutButton } from "../components";
+import {
+  LanguageIcon,
+  LikedIcon,
+  LogOutIcon,
+  NoteIcon,
+  PaymentIcon,
+  ProfileIcon,
+  SupportIcon,
+  ThemeIcon,
+} from "../assets/icons";
+import { RightOutlined } from "@ant-design/icons";
+import { DarkMode } from "../assets/images";
 
 const Profile = () => {
-  const { user, isAuthenticated, loading, logout } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
+
+  let savedCard = localStorage.getItem("savedCard");
+  savedCard = savedCard ? JSON.parse(savedCard) : [];
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,93 +43,179 @@ const Profile = () => {
     return null;
   }
 
+  function handleLogout(){
+    <LogoutButton/>
+  }
+
   return (
     <>
-      <HeaderPart/>
-      <div className="w-full max-w-[600px] mx-auto my-10">
-        {/* Profile Card */}
-        <div className="bg-[#F2F2F2] rounded-3xl p-8 mb-6">
-          <h1 className="text-[32px] font-semibold text-[#0F0F0F] mb-6">
-            Welcome Back!
-          </h1>
+      <HeaderPart />
+      <div className="pt-6 sm:pt-[60px] pb-30 px-4 sm:px-5">
+        <h2 className="text-black font-semibold text-[20px] sm:text-[24px] border-b border-[#0000001A] pb-4 sm:pb-[19px]">
+          Profile
+        </h2>
 
-          {/* User Info */}
-          <div className="space-y-4">
-            {/* Name */}
-            {user.full_name && (
-              <div className="bg-white rounded-[20px] p-4">
-                <p className="text-[14px] text-[#5C5C5C] mb-1">Name</p>
-                <p className="text-[18px] font-semibold text-[#0F0F0F]">
-                  {user.full_name}
-                </p>
+        {/* Profile header */}
+        <div className="flex items-center justify-between pt-6 sm:pt-10 pb-5">
+          <div className="flex items-center gap-3">
+            <div className="border border-[#28A453] rounded-full p-1 sm:p-1">
+              <div className="text-black p-4 sm:p-6 bg-[#0000000D] rounded-full">
+                <ProfileIcon className="w-6 h-6 sm:w-8 sm:h-8" />
               </div>
-            )}
-
-            {/* Email */}
-            <div className="bg-white rounded-[20px] p-4">
-              <p className="text-[14px] text-[#5C5C5C] mb-1">Email</p>
-              <p className="text-[18px] font-semibold text-[#0F0F0F]">
-                {user.email}
-              </p>
             </div>
 
-            {/* Phone Number */}
-            {user.phone_number && (
-              <div className="bg-white rounded-[20px] p-4">
-                <p className="text-[14px] text-[#5C5C5C] mb-1">Phone Number</p>
-                <p className="text-[18px] font-semibold text-[#0F0F0F]">
-                  +{user.phone_number}
-                </p>
-              </div>
-            )}
-
-            {/* Account Status */}
-            <div className="bg-white rounded-[20px] p-4">
-              <p className="text-[14px] text-[#5C5C5C] mb-1">Account Status</p>
-              <div className="flex items-center gap-2">
-                <div
-                  className={`w-3 h-3 rounded-full ${
-                    user.is_verified ? "bg-[#28A453]" : "bg-orange-500"
-                  }`}
-                ></div>
-                <p className="text-[18px] font-semibold text-[#0F0F0F]">
-                  {user.is_verified ? "Verified" : "Not Verified"}
-                </p>
-              </div>
+            <div className="flex flex-col gap-1">
+              <strong className="text-[#242426] font-semibold text-[18px] sm:text-[32px]">
+                {user.full_name}
+              </strong>
+              <p className="text-sm sm:text-base text-gray-600">{user.email}</p>
             </div>
           </div>
 
-          {/* My Listings Button */}
-          <button
-            onClick={() => navigate("/my-listings")}
-            className="w-full py-[15px] mt-4 bg-[#2196F3] rounded-4xl text-[20px] font-semibold text-white cursor-pointer hover:opacity-70 duration-300 active:scale-98"
+          <Link
+            to="#"
+            className="text-[#28A453] font-normal flex items-center gap-1 shrink-0"
           >
-            My Listings
-          </button>
-
-          {/* Logout Button */}
-          <button
-            onClick={logout}
-            className="w-full py-[15px] mt-4 bg-[#28A453] rounded-4xl text-[20px] font-semibold text-white cursor-pointer hover:opacity-70 duration-300 active:scale-98"
-          >
-            Logout
-          </button>
+            <span>Enter</span>
+            <RightOutlined />
+          </Link>
         </div>
 
-        {/* Additional Info Card */}
-        <div className="bg-[#E8F5E9] rounded-3xl p-6 text-center">
-          <p className="text-[16px] text-[#0F0F0F]">
-            You are successfully logged in! 🎉
-          </p>
-          <p className="text-[14px] text-[#5C5C5C] mt-2">
-            Your account is ready to use.
-          </p>
-        </div>
+        {/* List */}
+        <ul>
+          <li className="flex items-center justify-between py-3">
+            <div className="flex items-center gap-3 flex-1">
+              <div className="p-3 sm:p-5 bg-[#F2F2F2] rounded-full">
+                <LanguageIcon />
+              </div>
+
+              <div className="border-b flex-1 pb-2 border-[#E7E6E5]">
+                <strong className="text-black text-[16px] sm:text-[20px] font-semibold">
+                  Language
+                </strong>
+                <p className="text-sm sm:text-base text-gray-600">English</p>
+              </div>
+            </div>
+
+            <RightOutlined />
+          </li>
+          <li
+            onClick={() => navigate("/notification")}
+            className="flex items-center justify-between py-3"
+          >
+            <div className="flex items-center gap-3 flex-1">
+              <div className="p-3 sm:p-5 bg-[#F2F2F2] rounded-full">
+                <NoteIcon />
+              </div>
+
+              <div className="border-b flex-1 pb-2 border-[#E7E6E5]">
+                <strong className="text-black text-[16px] sm:text-[20px] font-semibold">
+                  Notification
+                </strong>
+                <p className="text-sm sm:text-base text-gray-600">3 message</p>
+              </div>
+            </div>
+
+            <RightOutlined />
+          </li>
+          <li
+            onClick={() => navigate("/saved")}
+            className="flex items-center justify-between py-3"
+          >
+            <div className="flex items-center gap-3 flex-1">
+              <div className="p-3 sm:p-5 bg-[#F2F2F2] rounded-full">
+                <LikedIcon />
+              </div>
+
+              <div className="border-b flex-1 pb-2 border-[#E7E6E5]">
+                <strong className="text-black text-[16px] sm:text-[20px] font-semibold">
+                  Favorites
+                </strong>
+
+                <p className="text-sm sm:text-base text-gray-600">
+                  {savedCard?.length ?? 0}
+                </p>
+              </div>
+            </div>
+
+            <RightOutlined />
+          </li>
+          <li className="flex items-center justify-between py-3">
+            <div className="flex items-center gap-3 flex-1">
+              <div className="p-3 sm:p-5 bg-[#F2F2F2] rounded-full">
+                <PaymentIcon />
+              </div>
+
+              <div className="border-b flex-1 pb-2 border-[#E7E6E5]">
+                <strong className="text-black text-[16px] sm:text-[20px] font-semibold">
+                  Payment
+                </strong>
+                <p className="text-sm sm:text-base text-gray-600">Free</p>
+              </div>
+            </div>
+
+            <RightOutlined />
+          </li>
+          <li className="flex items-center justify-between py-3">
+            <div className="flex items-center gap-3 flex-1">
+              <div className="p-3 sm:p-5 bg-[#F2F2F2] rounded-full">
+                <SupportIcon />
+              </div>
+
+              <div className="border-b flex-1 pb-2 border-[#E7E6E5]">
+                <strong className="text-black text-[16px] sm:text-[20px] font-semibold">
+                  Support
+                </strong>
+                <p className="text-sm sm:text-base text-gray-600">
+                  Online chat
+                </p>
+              </div>
+            </div>
+
+            <RightOutlined />
+          </li>
+          <li className="flex items-center justify-between py-3 relative">
+            <div className="flex items-center gap-3 relative flex-1">
+              <div className="p-3 sm:p-5 bg-[#F2F2F2] rounded-full relative ">
+                <ThemeIcon />
+              </div>
+
+              <div className="flex flex-col">
+                <strong className="text-black text-[16px] sm:text-[20px] font-semibold">
+                  Theme
+                </strong>
+                <p className="text-sm sm:text-base text-gray-600">Light</p>
+              </div>
+            </div>
+
+            <img src={DarkMode} alt="Dark mode Icon" className="h-8 w-auto" />
+          </li>
+          <li className="pt-5 overflow-x-hidden">
+            <span className=" block min-w-[300px] mx-auto h-px bg-gray-300"></span>
+          </li>
+          {/* <li onClick={() =>handleLogout()} className="flex items-center gap-3 py-5 cursor-pointer">
+            <div className="p-3 rounded-full bg-red-200">
+              <LogOutIcon />
+            </div>
+            <strong className="text-[24px] font-semibold">Log Out</strong>
+          </li> */}
+          <li>
+            <LogoutButton/>
+          </li>
+          <li>
+            <button
+              onClick={() => navigate("/my-listings")}
+              className="w-full py-[15px] mt-4 bg-[#2196F3] rounded-4xl text-[20px] font-semibold text-white cursor-pointer hover:opacity-70 duration-300 active:scale-98"
+            >
+              My Listings
+            </button>
+          </li>
+        </ul>
       </div>
-      <Footer/>
+
+      <Footer />
     </>
   );
 };
 
 export default Profile;
-
