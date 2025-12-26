@@ -1,14 +1,15 @@
 
-import { FiltrIcon, SearchIcon,} from "../assets/icons"
-import HeaderPart from "../components/HeaderPart"
+import { FiltrIcon,  SearchIcon } from "../assets/icons"
+import { HeaderPart } from "../components"
 
 const Header = () => {
 
+
+
   return (
     <>
-    {/* header part1 */}
     <HeaderPart/>
-    {/* header part2 */}
+   
     <div className="bg-[#DBF0E2]  py-[30px] sm:py-[70px] px-5">
       <div className="containers flex justify-between">
         <label className="w-[80%] bg-white py-4.5 pl-7 rounded-[30px] block relative border border-transparent duration-300 hover:border-[#28A453]">

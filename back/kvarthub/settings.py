@@ -42,6 +42,7 @@ APPS = [
 OUT = [
     'rest_framework',
     'drf_spectacular',
+    'django_filters',
     'rest_framework.authtoken',
     'rest_framework_simplejwt.token_blacklist',
     
@@ -51,8 +52,9 @@ OUT = [
     # 'allauth.socialaccount',
     # 'allauth.socialaccount.providers.google',
 
+    # 'corsheaders',
     'corsheaders',
-    
+
     # REST
     # 'dj_rest_auth',
     # 'dj_rest_auth.registration',
@@ -84,6 +86,9 @@ MIDDLEWARE = [
 
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # cors-middleware
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'kvarthub.urls'
@@ -109,7 +114,13 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES':['rest_framework.permissions.AllowAny'],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ]
 }
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 
 WSGI_APPLICATION = 'kvarthub.wsgi.application'

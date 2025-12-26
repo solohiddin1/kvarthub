@@ -6,7 +6,8 @@ from apps.listings.views import (
     ListingRetrieveView,
     ListingUpdateView,
     ListingDestroyView,
-    MyListingsListView
+    MyListingsListView,
+    ProductImageDeleteView
 )
 
 urlpatterns = [
@@ -27,4 +28,6 @@ urlpatterns = [
     
     # Delete a listing by ID
     path('listings/<int:id>/delete/', ListingDestroyView.as_view(), name='listing_delete'),
+
+    path('delete-image/<int:pk>/', ProductImageDeleteView.as_view(), name='listing_image_delete'),
 ]

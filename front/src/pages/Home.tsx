@@ -4,7 +4,7 @@ import type { ProductsType } from "../types/auth"
 import { LikedFilledIcon, LikedIcon } from "../assets/icons"
 import { Footer, Header } from "../modules"
 import { Skleton } from "../components"
-import { API_BASE_URL, API_ENDPOINTS } from "../config/api"
+// import { API_BASE_URL, API_ENDPOINTS } from "../config/api"
 import apiClient from "../services/api"
 
 interface Region {

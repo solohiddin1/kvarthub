@@ -84,14 +84,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const register = async (
         email: string,
         password: string,
-        firstName?: string,
+        fullName?: string,
         phoneNumber?: string
     ) => {
         try {
             const response = await authService.register({
                 email,
                 password,
-                first_name: firstName,
+                full_name: fullName,
                 phone_number: phoneNumber,
             });
             return response;

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { GoogleLogo, HeaderImg } from "../assets/images";
 import { useAuth } from "../context/AuthContext";
 import { Custombtn, OtpVerification } from "../components";
@@ -60,7 +60,9 @@ const Register = () => {
 
   return (
     <div className="px-5 containers">
-       <img className="pt-10" src={HeaderImg} alt="Header Logo" width={150} height={40}/>
+      <Link to={'/'}>
+         <img className="pt-10" src={HeaderImg} alt="Header Logo" width={150} height={40}/>
+      </Link>
       <div className="w-full max-w-[400px] md:w-[472px] bg-[#F2F2F2] rounded-3xl pt-6 pb-10 md:pb-12 mx-auto mt-[100px] md:mt-[100px]">
         <div className="flex justify-between border-b-2 border-[#D9D9D9] relative">
           <NavLink

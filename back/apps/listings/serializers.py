@@ -1,6 +1,6 @@
 from apps.users.models import User
 from rest_framework import serializers
-from apps.listings.models import Listing, ListingImage
+from apps.listings.models import Listing, ListingImage, Facility
 
 class ListingImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -21,12 +21,8 @@ class BaseListingSerializer(serializers.ModelSerializer):
             'price',
             'location',
             'rooms',
-            'beds',
-            'bathrooms',
-            'max_people',
             'total_floor_of_building',
             'floor_of_this_apartment',  
-            'square_meters',
             'region',
             'district',
             'is_active',
@@ -40,6 +36,16 @@ class BaseListingSerializer(serializers.ModelSerializer):
         return ListingImageSerializer(images, many=True, context=self.context).data
 
 
+class FacilitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Facility
+        fields = [
+            'id',
+            'icon',
+            'name',
+        ]
+
+        
 class ListingSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField(read_only=True)
     images_upload = serializers.ListField(
@@ -60,19 +66,13 @@ class ListingSerializer(serializers.ModelSerializer):
             'host',
             'price',
             'location',
-            'lat',
-            'long',
             'rooms',
-            'beds',
-            'bathrooms',
-            'max_people',
             'phone_number',
             'total_floor_of_building',
             'floor_of_this_apartment',  
-            'square_meters',
+            'is_active',
             'region',
             'district',
-            'is_active',
             'images',
             'images_upload',
             'facilities',
@@ -129,18 +129,10 @@ class ListingDetailSerializer(ListingSerializer):
             'host',
             'price',
             'location',
-            'lat',
-            'long',
             'rooms',
-            'beds',
-            'bathrooms',
-            'max_people',
             'phone_number',
             'total_floor_of_building',
             'floor_of_this_apartment',  
-            'square_meters',
-            'region',
-            'district',
             'is_active',
             'images',
             'images_upload',

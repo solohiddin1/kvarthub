@@ -18,10 +18,8 @@ interface Listing {
   rooms: number;
   beds: number;
   bathrooms: number;
-  max_people: number;
   total_floor_of_building: number;
   floor_of_this_apartment: number;
-  square_meters: string;
   region: number;
   district: number;
   is_active: boolean;
@@ -82,10 +80,8 @@ const MyListings = () => {
       rooms: listing.rooms,
       beds: listing.beds,
       bathrooms: listing.bathrooms,
-      max_people: listing.max_people,
       total_floor_of_building: listing.total_floor_of_building,
       floor_of_this_apartment: listing.floor_of_this_apartment,
-      square_meters: listing.square_meters,
       region: listing.region,
       district: listing.district,
       is_active: listing.is_active,
@@ -360,65 +356,7 @@ const MyListings = () => {
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Beds *
-                        </label>
-                        <input
-                          type="number"
-                          name="beds"
-                          value={editFormData.beds || ""}
-                          onChange={handleInputChange}
-                          min="1"
-                          required
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Bathrooms *
-                        </label>
-                        <input
-                          type="number"
-                          name="bathrooms"
-                          value={editFormData.bathrooms || ""}
-                          onChange={handleInputChange}
-                          min="1"
-                          required
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Max People *
-                        </label>
-                        <input
-                          type="number"
-                          name="max_people"
-                          value={editFormData.max_people || ""}
-                          onChange={handleInputChange}
-                          min="1"
-                          required
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Square Meters *
-                        </label>
-                        <input
-                          type="number"
-                          name="square_meters"
-                          value={editFormData.square_meters || ""}
-                          onChange={handleInputChange}
-                          step="0.01"
-                          required
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
-                        />
-                      </div>
+                    
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -434,7 +372,6 @@ const MyListings = () => {
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
                         />
                       </div>
-
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Floor Number *
@@ -685,28 +622,15 @@ const MyListings = () => {
                               {listing.rooms}
                             </p>
                           </div>
-                          <div>
-                            <p className="text-gray-600 text-sm">Beds</p>
-                            <p className="text-xl font-semibold">{listing.beds}</p>
-                          </div>
+                          
                           <div>
                             <p className="text-gray-600 text-sm">Bathrooms</p>
                             <p className="text-xl font-semibold">
                               {listing.bathrooms}
                             </p>
                           </div>
-                          <div>
-                            <p className="text-gray-600 text-sm">Max People</p>
-                            <p className="text-xl font-semibold">
-                              {listing.max_people}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-gray-600 text-sm">Area</p>
-                            <p className="text-xl font-semibold">
-                              {listing.square_meters} m²
-                            </p>
-                          </div>
+                        
+                       
                           <div>
                             <p className="text-gray-600 text-sm">Floor</p>
                             <p className="text-xl font-semibold">

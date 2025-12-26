@@ -1,7 +1,7 @@
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Header, Footer } from "../modules";
+import { Footer } from "../modules";
 import apiClient from "../services/api";
 import { HeaderPart } from "../components";
 
@@ -17,11 +17,9 @@ const CreateListing = () => {
     rooms: 1,
     beds: 1,
     bathrooms: 1,
-    max_people: 1,
     phone_number: "",
     total_floor_of_building: 1,
     floor_of_this_apartment: 1,
-    square_meters: "",
     region: "",
     district: "",
     lat: "",
@@ -42,15 +40,25 @@ const CreateListing = () => {
   }, [loading, isAuthenticated, navigate]);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
+  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+) => {
+  const { name, value } = e.target;
+  
+  // Faqat title uchun maxsus qayta ishlash
+  if (name === 'title'|| name ==="location" || name ==="description" || name === "phone_number") {
     setFormData((prev) => ({
       ...prev,
-      [name]: isNaN(Number(value)) ? value : Number(value),
+      [name]: value, // To'g'ridan-to'g'ri string sifatida saqlash
     }));
-  };
-
+    return;
+  }
+  
+  // Qolganlari uchun eski mantiq
+  setFormData((prev) => ({
+    ...prev,
+    [name]: isNaN(Number(value)) ? value : Number(value),
+  }));
+};
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   if (!e.target.files) return;
 
@@ -66,7 +74,9 @@ const CreateListing = () => {
     setError("");
     setSubmitting(true);
      if (images.length === 0) {
+      setSubmitting(false); // BU QATORNI QO'SHING
     alert("Iltimos, kamida 1 ta rasm tanlang");
+    return; // return qilish muhim!
   }
 
     try {
@@ -100,11 +110,9 @@ const CreateListing = () => {
           rooms: 1,
           beds: 1,
           bathrooms: 1,
-          max_people: 1,
           phone_number: "",
           total_floor_of_building: 1,
           floor_of_this_apartment: 1,
-          square_meters: "",
           region: "",
           district: "",
           lat: "",
@@ -234,62 +242,10 @@ const CreateListing = () => {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-[#0F0F0F] mb-2">
-                Beds
-              </label>
-              <input
-                type="number"
-                name="beds"
-                value={formData.beds}
-                onChange={handleInputChange}
-                min="1"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-[#0F0F0F] mb-2">
-                Bathrooms
-              </label>
-              <input
-                type="number"
-                name="bathrooms"
-                value={formData.bathrooms}
-                onChange={handleInputChange}
-                min="1"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-[#0F0F0F] mb-2">
-                Max People
-              </label>
-              <input
-                type="number"
-                name="max_people"
-                value={formData.max_people}
-                onChange={handleInputChange}
-                min="1"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
-              />
-            </div>
+          
           </div>
 
-          {/* Square Meters */}
-          <div>
-            <label className="block text-sm font-medium text-[#0F0F0F] mb-2">
-              Square Meters
-            </label>
-            <input
-              type="number"
-              name="square_meters"
-              value={formData.square_meters}
-              onChange={handleInputChange}
-              step="0.01"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
-              placeholder="e.g., 100"
-            />
-          </div>
+        
 
           {/* Building Floors */}
           <div className="grid grid-cols-2 gap-4">
@@ -321,35 +277,7 @@ const CreateListing = () => {
             </div>
           </div>
 
-          {/* Coordinates */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-[#0F0F0F] mb-2">
-                Latitude
-              </label>
-              <input
-                type="text"
-                name="lat"
-                value={formData.lat}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
-                placeholder="e.g., 41.2995"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-[#0F0F0F] mb-2">
-                Longitude
-              </label>
-              <input
-                type="text"
-                name="long"
-                value={formData.long}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#28A453]"
-                placeholder="e.g., 69.2401"
-              />
-            </div>
-          </div>
+          
 
           {/* Phone Number */}
           <div>

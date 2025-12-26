@@ -3,11 +3,9 @@
 export interface User {
     id: string;
     email: string;
-    first_name: string;
-    last_name: string;
+    full_name: string;
     phone_number?: string;
     is_verified: boolean;
-    google_picture_url?: string;
 }
 
 export interface AuthTokens {
@@ -28,7 +26,7 @@ export interface LoginResponse {
 export interface RegisterRequest {
     email: string;
     password: string;
-    first_name?: string;
+    full_name?: string;
     phone_number?: string;
 }
 
@@ -37,8 +35,7 @@ export interface RegisterSuccessResponse {
     result: {
         id: string;
         email: string;
-        first_name: string;
-        last_name: string;
+        full_name: string;
         phone_number: string;
         is_verified: boolean;
         otp: string;
