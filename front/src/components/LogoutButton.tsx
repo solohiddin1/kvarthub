@@ -6,7 +6,7 @@ const LogoutButton = () => {
   const { logout } = useAuth();
 
   const handleLogout = () => {
-    logout(); // auth context logout
+    logout(); 
     message.success("Logged out successfully!");
   };
 
