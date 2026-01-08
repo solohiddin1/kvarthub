@@ -212,6 +212,53 @@ const HomeIcon = (props:any) => {
     </svg>
   );
 };
+const LanguageIcon = () =>{
+  return(
+    <svg width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M11.5 22.5C17.5751 22.5 22.5 17.5751 22.5 11.5C22.5 5.42487 17.5751 0.5 11.5 0.5C5.42487 0.5 0.5 5.42487 0.5 11.5C0.5 17.5751 5.42487 22.5 11.5 22.5Z" stroke="black" stroke-miterlimit="10"/>
+<path d="M11.5 17C17.5751 17 22.5 14.5376 22.5 11.5C22.5 8.46243 17.5751 6 11.5 6C5.42487 6 0.5 8.46243 0.5 11.5C0.5 14.5376 5.42487 17 11.5 17Z" stroke="black" stroke-miterlimit="10"/>
+<path d="M0.5 11.5H22.5" stroke="black" strokeMiterlimit="10"/>
+<path d="M11.5 22.5C17.5751 22.5 22.5 17.5751 22.5 11.5C22.5 5.42487 17.5751 0.5 11.5 0.5C5.42487 0.5 0.5 5.42487 0.5 11.5C0.5 17.5751 5.42487 22.5 11.5 22.5Z" stroke="black" stroke-miterlimit="10"/>
+<path d="M11.5 22.5C14.5376 22.5 17 17.5751 17 11.5C17 5.42487 14.5376 0.5 11.5 0.5C8.46243 0.5 6 5.42487 6 11.5C6 17.5751 8.46243 22.5 11.5 22.5Z" stroke="black" stroke-miterlimit="10"/>
+<path d="M11.5 22.5V0.5" stroke="black" strokeMiterlimit="10"/>
+</svg>
+
+  )
+}
+const PaymentIcon = () =>{
+  return(
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="3" y="6" width="18" height="13" rx="2" stroke="#1C1C1C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+<path d="M3 10H20.5" stroke="#1C1C1C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+<path d="M7 15H9" stroke="#1C1C1C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+</svg>
+
+  )
+}
+const SupportIcon = () =>{
+  return(
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 2C6.486 2 2 6.486 2 12V16.143C2 17.167 2.897 18 4 18H5C5.26522 18 5.51957 17.8946 5.70711 17.7071C5.89464 17.5196 6 17.2652 6 17V11.857C6 11.5918 5.89464 11.3374 5.70711 11.1499C5.51957 10.9624 5.26522 10.857 5 10.857H4.092C4.648 6.987 7.978 4 12 4C16.022 4 19.352 6.987 19.908 10.857H19C18.7348 10.857 18.4804 10.9624 18.2929 11.1499C18.1054 11.3374 18 11.5918 18 11.857V18C18 19.103 17.103 20 16 20H14V19H10V22H16C18.206 22 20 20.206 20 18C21.103 18 22 17.167 22 16.143V12C22 6.486 17.514 2 12 2Z" fill="#1C1C1C"/>
+</svg>
+
+  )
+}
+const ThemeIcon = () =>{
+  return(
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M9.79981 0.799988C8.61323 1.9949 7.94862 3.6114 7.95157 5.29538C7.95451 6.97935 8.62478 8.59351 9.81553 9.78427C11.0063 10.975 12.6204 11.6453 14.3044 11.6482C15.9884 11.6512 17.6049 10.9866 18.7998 9.79999C18.7998 11.58 18.272 13.3201 17.283 14.8001C16.2941 16.2802 14.8885 17.4337 13.244 18.1149C11.5994 18.7961 9.78983 18.9743 8.044 18.6271C6.29817 18.2798 4.69452 17.4226 3.43585 16.1639C2.17717 14.9053 1.32001 13.3016 0.972741 11.5558C0.625474 9.80997 0.803704 8.00037 1.48489 6.35584C2.16608 4.7113 3.31963 3.30569 4.79968 2.31676C6.27972 1.32783 8.01978 0.799988 9.79981 0.799988Z" stroke="#1C1C1C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
+  )
+}
+const LogOutIcon = () =>{
+  return(
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 5H7C5.34315 5 4 6.34315 4 8V16C4 17.6569 5.34315 19 7 19H12M8 12H20M20 12L16 8M20 12L16 16" stroke="#FF383C" strokeWidth="2" stroke-Winecap="round" strokeLinejoin="round"/>
+</svg>
+
+  )
+}
 export {
   LikedIcon,
   NoteIcon,
@@ -223,5 +270,10 @@ export {
   InstagramIcon,
   XlogoIcon,
   HomeIcon,
-  LikedFilledIcon
+  LikedFilledIcon,
+  LanguageIcon,
+  PaymentIcon,
+  SupportIcon,
+  ThemeIcon,
+  LogOutIcon
 };
