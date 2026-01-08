@@ -82,7 +82,8 @@ export interface ApiError {
     };
 }
 
-interface ImageType {
+export interface ImageType {
+    id:string
   image: string
 }
 
@@ -91,7 +92,11 @@ export interface ProductsType {
   title: string
   description: string
   price: string
+  location:string
   rating: string
+  phone_number:string
+  floor_of_this_apartment:number
+  total_floor_of_building:number
   images: ImageType[]
   rooms: number
 }

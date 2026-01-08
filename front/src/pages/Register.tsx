@@ -81,7 +81,7 @@ const Register = () => {
             to="/register"
             className={({ isActive }) =>
               `block flex-1 text-center pb-2 text-[24px] font-normal relative ${isActive
-                ? "text-black border-b-2 border-black -mb-px"
+                ? "text-black text-[32px] font-semibold border-b-2 border-black -mb-px"
                 : "text-[#5C5C5C]"
               }`
             }
