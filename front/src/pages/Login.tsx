@@ -48,8 +48,8 @@ const Login = () => {
             to="/login"
             className={({ isActive }) =>
               `block flex-1 text-center pb-2 text-[24px] font-normal relative ${isActive
-                ? "text-[#0F0F0F] border-b-2 border-[#0F0F0F] -mb-px"
-                : "text-[#D9D9D9]"
+                ? "text-[#0F0F0F] text-[32px] font-semibold border-b-2 border-[#0F0F0F] -mb-px"
+                : "text-[#5C5C5C]"
               }`
             }
           >

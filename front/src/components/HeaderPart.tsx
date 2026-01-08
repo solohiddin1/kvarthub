@@ -59,7 +59,7 @@ const HeaderPart = () => {
           </div>
           <div
             onClick={() => isAuthenticated ?  navigate("/create-listing") : navigate("/profile")}
-            className=" items-center py-3 px-4 text-[#28A453] rounded-full bg-[#D6F5E1] cursor-pointer hidden lg:flex"
+            className=" items-center py-3 px-4 text-[#28A453] rounded-full bg-[#D6F5E1] border border-transparent cursor-pointer duration-300 hover:border-[#28A453] hidden lg:flex"
           >
             <PlusIcon />
             <span className="text-[#28A453] font-medium ">E'lon joylash</span>
