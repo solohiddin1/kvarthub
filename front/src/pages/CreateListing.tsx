@@ -41,12 +41,23 @@ const CreateListing = () => {
           "Content-Type": "multipart/form-data",
         },
       })
-      .then(() => {
-        toast.success("Yaratildi");
-        navigate("/");
+      .then((response) => {
+        if (response.data.success) {  
+          toast.success("E'lon muvaffaqiyatli yaratildi!");
+          navigate("/");
+        }
+        else {
+          const errorMsg =
+          response.data.error?.message_language?.uz ||
+          response.data.error?.message_language?.en ||
+          response.data.error?.message_language?.ru ||
+          "Xatolik yuz berdi, qayta urinib ko'ring."; 
+          toast.error(errorMsg);
+        }
       })
-      .catch(() => {
-        toast.error("xato");
+      .catch((error) => {
+        const errorMessage = error.response?.data?.message?.uz;
+        toast.error(errorMessage || "Xatolik yuz berdi, qayta urinib ko'ring.");
       })
       .finally(() => {
         setIsSubmitting(false);
