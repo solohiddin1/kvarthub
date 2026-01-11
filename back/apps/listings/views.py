@@ -222,6 +222,7 @@ class ListingStatusUpdateView(UpdateAPIView):
                 Transaction.objects.create(
                     user=user,
                     listing=instance,
+                    card=card,
                     amount=settings.LISTING_ACTIVATION_CHARGE,
                     transaction_type='listing_activation_charge',
                     status='completed',
