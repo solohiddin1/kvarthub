@@ -1,6 +1,6 @@
 
 import { Routes, Route } from "react-router-dom"
-import { AuthCallback, Home, Login, Profile, Register, Saved, CreateListing, MyListings, ListingDetail, Notification } from "../pages"
+import { AuthCallback, Home, Login, Profile, Register, Saved, CreateListing, MyListings, ListingDetail, Notification, ForgotPassword, VerifyOTP, ResetPassword } from "../pages"
 import Editpart from "../pages/Editpart"
 
 const AppRoutes = () => {
@@ -11,6 +11,9 @@ const AppRoutes = () => {
           <Routes>
             <Route path="/" element={<Home/>}/>
             <Route path="/profile" element={<Profile/>} />
+            <Route path="/forgot-password" element={<ForgotPassword/>} />
+            <Route path="/verif-otp" element={<VerifyOTP/>} />
+            <Route path="/reset-password" element={<ResetPassword/>} />
             <Route path="/my-listings" element={<MyListings/>} />
             <Route path="/my-listings/:id" element={<Editpart/>} />
             <Route path="/create-listing" element={<CreateListing/>} />

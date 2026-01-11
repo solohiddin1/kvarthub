@@ -59,19 +59,19 @@ const CreateListing = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-gray-50 to-blue-50">
         <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50">
       <HeaderPart />
 
       <div className="max-w-4xl mx-auto px-4 py-10">
         {/* Header Card */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl shadow-xl p-8 mb-10 text-white">
+        <div className="bg-linear-to-r from-blue-600 to-blue-700 rounded-2xl shadow-xl p-8 mb-10 text-white">
           <h1 className="text-3xl font-bold mb-3">Yangi Uy Joy E'lon Qo'shish</h1>
           <p className="text-blue-100">
             Barcha maydonlarni to'ldiring va e'loningizni darhol joylashtiring
@@ -309,9 +309,9 @@ const CreateListing = () => {
                   />
 
                   <label htmlFor="property-images" className="block cursor-pointer">
-                    <div className="border-3 border-dashed border-gray-300 rounded-2xl p-10 text-center hover:border-blue-400 transition-all duration-300 bg-gradient-to-br from-gray-50 to-white hover:from-blue-50 hover:to-white">
+                    <div className="border-3 border-dashed border-gray-300 rounded-2xl p-10 text-center hover:border-blue-400 transition-all duration-300 bg-linear-to-br from-gray-50 to-white hover:from-blue-50 hover:to-white">
                       <div className="flex flex-col items-center justify-center">
-                        <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mb-5 shadow-lg">
+                        <div className="w-20 h-20 bg-linear-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mb-5 shadow-lg">
                           <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
@@ -377,7 +377,7 @@ const CreateListing = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold rounded-xl transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 text-lg flex items-center justify-center ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:from-blue-700 hover:to-blue-800'}`}
+                  className={`w-full py-4 bg-linear-to-r from-blue-600 to-blue-700 text-white font-bold rounded-xl transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 text-lg flex items-center justify-center ${isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:from-blue-700 hover:to-blue-800'}`}
                 >
                   {isSubmitting ? (
                     <>

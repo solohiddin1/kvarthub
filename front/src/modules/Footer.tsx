@@ -14,7 +14,6 @@ import { useAuth } from "../context/AuthContext";
 
 const Footer = () => {
   const {  isAuthenticated } = useAuth()
-  console.log(isAuthenticated);
   
   const district = [
     { id: 1, title: "Yunusobod" },

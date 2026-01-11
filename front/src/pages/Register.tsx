@@ -16,6 +16,7 @@ const Register = () => {
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [isAlreadyRegistered, setIsAlreadyRegistered] = useState(false);
 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -27,6 +28,10 @@ const Register = () => {
       if (response.success) {
         setShowOtpModal(true);
       } else if (response.error) {
+        
+       
+        
+        
         // Handle error response from backend
         const errorMessage = response.error.message || "Registration failed. Please try again.";
         setError(errorMessage);
@@ -36,6 +41,7 @@ const Register = () => {
         }
       }
     } catch (err: any) {
+       console.log(err.response?.data);
       const errorData = err.response?.data;
       const errorMessage = errorData?.error?.message || "Registration failed. Please try again.";
       setError(errorMessage);

@@ -7,8 +7,6 @@ const AuthCallback = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const { refreshUser } = useAuth();
-    console.log(refreshUser);
-    
 
     useEffect(() => {
         const access = searchParams.get('access');
