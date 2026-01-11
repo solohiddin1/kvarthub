@@ -25,6 +25,7 @@ class Transaction(models.Model):
     TRANSACTION_TYPE_CHOICES = [
         ('initial_credit', 'Initial Credit'),
         ('listing_charge', 'Listing Charge'),
+        ('listing_activation_charge', 'Listing Activation Charge'),
         ('daily_charge', 'Daily Charge'),
         ('refund', 'Refund'),
     ]
@@ -40,7 +41,7 @@ class Transaction(models.Model):
     listing = models.ForeignKey(Listing, on_delete=models.SET_NULL, null=True, blank=True, related_name='transactions')
     
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPE_CHOICES)
+    transaction_type = models.CharField(max_length=50, choices=TRANSACTION_TYPE_CHOICES)
     status = models.CharField(max_length=20, choices=TRANSACTION_STATUS_CHOICES, default='pending')
     description = models.TextField(blank=True)
     

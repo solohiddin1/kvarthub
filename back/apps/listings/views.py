@@ -171,6 +171,66 @@ class ListingUpdateView(UpdateAPIView):
         return SuccessResponse(serializer.data)
 
 
+class ListingStatusUpdateView(UpdateAPIView):
+    """Activate or deactivate a listing"""
+    queryset = Listing.objects.all()
+    lookup_field = 'id'
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="Update listing status",
+        description="Activate or deactivate a listing",
+    )
+    def update(self, request, *args, **kwargs):
+        user = request.user
+        if user is None or not user.is_authenticated:
+            return ErrorResponse(result=ResultCodes.USER_NOT_FOUND)
+        instance = self.get_object()
+        if instance.host != user:
+            return ErrorResponse(result=ResultCodes.YOU_DO_NOT_HAVE_PERMISSION)
+        if instance.is_active:
+            instance.is_active = False
+        else:
+            instance.is_active = True
+            # Charge the user for activating the listing
+            with db_transaction.atomic():
+                card = None
+                from apps.payment.models import Card
+                card = Card.objects.filter(user=user, is_active=True).first()
+                if not card:
+                    return ErrorResponse(
+                        result=ResultCodes.VALIDATION_ERROR,
+                        message={
+                            "en": "Please add a payment card before activating the listing.",
+                            "ru": "Пожалуйста, добавьте платежную карту перед активацией объявления.",
+                            "uz": "Iltimos, e'lonni faollashtirishdan oldin to'lov kartasini qo'shing."
+                        }
+                    )
+                if card.balance < settings.LISTING_ACTIVATION_CHARGE:
+                    return ErrorResponse(
+                        result=ResultCodes.VALIDATION_ERROR,
+                        message={
+                            "en": f"Insufficient balance. You need {settings.LISTING_ACTIVATION_CHARGE} to activate the listing. Current balance: {card.balance}",
+                            "ru": f"Недостаточно средств. Для активации объявления требуется {settings.LISTING_ACTIVATION_CHARGE}. Текущий баланс: {card.balance}",
+                            "uz": f"Balansda mablag' yetarli emas. E'lonni faollashtirish uchun {settings.LISTING_ACTIVATION_CHARGE} kerak. Joriy balans: {card.balance}"
+                        }
+                    )
+                # Deduct amount
+                card_balance_before = float(card.balance)
+                card.balance = card_balance_before - settings.LISTING_ACTIVATION_CHARGE
+                card.save()
+                Transaction.objects.create(
+                    user=user,
+                    listing=instance,
+                    amount=settings.LISTING_ACTIVATION_CHARGE,
+                    transaction_type='listing_activation_charge',
+                    status='completed',
+                    description=f'Charge for activating listing: {instance.title}'
+                )
+                logger.info(f"Charged {settings.LISTING_ACTIVATION_CHARGE} from user {user.email} for listing activation.")
+        instance.save()
+        return SuccessResponse({"is_active": instance.is_active})
+
 class ListingDestroyView(DestroyAPIView):
     """Delete a listing"""
     queryset = Listing.objects.all()
