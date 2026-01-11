@@ -7,7 +7,8 @@ from apps.listings.views import (
     ListingUpdateView,
     ListingDestroyView,
     MyListingsListView,
-    ProductImageDeleteView
+    ProductImageDeleteView,
+    ListingStatusUpdateView,
 )
 
 urlpatterns = [
@@ -25,6 +26,9 @@ urlpatterns = [
     
     # Update a listing by ID
     path('<int:id>/update/', ListingUpdateView.as_view(), name='listing_update'),
+
+    # update a listing's active status
+    path('listings/<int:id>/update_status/', ListingStatusUpdateView.as_view(), name='listing_update_status'),
     
     # Delete a listing by ID
     path('listings/<int:id>/delete/', ListingDestroyView.as_view(), name='listing_delete'),

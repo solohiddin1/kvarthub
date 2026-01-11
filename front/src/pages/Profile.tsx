@@ -40,7 +40,7 @@ const Profile = () => {
     try {
       await logout();
     } catch (error) {
-      console.error("Logout error:", error);
+      // Error handling
     } finally {
       setIsLoggingOut(false);
       setShowLogoutModal(false);

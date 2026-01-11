@@ -30,6 +30,13 @@ class ResultCodes(Enum):
     NO_CODE_PROVIDED = -63
     ERROR_SMS_SERVICE = -64
     YOU_DO_NOT_HAVE_PERMISSION = -100
+    CARD_NOT_FOUND = -101
+    CARD_INACTIVE = -102
+    INSUFFICIENT_BALANCE = -103
+    NO_ACTIVE_CARD = -104
+    CARD_CREATION_FAILED = -105
+    PAYMENT_FAILED = -106
+    CARD_IN_USE = -107
 
 
 
@@ -168,5 +175,40 @@ ResultMessages = {
         "uz": "Sizda ruxsat yo'q!",
         "en": "You do not have permission!",
         "ru": "У вас нет разрешения!"
+    },
+    "CARD_NOT_FOUND": {
+        "uz": "Karta topilmadi!",
+        "en": "Card not found!",
+        "ru": "Карта не найдена!"
+    },
+    "CARD_INACTIVE": {
+        "uz": "Karta nofaol!",
+        "en": "Card is inactive!",
+        "ru": "Карта неактивна!"
+    },
+    "INSUFFICIENT_BALANCE": {
+        "uz": "Hisobda mablag' yetarli emas!",
+        "en": "Insufficient balance!",
+        "ru": "Недостаточно средств!"
+    },
+    "NO_ACTIVE_CARD": {
+        "uz": "Faol karta topilmadi!",
+        "en": "No active card found!",
+        "ru": "Активная карта не найдена!"
+    },
+    "CARD_CREATION_FAILED": {
+        "uz": "Karta yaratishda xatolik yuz berdi!",
+        "en": "Failed to create card!",
+        "ru": "Не удалось создать карту!"
+    },
+    "PAYMENT_FAILED": {
+        "uz": "To'lov amalga oshmadi!",
+        "en": "Payment failed!",
+        "ru": "Платёж не выполнен!"
+    },
+    "CARD_IN_USE": {
+        "uz": "Faol e'lonlarga ulangan kartani o'chirib bo'lmaydi, iltimos, avval e'lonlarni o'chiring yoki deaktivatsiya qiling",
+        "en": "Cannot delete card linked to active listings, please deactivate listings first",
+        "ru": "Невозможно удалить карту, связанную с активными объявлениями, пожалуйста, сначала деактивируйте объявления"
     },
 }

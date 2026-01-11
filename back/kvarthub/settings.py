@@ -37,6 +37,7 @@ APPS = [
     'apps.users',
     'apps.shared',
     'apps.listings',
+    'apps.payment',
 ]
 
 OUT = [
@@ -260,3 +261,9 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
+
+# Payment Settings
+LISTING_CREATION_CHARGE = 50.00
+DAILY_LISTING_CHARGE = 10.00
+CARD_CREATED_INITIAL_BALANCE = 500.00
+LISTING_ACTIVATION_CHARGE = 5.00

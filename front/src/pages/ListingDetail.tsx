@@ -12,14 +12,9 @@ interface Listing {
   id: number;
   title: string;
   description: string;
-  host: number;
   price: string;
   location: string;
-  lat: string;
-  long: string;
   rooms: number;
-  beds: number;
-  bathrooms: number;
   phone_number: string;
   total_floor_of_building: number;
   floor_of_this_apartment: number;
@@ -49,7 +44,6 @@ const ListingDetail = () => {
           setError("Listing not found");
         }
       } catch (err: any) {
-        console.error("Failed to fetch listing:", err);
         setError(err.response?.data?.message || "Failed to load listing details");
       } finally {
         setLoading(false);
