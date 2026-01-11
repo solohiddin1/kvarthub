@@ -35,31 +35,6 @@ const Editpart = () => {
     });
   }, [numberId]);
 
-  // function handleEditFn(){
-  //  const  formData = new FormData()
-  //  formData.append("title",title)
-  //  formData.append("description",description)
-  //  formData.append("price",String(price))
-  //  formData.append("location",location)
-  //  formData.append("rooms",String(rooms))
-  //  formData.append("phone_number",phone_number)
-  //  formData.append("floor_of_this_apartment",String(floor_of_this_apartment))
-  //  formData.append("total_floor_of_building",String(total_floor_of_building))
-
-  //  newImages.forEach((file, index) => {
-  //   formData.append(`images_upload[${index}]`, file);
-  // });
-
-  //  apiClient.patch(`/api/listings/${numberId}/update/`,formData,{
-  //  }).then(() =>{
-  //   alert("Yangilandi")
-
-  //  }).catch(error =>{
-  //    console.log(error.response?.data);
-
-  //  })
-
-  // }
 
   function handleEditFn() {
     const formData = new FormData();
@@ -85,14 +60,13 @@ const Editpart = () => {
         },
       })
       .then(() => {
-       
-
         toast.success("Yangilandi");
         navigate("/")
-        
       })
       .catch((error) => {
-        console.log(error.response?.data);
+        // Error handling
+        console.log(error);
+        
       });
   }
 
@@ -100,17 +74,18 @@ const Editpart = () => {
   function handledeleteFn(id: string) {
     apiClient
       .delete(`/api/listings/delete-image/${id}/`)
-      .then((res) => {
+      .then(() => {
        setImages_upload(images_upload.filter(img => img.id !== id));
         alert("O'chirildi");
       })
-      .catch((eror) => {
-        console.log(eror);
+      .catch((error) => {
+        console.log(error);
+        
       });
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-10 px-4">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50 py-10 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
@@ -520,7 +495,7 @@ const Editpart = () => {
               <button
                 onClick={handleEditFn}
                 type="submit"
-                className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                className="w-full py-4 bg-linear-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
                 E'lonni joylashtirish
               </button>

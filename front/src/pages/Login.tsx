@@ -7,9 +7,6 @@ import { Custombtn } from "../components";
 const Login = () => {
   const navigate = useNavigate();
   const { login, loginWithGoogle } = useAuth();
-  
-  console.log(loginWithGoogle);
-  
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,6 +24,8 @@ const Login = () => {
       navigate("/");
     } catch (err: any) {
       const errorMessage = err.response?.data?.error?.message || "Login failed. Please check your credentials.";
+      console.log(err.response);
+      
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -95,6 +94,10 @@ const Login = () => {
             required
           />
           <Custombtn value={password} onChange={(e) => setPassword(e.target.value)} />
+            <Link to={"/forgot-password"} className="flex items-center gap-2 justify-end mt-3">
+              <div className="w-3.5 h-3.5 bg-[#0000000D] border rounded-xs"></div>
+              <span className="text-[14px] text-[#00000080] border-b">Forgot password?</span>
+            </Link>
 
           {error && (
             <p className="text-red-500 text-sm mt-2 text-center">{error}</p>
@@ -108,6 +111,7 @@ const Login = () => {
             {loading ? "Logging in..." : "Log in"}
           </button>
         </form>
+
       </div>
 
      </div>

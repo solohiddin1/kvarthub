@@ -34,6 +34,7 @@ body{
 }
 
 
+
 .ant-input {
     --ant-input-active-shadow: none !important ;
     
@@ -65,3 +66,4 @@ body{
 .custom-password-input .ant-input:hover::placeholder {
   color: #5C5C5C !important;
 }
+

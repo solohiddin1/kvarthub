@@ -6,6 +6,7 @@ import { Footer, Header } from "../modules"
 import { Skleton } from "../components"
 // import { API_BASE_URL, API_ENDPOINTS } from "../config/api"
 import apiClient from "../services/api"
+import  Carousel  from "../components/Carusel"
 
 interface Region {
   id: number
@@ -38,8 +39,6 @@ const Home = () => {
         setLoading(true)
         const response = await apiClient.get('/api/listings/listings/')
         
-        console.log('API Response:', response.data) // Debug log
-        
         if (response.data?.result && Array.isArray(response.data.result)) {
           setProducts(response.data.result)
           setProductsCount(response.data.result.length)
@@ -47,12 +46,10 @@ const Home = () => {
           setProducts(response.data)
           setProductsCount(response.data.length)
         } else {
-          console.warn('Unexpected response format:', response.data)
           setProducts([])
           setProductsCount(0)
         }
       } catch (error) {
-        console.error('Failed to fetch listings:', error)
         setProducts([])
         setProductsCount(0)
       } finally {
@@ -73,11 +70,9 @@ const Home = () => {
         if (response.data?.result && Array.isArray(response.data.result)) {
           setRegions(response.data.result)
         } else {
-          console.warn('Unexpected regions response format:', response.data)
           setRegions([])
         }
       } catch (error) {
-        console.error('Failed to fetch regions:', error)
         setRegions([])
       } finally {
         setRegionsLoading(false)
@@ -113,6 +108,10 @@ const Home = () => {
 return (
     <div>
         <Header/>
+        {products.length > 0 && (
+  <Carousel images={products[0].images} />
+)}
+      
         <ul className=" containers pt-5 pb-6 lg:pb-[63px] flex justify-between    gap-2 overflow-x-auto scrollbar-hidden scroll-smooth">
           {regionsLoading ? (
             <li className="py-[13px] px-6 rounded-[30px] bg-[#0000000D] text-gray-500">Loading...</li>
@@ -157,7 +156,7 @@ return (
                   }
                   </div>
                   {/* liked button end */}
-                  <img className="rounded-[20px] w-[357px] h-80" src={item.images && item.images.length > 0 ? item.images[0].image : '/placeholder.jpg'} alt={item.title} width={357} height={320} />
+                  <img className="rounded-[20px] w-[357px] h-80 object-cover" src={item.images && item.images.length > 0 ? item.images[0].image : '/placeholder.jpg'} alt={item.title} width={357} height={320} />
                   <div className="pt-4  p-5  pb-7">
                     <h2 className="line-clamp-2 font-medium text-[#000000] text-[18px]">{item.title}</h2>
                     <div className="flex items-center justify-between mt-3">
