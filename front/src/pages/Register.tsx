@@ -8,9 +8,10 @@ const Register = () => {
   const navigate = useNavigate();
   const { register, verifyOtp, loginWithGoogle } = useAuth();
 
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
+  // const [phoneNumber, setPhoneNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showOtpModal, setShowOtpModal] = useState(false);
@@ -24,7 +25,7 @@ const Register = () => {
     setLoading(true);
 
     try {
-      const response = await register(email, password, "", `998${phoneNumber}`);
+      const response = await register(email, password, name, "");
       if (response.success) {
         setShowOtpModal(true);
       } else if (response.error) {
@@ -116,14 +117,23 @@ const Register = () => {
           <input
             type="text"
             placeholder="Name"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             className="py-3 pl-6 rounded-[30px] font-semibold text-[18px]  bg-[#0000000D] placeholder:text-[#1C1C1C] w-full outline-none border border-transparent duration-300  hover:bg-[#4DB2700D]  hover:placeholder:text-[#5C5C5C] hover:border hover:border-[#28A453]"
             required
           />
 
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="py-3 pl-6 mt-3 rounded-[30px] font-semibold text-[18px]  bg-[#0000000D] placeholder:text-[#1C1C1C] w-full outline-none border border-transparent duration-300  hover:bg-[#4DB2700D]  hover:placeholder:text-[#5C5C5C] hover:border hover:border-[#28A453]"
+            required
+          />
+
           <Custombtn value={password} onChange={(e) => setPassword(e.target.value)} />
-          <div className="relative w-full mt-3 bg-[#0000000D]  rounded-4xl">
+          {/* <div className="relative w-full mt-3 bg-[#0000000D]  rounded-4xl">
             <span className="text-[18px] text-[#1C1C1C]!  absolute left-5 top-3 !hover:text-[#00000080]">
               +998
             </span>
@@ -137,7 +147,7 @@ const Register = () => {
               required
               className="py-3 pl-[85px] w-full rounded-[30px] font-normal text-[18px]  outline-none border border-transparent duration-300  hover:bg-[#4DB2700D] hover:placeholder:text-[#00000080] hover:border hover:border-[#28A453]"
             />
-          </div>
+          </div> */}
 
           {error && (
             <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-[20px]">
