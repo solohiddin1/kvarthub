@@ -1,11 +1,14 @@
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
 from django.db import transaction as db_transaction
+from drf_spectacular.utils import extend_schema
+
 from .models import Card, Transaction, ListingDailyCharge
 from .serializers import (
     CardSerializer, 
-    CardCreateSerializer, 
+    CardCreateSerializer,
     TransactionSerializer,
     ListingDailyChargeSerializer
 )
@@ -61,19 +64,31 @@ class CardRetrieveView(generics.RetrieveAPIView):
 
 class CardUpdateView(generics.UpdateAPIView):
     """Update a specific card"""
-    serializer_class = CardSerializer
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
         return Card.objects.filter(user=self.request.user)
     
     def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
+        partial = kwargs.pop('partial', True)
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return SuccessResponse(serializer.data)
+        # instance.is_active = request.data.get('is_active', instance.is_active)
+        if instance.is_active:
+            instance.is_active = False
+        else:
+            instance.is_active = True
+        instance.save()
+        if instance.is_active:
+            logger.info(f"Card {instance.id} activated for user {request.user.email}")
+            return SuccessResponse({"message": "Card activated successfully"})
+        else:
+            listings = request.user.listings.filter(host=request.user, is_active=True)
+            if listings.exists():
+                for listing in listings:
+                    listing.is_active = False
+                    listing.save()
+            logger.info(f"Card {instance.id} deactivated for user {request.user.email}")
+            return SuccessResponse({"message": "Card deactivated successfully"})
 
 
 class CardDeleteView(generics.DestroyAPIView):

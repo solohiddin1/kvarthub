@@ -1,12 +1,13 @@
-from django.core.management.base import BaseCommand
-from django.db import transaction as db_transaction
 from django.utils import timezone
 from django.conf import settings
-from apps.payment.models import Card, Transaction, ListingDailyCharge
-from apps.listings.models import Listing
-import logging
+from django.core.management.base import BaseCommand
+from django.db import transaction as db_transaction
 
-logger = logging.getLogger(__name__)
+from apps.shared.utils import get_logger
+from apps.listings.models import Listing
+from apps.payment.models import Card, Transaction, ListingDailyCharge
+
+logger = get_logger()
 
 
 class Command(BaseCommand):
