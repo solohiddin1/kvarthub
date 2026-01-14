@@ -7,6 +7,13 @@ class Listing(BaseModel):
         ('ACCEPTED', 'ACCEPTED'),
         ('REJECTED', 'REJECTED'),
     )
+    for_whom_state = (
+        ('BOYS', 'BOYS'),
+        ('GIRLS', 'GIRLS'),
+        ('FAMILY', 'FAMILY'),
+        ('FOREIGNERS', 'FOREIGNERS'),
+    )
+
     title = models.CharField(max_length=255)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -14,6 +21,7 @@ class Listing(BaseModel):
     location = models.CharField(max_length=255)
     rooms = models.IntegerField(default=1)
     state = models.CharField(max_length=10, choices=state, default='ACCEPTED')
+    for_whom = models.CharField(max_length=15, choices=for_whom_state)
     phone_number = models.CharField(max_length=15, null=True, blank=True)
     total_floor_of_building = models.IntegerField(null=True, blank=True)
     floor_of_this_apartment = models.IntegerField(null=True, blank=True)
