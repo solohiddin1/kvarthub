@@ -57,7 +57,14 @@ class RegisterSerializer(serializers.ModelSerializer):
     # full_name = serializers.CharField(required=False, max_length=150, min_length=1)
     email = serializers.CharField(required=True, max_length=150, min_length=5)
     password = serializers.CharField(required=True, max_length=150, min_length=5)
-    phone_number = serializers.CharField(required=False, max_length=12, min_length=12, help_text="Phone number must be in the format: '998901234567'.")
+    phone_number = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        allow_null=True, 
+        max_length=12, 
+        min_length=12, 
+        help_text="Phone number must be in the format: '998901234567'."
+    )
 
     class Meta:
         model = User
@@ -69,19 +76,21 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         extra_kwargs = {'password': {'write_only': True}}
 
-    def validate_phone_number(self, value):
-        phone_regex = r'^998\d{9}$'  # Uzbek phone: 998 + 9 digits
-        if re.match(phone_regex, value):
-            return value
-        raise serializers.ValidationError(
-            "Phone number must be in the format: '998901234567'."
-        )
+    # def validate_phone_number(self, value):
+    #     if not value:
+    #         return value
+    #     phone_regex = r'^998\d{9}$'  # Uzbek phone: 998 + 9 digits
+    #     if re.match(phone_regex, value):
+    #         return value
+    #     raise serializers.ValidationError(
+    #         "Phone number must be in the format: '998901234567'."
+    #     )
     
     def validate_email(self, value):
         email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
-        phone_regex = r'^998\d{9}$'  # Uzbek phone: 998 + 9 digits
+        # phone_regex = r'^998\d{9}$'  # Uzbek phone: 998 + 9 digits
 
-        if re.match(email_regex, value) or re.match(phone_regex, value):
+        if re.match(email_regex, value):
             return value
 
         raise serializers.ValidationError(
