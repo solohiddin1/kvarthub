@@ -2,36 +2,23 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Header, Footer } from "../modules";
 import apiClient from "../services/api";
+import { useAuth } from "../context/AuthContext";
+import type { Listing } from "../types/auth";
 
-interface ListingImage {
-  id: number;
-  image: string;
-}
 
-interface Listing {
-  id: number;
-  title: string;
-  description: string;
-  price: string;
-  location: string;
-  rooms: number;
-  phone_number: string;
-  total_floor_of_building: number;
-  floor_of_this_apartment: number;
-  region: number;
-  district: number;
-  is_active: boolean;
-  images: ListingImage[];
-}
 
 const ListingDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  
+  
 
+  
   useEffect(() => {
     const fetchListing = async () => {
       try {
@@ -67,6 +54,8 @@ const ListingDetail = () => {
     );
   }
 
+  // Check if current user is the owner
+  const isOwner = user && listing && listing.host === parseInt(user.id);
   if (error || !listing) {
     return (
       <>
@@ -197,6 +186,7 @@ const ListingDetail = () => {
                 <span className="text-gray-600">Region ID:</span>
                 <span className="font-semibold text-gray-800">
                   {listing.region}
+                  
                 </span>
               </div>
               <div className="flex justify-between">
@@ -219,10 +209,15 @@ const ListingDetail = () => {
 
            
 
+            {/* Owner Actions */}
+           
+
             {/* Contact Button */}
-            <button className="w-full py-3 bg-[#28A453] text-white rounded-lg font-semibold hover:opacity-90 mb-4">
-              Contact Host
-            </button>
+            {!isOwner && (
+              <button className="w-full py-3 bg-[#28A453] text-white rounded-lg font-semibold hover:opacity-90 mb-4">
+                Contact Host
+              </button>
+            )}
 
             {/* Share Button */}
             <button className="w-full py-3 bg-gray-300 text-gray-800 rounded-lg font-semibold hover:bg-gray-400">
@@ -231,6 +226,8 @@ const ListingDetail = () => {
           </div>
         </div>
       </div>
+
+
       <Footer />
     </>
   );

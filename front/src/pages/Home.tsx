@@ -37,6 +37,9 @@ const Home = () => {
       try {
         setLoading(true)
         const response = await apiClient.get('/api/listings/listings/')
+        localStorage.setItem("product",JSON.stringify(response.data))
+
+        
         
         console.log('API Response:', response.data) // Debug log
         
@@ -118,7 +121,7 @@ return (
             <li className="py-[13px] px-6 rounded-[30px] bg-[#0000000D] text-gray-500">Loading...</li>
           ) : regions.length > 0 ? (
             regions.map((region) => (
-              <li key={region.id} className="py-[13px] px-6 rounded-[30px] bg-[#0000000D] cursor-pointer hover:bg-gray-300 transition">
+              <li key={region.id} className=" h-15 text-[18] flex items-center justify-center px-6 rounded-[30px] bg-[#0000000D] cursor-pointer hover:bg-gray-300 transition min-w-[200px] text-center">
                 {region.name_uz}
               </li>
             ))

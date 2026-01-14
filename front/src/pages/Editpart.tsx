@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 
 const Editpart = () => {
   const { id } = useParams();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const numberId = Number(id);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -15,26 +15,32 @@ const Editpart = () => {
   const [location, setLocation] = useState("");
   const [rooms, setRooms] = useState(0);
   const [phone_number, setPhone_number] = useState("");
+  const [district,setDistrict] = useState(0)
+  // const [region,setRegion] = useState(0)
   const [floor_of_this_apartment, setFloor_of_this_apartment] = useState(0);
   const [total_floor_of_building, setTotal_floor_of_building] = useState(0);
   const [images_upload, setImages_upload] = useState<ImageType[]>([]);
   const [newImages, setNewImages] = useState<File[]>([]);
+  console.log(district);
+  
 
   useEffect(() => {
     apiClient.get(`/api/listings/listings/${numberId}/`).then((res) => {
       const data: ProductsType = res.data.result;
+      console.log(res.data.result);
+      
       setTitle(data.title);
       setDescription(data.description);
       setPrice(Number(data.price));
-      setRooms(Number(data.rooms))
+      setRooms(Number(data.rooms));
       setLocation(data.location);
       setPhone_number(data.phone_number);
       setFloor_of_this_apartment(data.floor_of_this_apartment);
       setTotal_floor_of_building(data.total_floor_of_building);
       setImages_upload(data.images);
+      setDistrict(data.district)
     });
   }, [numberId]);
-
 
   function handleEditFn() {
     const formData = new FormData();
@@ -48,9 +54,7 @@ const Editpart = () => {
     formData.append("total_floor_of_building", String(total_floor_of_building));
 
     newImages.forEach((file) => {
-      
-
-      formData.append(`images_upload`, file); 
+      formData.append(`images_upload`, file);
     });
 
     apiClient
@@ -61,12 +65,11 @@ const Editpart = () => {
       })
       .then(() => {
         toast.success("Yangilandi");
-        navigate("/")
+        navigate("/");
       })
       .catch((error) => {
         // Error handling
         console.log(error);
-        
       });
   }
 
@@ -75,12 +78,11 @@ const Editpart = () => {
     apiClient
       .delete(`/api/listings/delete-image/${id}/`)
       .then(() => {
-       setImages_upload(images_upload.filter(img => img.id !== id));
+        setImages_upload(images_upload.filter((img) => img.id !== id));
         alert("O'chirildi");
       })
       .catch((error) => {
         console.log(error);
-        
       });
   }
 
@@ -134,7 +136,7 @@ const Editpart = () => {
             {/* Description Input */}
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-gray-700">
-                Tavsif *
+                To'liq ma'lumot*
               </label>
               <div className="relative">
                 <div className="absolute top-3 left-3 flex items-center pointer-events-none">
@@ -176,11 +178,10 @@ const Editpart = () => {
                   <input
                     type="number"
                     value={price}
-                     onChange={(e) => {
-    const val = e.target.value;
-    setPrice(val === "" ? "" : Number(val));
-  }}
-                    
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setPrice(val === "" ? "" : Number(val));
+                    }}
                     placeholder="0"
                     min="0"
                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all duration-200"
@@ -413,12 +414,7 @@ const Editpart = () => {
                     <p className="text-sm text-gray-500">
                       PNG, JPG, WEBP (Maksimum 10MB)
                     </p>
-                    <button
-                      type="button"
-                      className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      Fayl tanlash
-                    </button>
+                  
                   </div>
                 </label>
               </div>
