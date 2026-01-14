@@ -70,7 +70,7 @@ class CardCreateSerializer(serializers.ModelSerializer):
         
         card_number = validated_data.pop('card_number')
         validated_data['card_number_last4'] = card_number[-4:]
-        validated_data['balance'] = settings.CARD_INITIAL_BALANCE
+        validated_data['balance'] = settings.CARD_CREATED_INITIAL_BALANCE
         
         card = Card.objects.create(**validated_data)
         
@@ -78,7 +78,7 @@ class CardCreateSerializer(serializers.ModelSerializer):
         Transaction.objects.create(
             user=card.user,
             card=card,
-            amount=settings.CARD_INITIAL_BALANCE,
+            amount=settings.CARD_CREATED_INITIAL_BALANCE,
             transaction_type='initial_credit',
             status='completed',
             description='Initial credit on card addition'

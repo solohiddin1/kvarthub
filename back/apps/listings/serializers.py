@@ -134,6 +134,8 @@ class ListingDetailSerializer(ListingSerializer):
             'total_floor_of_building',
             'floor_of_this_apartment',  
             'is_active',
+            'region',
+            'district',
             'images',
             'images_upload',
             'facilities',
