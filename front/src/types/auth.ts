@@ -101,6 +101,7 @@ export interface ProductsType {
   rooms: number
   district:number
   region:number
+  for_whom:string
   is_active?: boolean
 }
 export interface DistrictType {
@@ -148,6 +149,7 @@ export interface Listing {
   floor_of_this_apartment: number;
   region: number;
   district: number;
+  for_whom:string
   is_active: boolean;
   images: ListingImage[];
   host?: number;

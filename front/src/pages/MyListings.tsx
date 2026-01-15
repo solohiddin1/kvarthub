@@ -39,7 +39,6 @@ const MyListings = () => {
   function toggleListingStatus(id: number) {
    const  isComfirm = window.confirm("E'lonni qayta yoqishda pul yechib olinadi ")
    if(isComfirm){
-
      apiClient
        .patch(`/api/listings/listings/${id}/update_status/`)
        .then((res) => {

@@ -29,6 +29,9 @@ const CreateListing = () => {
   const [card_holder_name, setCard_holder_name] = useState<string>("");
   const [expiry_month, setExpiry_month] = useState<number>(0);
   const [expiry_year, setExpiry_year] = useState<number>(0);
+  const [for_whom,setFor_whom] = useState<string>("")
+ 
+  
 
   // select regions
   const [selectRegion, setSelectRegion] = useState<RegionsType[]>([]);
@@ -84,6 +87,7 @@ const CreateListing = () => {
     formData.append("location", location);
     formData.append("rooms", String(rooms));
     formData.append("phone_number", phone_number);
+    formData.append("for_whom",for_whom)
     formData.append("floor_of_this_apartment", String(floor_of_this_apartment));
     formData.append("total_floor_of_building", String(total_floor_of_building));
     images_upload.forEach((img) => formData.append("images_upload", img));
@@ -253,11 +257,11 @@ const CreateListing = () => {
                   <div className="space-y-3">
                     <label className="block text-sm font-semibold text-gray-700">
                       <span className="text-red-500 mr-1">*</span>
-                      Oylik Narxi
+                      Oylik Narxi so'mda
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-500 font-bold">$</span>
+                        <span className="text-gray-500 font-bold">🇺🇿</span>
                       </div>
                       <input
                         required
@@ -313,6 +317,7 @@ const CreateListing = () => {
                   className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none"
                   onChange={handleRegionChange}
                 >
+                  
                   <option value="" disabled selected>
                     Viloyatni tanlang
                   </option>
@@ -359,8 +364,27 @@ const CreateListing = () => {
                   </p>
                 )}
               </div>
-
-             
+              {/* kim uchun  */}
+              <div className="space-y-3">
+                <label className="block text-sm font-semibold text-gray-700">
+                  <span className="text-red-500 mr-1">*</span>
+                  Kim uchun
+                </label>
+                <select
+                  required
+                  className={`w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none`}
+                  onChange={(e) =>setFor_whom(e.target.value) }
+                >
+                  <option value="" disabled selected>
+                    Kim uchun
+                  </option>
+                  <option value="FAMILY">Oila uchun</option>
+                  <option value="GIRLS">Qizlar uchun</option>
+                  <option value="BOYS">Bolalar uchun</option>
+                  <option value="FOREIGNERS">Umumiy</option>
+                </select>
+               
+              </div>
 
               {/* Location & Details */}
               <div className="space-y-4">

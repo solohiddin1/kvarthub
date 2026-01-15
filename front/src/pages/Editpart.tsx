@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import apiClient from "../services/api";
 import { useNavigate, useParams } from "react-router-dom";
-import type { DistrictType, ImageType, ProductsType, RegionsType } from "../types/auth";
+import type {
+  DistrictType,
+  ImageType,
+  ProductsType,
+  RegionsType,
+} from "../types/auth";
 import { toast } from "react-toastify";
 import { HeaderPart } from "../components";
 
@@ -26,8 +31,13 @@ const Editpart = () => {
   const [images_upload, setImages_upload] = useState<ImageType[]>([]);
   const [newImages, setNewImages] = useState<File[]>([]);
   const [allDistricts, setAllDistricts] = useState<DistrictType[]>([]);
+  const [for_whom, setFor_whom] = useState<string>("");
+  const [selectFor_whom,setSelectFor_whom] = useState<string>("")
 
-  // update 
+  
+  
+
+  // update
   function handleEditFn() {
     const formData = new FormData();
     formData.append("title", title);
@@ -36,8 +46,9 @@ const Editpart = () => {
     formData.append("location", location);
     formData.append("rooms", String(rooms));
     formData.append("phone_number", phone_number);
-    formData.append("region",String(region))
-    formData.append("district",String(district))
+    formData.append("region", String(region));
+    formData.append("district", String(district));
+    formData.append("for_whom",selectFor_whom)
     formData.append("floor_of_this_apartment", String(floor_of_this_apartment));
     formData.append("total_floor_of_building", String(total_floor_of_building));
 
@@ -55,7 +66,6 @@ const Editpart = () => {
         toast.success("Yangilandi");
         navigate("/");
         console.log(res.data);
-        
       })
       .catch((error) => {
         // Error handling
@@ -78,36 +88,50 @@ const Editpart = () => {
 
   // region
   useEffect(() => {
-    apiClient.get("/api/shared/regions").then(res => {
-      setSelectRegion(res.data.result);
-      const regionName: RegionsType = res.data.result.find((item: RegionsType) => item.id === region);
-      setSelectRegionValue(regionName?.name_uz || "");
-    }).catch(err => {
-      console.log(err);
-    })
+    apiClient
+      .get("/api/shared/regions")
+      .then((res) => {
+        setSelectRegion(res.data.result);
+        const regionName: RegionsType = res.data.result.find(
+          (item: RegionsType) => item.id === region
+        );
+        setSelectRegionValue(regionName?.name_uz || "");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, []);
 
   // barcha tumanlarni olish
   useEffect(() => {
-    apiClient.get("/api/shared/districts").then(res => {
-      setAllDistricts(res.data.result);
-      const districtsName: DistrictType = res.data.result.find((item: DistrictType) => item.id === district);
-      if (districtsName) {
-        setSelectDistrictValue(districtsName.name_uz);
-      }
-    }).catch(err => {
-      console.log(err);
-    });
+    apiClient
+      .get("/api/shared/districts")
+      .then((res) => {
+        setAllDistricts(res.data.result);
+        const districtsName: DistrictType = res.data.result.find(
+          (item: DistrictType) => item.id === district
+        );
+        if (districtsName) {
+          setSelectDistrictValue(districtsName.name_uz);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, []);
 
   // viloyat tanlanganida tumanlarni filter qilish
   useEffect(() => {
     if (region > 0 && allDistricts.length > 0) {
-      const filteredDistricts = allDistricts.filter((item: DistrictType) => item.region === region);
+      const filteredDistricts = allDistricts.filter(
+        (item: DistrictType) => item.region === region
+      );
       setSelectDistrict(filteredDistricts);
-      
+
       // Agar tanlangan tuman filter qilingan tumanlar ichida bo'lsa, uni saqlash
-      const currentDistrict = filteredDistricts.find((item: DistrictType) => item.id === district);
+      const currentDistrict = filteredDistricts.find(
+        (item: DistrictType) => item.id === district
+      );
       if (district > 0 && !currentDistrict) {
         setDistrict(0);
         setSelectDistrictValue("");
@@ -117,7 +141,7 @@ const Editpart = () => {
     }
   }, [region, allDistricts]);
 
-//  barcha ma'lumotlarni olish 
+  //  barcha ma'lumotlarni olish
   useEffect(() => {
     apiClient.get(`/api/listings/listings/${numberId}/`).then((res) => {
       const data: ProductsType = res.data.result;
@@ -133,13 +157,14 @@ const Editpart = () => {
       setImages_upload(data.images);
       setDistrict(data.district);
       setRegion(data.region);
+      setFor_whom(data.for_whom);
     });
   }, [numberId]);
 
-  // disabled regons 
+  // disabled regons
   useEffect(() => {
     if (region > 0 && selectRegion.length > 0) {
-      const foundRegion = selectRegion.find(item => item.id === region);
+      const foundRegion = selectRegion.find((item) => item.id === region);
       if (foundRegion) {
         setSelectRegionValue(foundRegion.name_uz);
       }
@@ -149,7 +174,7 @@ const Editpart = () => {
   // disabled district
   useEffect(() => {
     if (district > 0 && selectDistrict.length > 0) {
-      const foundDistrict = selectDistrict.find(item => item.id === district);
+      const foundDistrict = selectDistrict.find((item) => item.id === district);
       if (foundDistrict) {
         setSelectDistrictValue(foundDistrict.name_uz);
       }
@@ -169,7 +194,9 @@ const Editpart = () => {
   const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedDistrictId = Number(e.target.value);
     setDistrict(selectedDistrictId);
-    const selectedDistrict = selectDistrict.find(item => item.id === selectedDistrictId);
+    const selectedDistrict = selectDistrict.find(
+      (item) => item.id === selectedDistrictId
+    );
     setSelectDistrictValue(selectedDistrict?.name_uz || "");
   };
 
@@ -268,8 +295,10 @@ const Editpart = () => {
                   <option value="">
                     {selectRegionValue || "Viloyatni tanlang"}
                   </option>
-                  {selectRegion.map(item => (
-                    <option key={item.id} value={item.id}>{item.name_uz}</option>
+                  {selectRegion.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name_uz}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -284,14 +313,18 @@ const Editpart = () => {
                   value={district}
                   onChange={handleDistrictChange}
                   disabled={!region}
-                  className={`w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none ${!region ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
+                  className={`w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none ${
+                    !region ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
                 >
                   <option value="">
-                    {selectDistrictValue || (region ? "Tumanni tanlang" : "Avval viloyat tanlang")}
+                    {selectDistrictValue ||
+                      (region ? "Tumanni tanlang" : "Avval viloyat tanlang")}
                   </option>
-                  {selectDistrict.map(item => (
-                    <option key={item.id} value={item.id}>{item.name_uz}</option>
+                  {selectDistrict.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name_uz}
+                    </option>
                   ))}
                 </select>
                 {!region && (
@@ -299,6 +332,30 @@ const Editpart = () => {
                     Tumanni tanlash uchun avval viloyatni tanlang
                   </p>
                 )}
+              </div>
+              {/* kim uchun  */}
+              <div className="space-y-3">
+                <label className="block text-sm font-semibold text-gray-700">
+                  <span className="text-red-500 mr-1">*</span>
+                  KIim uchun
+                </label>
+                <select onChange={(e) => setSelectFor_whom(e.target.value) } className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none">
+                  <option value={for_whom} selected>
+                    {for_whom === "BOYS"
+                      ? "Bolalar uchun"
+                      : for_whom === "GIRLS"
+                      ? "Qizlar uchun"
+                      : for_whom === "FAMILY"
+                      ? "Oila uchun"
+                      : for_whom === "FOREIGNERS"
+                      ? "Umumiy"
+                      : "Tanlang"}
+                  </option>
+                  <option value="FAMILY">Oila uchun</option>
+                  <option value="GIRLS">Qizlar uchun</option>
+                  <option value="BOYS">Bolalar uchun</option>
+                  <option value="FOREIGNERS">Umumiy</option>
+                </select>
               </div>
 
               {/* Price and Location Row */}
@@ -522,7 +579,10 @@ const Editpart = () => {
                     id="image-upload"
                     onChange={(e) => {
                       if (!e.target.files) return null;
-                      setNewImages([...newImages, ...Array.from(e.target.files)]);
+                      setNewImages([
+                        ...newImages,
+                        ...Array.from(e.target.files),
+                      ]);
                     }}
                   />
                   <label
@@ -551,7 +611,6 @@ const Editpart = () => {
                       <p className="text-sm text-gray-500">
                         PNG, JPG, WEBP (Maksimum 10MB)
                       </p>
-
                     </div>
                   </label>
                 </div>
