@@ -8,5 +8,8 @@ import CreateListing from "./CreateListing";
 import MyListings from "./MyListings";
 import ListingDetail from "./ListingDetail";
 import Notification from "./Notification";
+import ForgotPassword from "./ForgotPassword";
+import VerifyOTP from "./VerifyOTP"
+import ResetPassword from "./ResetPassword";
 
-export {Login,Register,Home,Profile,AuthCallback,Saved,CreateListing,MyListings,ListingDetail,Notification}
+export {Login,Register,Home,Profile,AuthCallback,Saved,CreateListing,MyListings,ListingDetail,Notification,ForgotPassword,VerifyOTP,ResetPassword}

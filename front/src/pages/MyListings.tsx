@@ -10,12 +10,14 @@ import { useNavigate } from "react-router"
 const MyListings = () => {
 const navigate = useNavigate()
 const [listings,setListing] = useState<ProductsType[]>([])
+console.log(listings);
+
 
 useEffect(() =>{
   apiClient.get('/api/listings/my-listings/').then(res =>{
     setListing(res.data.result);
   })
-})
+}, [])
 
 // delete part 
 function handleDeleteCard(id:number){
@@ -23,9 +25,8 @@ function handleDeleteCard(id:number){
  if(isComfirm){
    apiClient.delete(`/api/listings/listings/${id}/delete/`).then(() =>{
      toast.success("o'chirildi")
-   }).catch(eror =>{
-     console.log(eror);
-     
+   }).catch(error =>{
+     console.log(error);
      
    })
  }
@@ -67,7 +68,7 @@ function handleDeleteCard(id:number){
             </button>
           </div>
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+          <div className="w-full h-full bg-linear-to-br from-gray-100 to-gray-200 flex items-center justify-center">
             <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
@@ -122,9 +123,6 @@ function handleDeleteCard(id:number){
               <div className="font-bold text-lg text-gray-900">{item.rooms}</div>
             </div>
           </div>
-
-          {/* Area (if exists) */}
-       
 
           {/* Location (if exists) */}
           {item.location && (

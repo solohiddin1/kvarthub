@@ -18,3 +18,12 @@ regions:
 
 districts:
 	python manage.py loaddata apps/shared/fixtures/districts.json
+
+charge-daily:
+	python manage.py charge_daily_listings
+
+charge-daily-dry:
+	python manage.py charge_daily_listings --dry-run
+
+charge-daily-custom:
+	python manage.py charge_daily_listings --charge-amount $(amount)

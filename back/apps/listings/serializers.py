@@ -56,7 +56,7 @@ class ListingSerializer(serializers.ModelSerializer):
         help_text='Upload multiple images for the listing'
     )
     facilities = serializers.StringRelatedField(many=True, read_only=True)
-    host = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=True)
+    host = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
 
     class Meta:
         model = Listing
@@ -137,6 +137,9 @@ class ListingDetailSerializer(ListingSerializer):
             'floor_of_this_apartment',  
             'is_active',
             'for_whom',
+            'region',
+            'district',
+
             'images',
             'images_upload',
             'facilities',

@@ -72,7 +72,7 @@ def ErrorResponse(result: ResultCodes, message=None):
         "success": False,
         "error": {
             "code": result.value,
-            "message": ResultMessages[result.name]["en"],
+            "message": ResultMessages[result.name]["uz"],
             "message_language": {
                 "uz": ResultMessages[result.name]["uz"],
                 "en": ResultMessages[result.name]["en"],

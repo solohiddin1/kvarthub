@@ -1,15 +1,22 @@
 from apps.users.models import User
-from apps.shared.utils import SuccessResponse, ErrorResponse, detect_nsfw, get_logger
 from apps.shared.enum import ResultCodes
+from apps.shared.utils import SuccessResponse, ErrorResponse, detect_nsfw, get_logger
 
 from apps.listings.models import Listing, ListingImage
 from apps.listings.serializers import ListingSerializer, BaseListingSerializer, ListingDetailSerializer
 
-from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView, ListAPIView, GenericAPIView
+from apps.payment.models import Transaction
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView, ListAPIView, GenericAPIView
+
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db import transaction as db_transaction
+from django.conf import settings
+from django.db import transaction as db_transaction
+from django.conf import settings
 
 logger = get_logger()
 # Create your views here.
@@ -30,16 +37,49 @@ class ListingCreateView(CreateAPIView):
         if user is None or not user.is_authenticated:
             return SuccessResponse(result="User is not authenticated.")
         
-        # Check for NSFW content in uploaded images BEFORE copying data
+        # Check if user has an active card
+        from apps.payment.models import Card
+        user_card = Card.objects.filter(user=user, is_active=True).first()
+        
+        if not user_card:
+            return ErrorResponse(
+                result=ResultCodes.VALIDATION_ERROR,
+                message={
+                    "en": "Please add a payment card before creating a listing.",
+                    "ru": "Пожалуйста, добавьте платежную карту перед созданием объявления.",
+                    "uz": "Iltimos, e'lon yaratishdan oldin to'lov kartasini qo'shing."
+                }
+            )
+        
+        # Define listing charge amount
+        LISTING_CREATION_CHARGE = settings.LISTING_CREATION_CHARGE
+        
+        # Check if user has sufficient balance
+        if user_card.balance < LISTING_CREATION_CHARGE:
+            return ErrorResponse(
+                result=ResultCodes.VALIDATION_ERROR,
+                message={
+                    "en": f"Insufficient balance. You need {LISTING_CREATION_CHARGE} to create a listing. Current balance: {user_card.balance}",
+                    "ru": f"Недостаточно средств. Для создания объявления требуется {LISTING_CREATION_CHARGE}. Текущий баланс: {user_card.balance}",
+                    "uz": f"Balansda mablag' yetarli emas. E'lon yaratish uchun {LISTING_CREATION_CHARGE} kerak. Joriy balans: {user_card.balance}"
+                }
+            )
+        
+        # Check for NSFW content in uploaded images BEFORE touching request.data
         images_upload = request.FILES.getlist('images_upload')
         if images_upload:
             logger.info(f"Checking {len(images_upload)} images for NSFW content.")
             for image in images_upload:
-                # Reset file pointer to beginning
-                image.seek(0)
+                # Ensure file pointer is at start for reading and restored afterward
+                try:
+                    image.seek(0)
+                except Exception:
+                    pass
                 is_nsfw, confidence = detect_nsfw(image)
-                # Reset file pointer again for serializer to use
-                image.seek(0)
+                try:
+                    image.seek(0)
+                except Exception:
+                    pass
                 if is_nsfw:
                     return ErrorResponse(
                         result=ResultCodes.VALIDATION_ERROR,
@@ -49,19 +89,36 @@ class ListingCreateView(CreateAPIView):
                             "uz": f"Rasm nomaqbul kontent o'z ichiga oladi (ishonch: {confidence:.2%}). Iltimos, tegishli uy rasmlarini yuklang."
                         }
                     )
-        
-        # Create a mutable copy of data and add host
-        data = request.data.copy()
-        data['host'] = user.id
-        
-        # Serializer handles image creation automatically
-        serializer = self.get_serializer(data=data)
+
+        # Validate incoming data directly (avoid copying QueryDict with files)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        
+
+        # Use atomic transaction to ensure payment and listing creation happen together
+        with db_transaction.atomic():
+            # Charge the card
+            card_balance_before = float(user_card.balance)
+            user_card.balance = card_balance_before - LISTING_CREATION_CHARGE
+            user_card.save()
+            
+            # Save listing
+            listing = serializer.save(host=user)
+            
+            # Create transaction record
+            Transaction.objects.create(
+                user=user,
+                card=user_card,
+                listing=listing,
+                amount=LISTING_CREATION_CHARGE,
+                transaction_type='listing_charge',
+                status='completed',
+                description=f'Charge for creating listing: {listing.title}'
+            )
+            
+            logger.info(f"Charged {LISTING_CREATION_CHARGE} from user {user.email} for listing creation.")
+
         # Return listing with images
-        listing_serializer = self.get_serializer(serializer.instance)
-        return SuccessResponse(listing_serializer.data)
+        return SuccessResponse(serializer.data)
 
 
 class ListingsListView(ListAPIView):
@@ -113,6 +170,67 @@ class ListingUpdateView(UpdateAPIView):
         self.perform_update(serializer)
         return SuccessResponse(serializer.data)
 
+
+class ListingStatusUpdateView(UpdateAPIView):
+    """Activate or deactivate a listing"""
+    queryset = Listing.objects.all()
+    lookup_field = 'id'
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="Update listing status",
+        description="Activate or deactivate a listing",
+    )
+    def update(self, request, *args, **kwargs):
+        user = request.user
+        if user is None or not user.is_authenticated:
+            return ErrorResponse(result=ResultCodes.USER_NOT_FOUND)
+        instance = self.get_object()
+        if instance.host != user:
+            return ErrorResponse(result=ResultCodes.YOU_DO_NOT_HAVE_PERMISSION)
+        if instance.is_active:
+            instance.is_active = False
+        else:
+            instance.is_active = True
+            # Charge the user for activating the listing
+            with db_transaction.atomic():
+                card = None
+                from apps.payment.models import Card
+                card = Card.objects.filter(user=user, is_active=True).first()
+                if not card:
+                    return ErrorResponse(
+                        result=ResultCodes.VALIDATION_ERROR,
+                        message={
+                            "en": "Please add a payment card before activating the listing.",
+                            "ru": "Пожалуйста, добавьте платежную карту перед активацией объявления.",
+                            "uz": "Iltimos, e'lonni faollashtirishdan oldin to'lov kartasini qo'shing."
+                        }
+                    )
+                if card.balance < settings.LISTING_ACTIVATION_CHARGE:
+                    return ErrorResponse(
+                        result=ResultCodes.VALIDATION_ERROR,
+                        message={
+                            "en": f"Insufficient balance. You need {settings.LISTING_ACTIVATION_CHARGE} to activate the listing. Current balance: {card.balance}",
+                            "ru": f"Недостаточно средств. Для активации объявления требуется {settings.LISTING_ACTIVATION_CHARGE}. Текущий баланс: {card.balance}",
+                            "uz": f"Balansda mablag' yetarli emas. E'lonni faollashtirish uchun {settings.LISTING_ACTIVATION_CHARGE} kerak. Joriy balans: {card.balance}"
+                        }
+                    )
+                # Deduct amount
+                card_balance_before = float(card.balance)
+                card.balance = card_balance_before - settings.LISTING_ACTIVATION_CHARGE
+                card.save()
+                Transaction.objects.create(
+                    user=user,
+                    listing=instance,
+                    card=card,
+                    amount=settings.LISTING_ACTIVATION_CHARGE,
+                    transaction_type='listing_activation_charge',
+                    status='completed',
+                    description=f'Charge for activating listing: {instance.title}'
+                )
+                logger.info(f"Charged {settings.LISTING_ACTIVATION_CHARGE} from user {user.email} for listing activation.")
+        instance.save()
+        return SuccessResponse({"is_active": instance.is_active})
 
 class ListingDestroyView(DestroyAPIView):
     """Delete a listing"""
