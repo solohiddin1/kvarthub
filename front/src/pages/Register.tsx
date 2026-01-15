@@ -144,7 +144,7 @@ const Register = () => {
                     to="/login"
                     className="text-[#28A453] font-semibold hover:underline"
                   >
-                    Go to Login →
+                    Login-ga o'ting →
                   </NavLink>
                 </p>
               )}
