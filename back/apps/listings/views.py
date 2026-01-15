@@ -8,13 +8,11 @@ from apps.listings.serializers import ListingSerializer, BaseListingSerializer, 
 from apps.payment.models import Transaction
 
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView, ListAPIView, GenericAPIView
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db import transaction as db_transaction
-from django.conf import settings
 from django.db import transaction as db_transaction
 from django.conf import settings
 
@@ -26,10 +24,44 @@ class ListingCreateView(CreateAPIView):
     queryset = Listing.objects.all()
     serializer_class = ListingSerializer
     permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     @extend_schema(
         summary="Create a new listing",
+        tags=["listings"],
+        request={
+            'multipart/form-data': {
+                'type': 'object',
+                'properties': {
+                    'title': {'type': 'string'},
+                    'description': {'type': 'string'},
+                    'price': {'type': 'number'},
+                    'location': {'type': 'string'},
+                    'location_link': {'type': 'string', 'format': 'uri'},
+                    'rooms': {'type': 'integer'},
+                    'phone_number': {'type': 'string'},
+                    'total_floor_of_building': {'type': 'integer'},
+                    'floor_of_this_apartment': {'type': 'integer'},
+                    'region': {'type': 'integer'},
+                    'district': {'type': 'integer'},
+                    'for_whom': {
+                        'type': 'string',
+                        'description': 'For whom (BOYS, GIRLS, FAMILY, FOREIGNERS)',
+                        'enum': ['BOYS', 'GIRLS', 'FAMILY', 'FOREIGNERS']
+                    },
+                    'state': {
+                        'type': 'string',
+                        'description': 'Listing state (ACCEPTED, REJECTED)',
+                        'enum': ['ACCEPTED', 'REJECTED']
+                    },
+                    'images_upload': {
+                        'type': 'array',
+                        'items': {'type': 'string', 'format': 'binary'}
+                    },
+                },
+                'required': ['title', 'description', 'price', 'location', 'rooms']
+            }
+        },
         description="Create a new listing. Frontend can send images in 'images_upload' field as multipart.",
     )
     def create(self, request, *args, **kwargs):

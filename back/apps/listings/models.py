@@ -19,6 +19,7 @@ class Listing(BaseModel):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     host = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='listings')
     location = models.CharField(max_length=255)
+    location_link = models.URLField(max_length=500, null=True, blank=True)
     rooms = models.IntegerField(default=1)
     state = models.CharField(max_length=10, choices=state, default='ACCEPTED')
     for_whom = models.CharField(max_length=15, choices=for_whom_state, blank=True, null=True)
