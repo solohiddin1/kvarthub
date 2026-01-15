@@ -9,7 +9,23 @@ import MyListings from "./MyListings";
 import ListingDetail from "./ListingDetail";
 import Notification from "./Notification";
 import ForgotPassword from "./ForgotPassword";
-import VerifyOTP from "./VerifyOTP"
+import VerifyOTP from "./VerifyOTP";
 import ResetPassword from "./ResetPassword";
+import Payment from "./Payment";
 
-export {Login,Register,Home,Profile,AuthCallback,Saved,CreateListing,MyListings,ListingDetail,Notification,ForgotPassword,VerifyOTP,ResetPassword}
+export {
+  Login,
+  Register,
+  Home,
+  Profile,
+  AuthCallback,
+  Saved,
+  CreateListing,
+  MyListings,
+  ListingDetail,
+  Notification,
+  ForgotPassword,
+  VerifyOTP,
+  ResetPassword,
+  Payment,
+};

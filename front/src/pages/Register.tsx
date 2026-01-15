@@ -34,7 +34,7 @@ const Register = () => {
         
         
         // Handle error response from backend
-        const errorMessage = response.error.message || "Registration failed. Please try again.";
+        const errorMessage = response.error.message || "Ro‘yxatdan o‘tish amalga oshmadi. Iltimos, qayta urinib koʻring.";
         setError(errorMessage);
         // Check if error code indicates user already registered (-2)
         if (response.error.code === -2) {
@@ -44,7 +44,7 @@ const Register = () => {
     } catch (err: any) {
        console.log(err.response?.data);
       const errorData = err.response?.data;
-      const errorMessage = errorData?.error?.message || "Registration failed. Please try again.";
+      const errorMessage = errorData?.error?.message || "Ro‘yxatdan o‘tish amalga oshmadi. Iltimos, qayta urinib koʻring.";
       setError(errorMessage);
       // Check if error code indicates user already registered (-2)
       if (errorData?.error?.code === -2) {
@@ -103,7 +103,7 @@ const Register = () => {
         >
           <img className="w-5 h-5 md:w-6 md:h-6" src={GoogleLogo} alt="Googlelogo" width={24} height={24} />
           <span className="text-[#333333] text-[18px] md:text-[20px] font-semibold">
-            Continue with google
+             Google bilan kiring
           </span>
         </div>
 
@@ -133,21 +133,7 @@ const Register = () => {
           />
 
           <Custombtn value={password} onChange={(e) => setPassword(e.target.value)} />
-          {/* <div className="relative w-full mt-3 bg-[#0000000D]  rounded-4xl">
-            <span className="text-[18px] text-[#1C1C1C]!  absolute left-5 top-3 !hover:text-[#00000080]">
-              +998
-            </span>
-            <div className="w-px h-5 bg-[#BFBFBF] block absolute left-18 top-4"></div>
-            <input
-              type="tel"
-              maxLength={9}
-              placeholder="00 000 00 00"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              required
-              className="py-3 pl-[85px] w-full rounded-[30px] font-normal text-[18px]  outline-none border border-transparent duration-300  hover:bg-[#4DB2700D] hover:placeholder:text-[#00000080] hover:border hover:border-[#28A453]"
-            />
-          </div> */}
+          
 
           {error && (
             <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-[20px]">
@@ -170,7 +156,7 @@ const Register = () => {
             disabled={loading}
             className="w-full py-[15px] mt-6 bg-[#28A453] rounded-4xl text-[20px] font-semibold text-white cursor-pointer hover:opacity-70 duration-300 active:scale-98 disabled:opacity-50"
           >
-            {loading ? "Registering..." : "Register"}
+            {loading ? "Ro'yxatdan o'tilmoqda..." : "Ro'yxatdan o'tish"}
           </button>
         </form>
       </div>

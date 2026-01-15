@@ -33,6 +33,112 @@ const Header = ({ filters, onChangeFilters }: HeaderProps) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
 
+import { FiltrIcon, SearchIcon } from "../assets/icons";
+import { HeaderPart } from "../components";
+import { useState, useEffect } from "react";
+import apiClient from "../services/api";
+
+interface District {
+  id: number;
+  name: string;
+  region: number;
+}
+
+interface Region {
+  id: number;
+  name: string;
+}
+
+const Header = () => {
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [regions, setRegions] = useState<Region[]>([]);
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [allDistricts, setAllDistricts] = useState<District[]>([]);
+  
+  // Fetch regions and districts on mount
+  useEffect(() => {
+    const fetchRegionsAndDistricts = async () => {
+      try {
+        const [regionsRes, districtsRes] = await Promise.all([
+          apiClient.get("/api/shared/regions/"),
+          apiClient.get("/api/shared/districts/")
+        ]);
+        
+        if (regionsRes.data?.result) {
+          setRegions(regionsRes.data.result);
+        }
+        
+        if (districtsRes.data?.result) {
+          setAllDistricts(districtsRes.data.result);
+        }
+      } catch (error) {
+        console.error("Error fetching regions/districts:", error);
+      }
+    };
+    
+    fetchRegionsAndDistricts();
+  }, []);
+  
+  // Filter districts based on selected region
+  useEffect(() => {
+    if (selectedRegion) {
+      const filtered = allDistricts.filter(
+        district => district.region.toString() === selectedRegion
+      );
+      setDistricts(filtered);
+    } else {
+      setDistricts([]);
+    }
+  }, [selectedRegion, allDistricts]);
+  
+  // Tumanlarni chiqarish funksiyasi
+  const renderDistricts = () => {
+    return districts.map((district) => (
+      <option key={district.id} value={district.id}>
+        {district.name}
+      </option>
+    ));
+  };
+
+  // Modal ochilganda state'larni tozalash
+  const handleOpenFilter = () => {
+    setIsFilterOpen(true);
+    setSelectedRegion("");
+    setSelectedDistrict("");
+  };
+
+  // Modal yopilganda state'larni tozalash
+  const handleCloseFilter = () => {
+    setIsFilterOpen(false);
+    setSelectedRegion("");
+    setSelectedDistrict("");
+  };
+
+  // Filter qo'llash va modalni yopish
+  const handleApplyFilter = () => {
+    // Bu yerda filter ma'lumotlarini saqlash yoki qo'llash logikasi
+    console.log("Tanlangan viloyat ID:", selectedRegion);
+    console.log("Tanlangan tuman ID:", selectedDistrict);
+    
+    // Agar viloyat va tuman nomlarini ham olish kerak bo'lsa:
+    if (selectedRegion) {
+      const regionData = regions.find(r => r.id.toString() === selectedRegion);
+      console.log("Tanlangan viloyat nomi:", regionData?.name);
+      
+      if (selectedDistrict) {
+        const districtData = districts.find(
+          d => d.id.toString() === selectedDistrict
+        );
+        console.log("Tanlangan tuman nomi:", districtData?.name);
+      }
+    }
+    
+    setIsFilterOpen(false);
+  };
+
   // local (modal) state
   const [localFilters, setLocalFilters] = useState<ListingFilters>(safeFilters)
 
@@ -42,6 +148,7 @@ const Header = ({ filters, onChangeFilters }: HeaderProps) => {
 
   useEffect(() => {
     if (isFilterOpen) {
+
       document.body.style.overflow = "hidden"
       setTimeout(() => setIsVisible(true), 10)
     } else {
@@ -82,6 +189,7 @@ const Header = ({ filters, onChangeFilters }: HeaderProps) => {
           <label className="w-[80%] bg-white py-4.5 pl-7 rounded-[30px] block relative border border-transparent duration-300 hover:border-[#28A453]">
             <input
               type="text"
+
               placeholder="Qidirish"
               value={safeFilters.search || ""}
               onChange={(e) =>
@@ -97,13 +205,14 @@ const Header = ({ filters, onChangeFilters }: HeaderProps) => {
               <div className="w-px h-5 bg-[#0000001A]"></div>
             </div>
           </label>
-
           <button
             onClick={() => setIsFilterOpen(true)}
             className="flex items-center justify-center gap-4.5 py-4.5 rounded-[40px] bg-[#28A453] w-[19%] cursor-pointer duration-300 hover:opacity-80 group relative"
           >
             <FiltrIcon />
-            <span className="text-white font-medium hidden md:flex">Filter</span>
+            <span className="text-white font-medium hidden md:flex">
+              Filter
+            </span>
           </button>
         </div>
       </div>
@@ -114,7 +223,7 @@ const Header = ({ filters, onChangeFilters }: HeaderProps) => {
           className={`fixed inset-0 bg-black transition-opacity duration-300 ${
             isVisible ? "opacity-50" : "opacity-0"
           }`}
-          onClick={() => setIsFilterOpen(false)}
+          onClick={handleCloseFilter}
         />
 
         <div className="flex items-end justify-center min-h-screen px-4 pb-4 text-center sm:block sm:p-0">
@@ -130,8 +239,18 @@ const Header = ({ filters, onChangeFilters }: HeaderProps) => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-[#28A453] bg-opacity-10 rounded-lg">
-                    <svg className="w-6 h-6 text-[#28A453]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    <svg
+                      className="w-6 h-6 text-[#28A453]"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                      />
                     </svg>
                   </div>
                   <div>
@@ -141,11 +260,21 @@ const Header = ({ filters, onChangeFilters }: HeaderProps) => {
                 </div>
 
                 <button
-                  onClick={() => setIsFilterOpen(false)}
+                  onClick={handleCloseFilter}
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                 >
-                  <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-5 h-5 text-gray-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
@@ -202,7 +331,9 @@ const Header = ({ filters, onChangeFilters }: HeaderProps) => {
 
               {/* For whom */}
               <div className="mb-7">
-                <h4 className="text-base font-semibold text-gray-900 mb-4">Kim uchun</h4>
+                <h4 className="text-base font-semibold text-gray-900 mb-4">
+                  Kim uchun
+                </h4>
                 <div className="relative">
                   <select
                     value={localFilters.for_whom || ""}
@@ -221,8 +352,18 @@ const Header = ({ filters, onChangeFilters }: HeaderProps) => {
                     <option value="FOREIGNERS">Chet elliklar</option>
                   </select>
                   <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      />
                     </svg>
                   </div>
                 </div>
@@ -242,8 +383,18 @@ const Header = ({ filters, onChangeFilters }: HeaderProps) => {
                   onClick={applyFilters}
                   className="flex-1 px-6 py-3.5 text-white bg-linear-to-r from-[#28A453] to-emerald-500 rounded-xl font-medium hover:shadow-lg hover:shadow-emerald-200 focus:outline-none transition-all duration-200 active:scale-95 flex items-center justify-center gap-2"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                   Filter qollash
                 </button>
@@ -253,7 +404,7 @@ const Header = ({ filters, onChangeFilters }: HeaderProps) => {
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;

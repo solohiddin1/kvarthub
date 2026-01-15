@@ -69,7 +69,6 @@ const Home = () => {
           : `/api/listings/listings/`
 
         const response = await apiClient.get(url)
-
         if (response.data?.result && Array.isArray(response.data.result)) {
           setProducts(response.data.result)
           setProductsCount(response.data.result.length)
