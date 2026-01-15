@@ -1,6 +1,7 @@
 import { FiltrIcon, SearchIcon } from "../assets/icons"
 import { HeaderPart } from "../components"
 import { useEffect, useMemo, useState } from "react"
+import apiClient from "../services/api";
 
 export type ListingFilters = {
   search?: string
@@ -9,11 +10,23 @@ export type ListingFilters = {
   rooms?: string
   for_whom?: "" | "BOYS" | "GIRLS" | "FAMILY" | "FOREIGNERS"
   region?: string // region id
+  district?: string // district id
 }
 
 type HeaderProps = {
   filters?: ListingFilters
   onChangeFilters?: (next: ListingFilters) => void
+}
+
+interface District {
+  id: number;
+  name_uz: string;
+  region: number;
+}
+
+interface Region {
+  id: number;
+  name_uz: string;
 }
 
 const DEFAULT_FILTERS: ListingFilters = {
@@ -23,6 +36,7 @@ const DEFAULT_FILTERS: ListingFilters = {
   rooms: "",
   for_whom: "",
   region: "",
+  district: "",
 }
 
 const Header = ({ filters, onChangeFilters }: HeaderProps) => {
@@ -32,31 +46,17 @@ const Header = ({ filters, onChangeFilters }: HeaderProps) => {
 
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
-
-import { FiltrIcon, SearchIcon } from "../assets/icons";
-import { HeaderPart } from "../components";
-import { useState, useEffect } from "react";
-import apiClient from "../services/api";
-
-interface District {
-  id: number;
-  name: string;
-  region: number;
-}
-
-interface Region {
-  id: number;
-  name: string;
-}
-
-const Header = () => {
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  const [selectedRegion, setSelectedRegion] = useState("");
-  const [selectedDistrict, setSelectedDistrict] = useState("");
   const [regions, setRegions] = useState<Region[]>([]);
-  const [districts, setDistricts] = useState<District[]>([]);
   const [allDistricts, setAllDistricts] = useState<District[]>([]);
+  const [filteredDistricts, setFilteredDistricts] = useState<District[]>([]);
+  // const [filteredDistricts, setFilteredDistricts] = useState<District[]>([]);
+  
+  // local (modal) state
+  const [localFilters, setLocalFilters] = useState<ListingFilters>(safeFilters)
+
+  useEffect(() => {
+    setLocalFilters(safeFilters)
+  }, [safeFilters])
   
   // Fetch regions and districts on mount
   useEffect(() => {
@@ -84,67 +84,15 @@ const Header = () => {
   
   // Filter districts based on selected region
   useEffect(() => {
-    if (selectedRegion) {
+    if (localFilters.region) {
       const filtered = allDistricts.filter(
-        district => district.region.toString() === selectedRegion
+        district => district.region.toString() === localFilters.region
       );
-      setDistricts(filtered);
+      setFilteredDistricts(filtered);
     } else {
-      setDistricts([]);
+      setFilteredDistricts([]);
     }
-  }, [selectedRegion, allDistricts]);
-  
-  // Tumanlarni chiqarish funksiyasi
-  const renderDistricts = () => {
-    return districts.map((district) => (
-      <option key={district.id} value={district.id}>
-        {district.name}
-      </option>
-    ));
-  };
-
-  // Modal ochilganda state'larni tozalash
-  const handleOpenFilter = () => {
-    setIsFilterOpen(true);
-    setSelectedRegion("");
-    setSelectedDistrict("");
-  };
-
-  // Modal yopilganda state'larni tozalash
-  const handleCloseFilter = () => {
-    setIsFilterOpen(false);
-    setSelectedRegion("");
-    setSelectedDistrict("");
-  };
-
-  // Filter qo'llash va modalni yopish
-  const handleApplyFilter = () => {
-    // Bu yerda filter ma'lumotlarini saqlash yoki qo'llash logikasi
-    console.log("Tanlangan viloyat ID:", selectedRegion);
-    console.log("Tanlangan tuman ID:", selectedDistrict);
-    
-    // Agar viloyat va tuman nomlarini ham olish kerak bo'lsa:
-    if (selectedRegion) {
-      const regionData = regions.find(r => r.id.toString() === selectedRegion);
-      console.log("Tanlangan viloyat nomi:", regionData?.name);
-      
-      if (selectedDistrict) {
-        const districtData = districts.find(
-          d => d.id.toString() === selectedDistrict
-        );
-        console.log("Tanlangan tuman nomi:", districtData?.name);
-      }
-    }
-    
-    setIsFilterOpen(false);
-  };
-
-  // local (modal) state
-  const [localFilters, setLocalFilters] = useState<ListingFilters>(safeFilters)
-
-  useEffect(() => {
-    setLocalFilters(safeFilters)
-  }, [safeFilters])
+  }, [localFilters.region, allDistricts]);
 
   useEffect(() => {
     if (isFilterOpen) {
@@ -173,10 +121,13 @@ const Header = () => {
       ...DEFAULT_FILTERS,
       // search va regionni saqlab qolmoqchi bo'lsang:
       search: safeFilters.search || "",
-      region: safeFilters.region || "",
     }
     setLocalFilters(cleared)
     safeOnChange(cleared)
+    setIsFilterOpen(false)
+  }
+
+  const handleCloseFilter = () => {
     setIsFilterOpen(false)
   }
 
@@ -327,6 +278,88 @@ const Header = () => {
                   placeholder="0"
                   className="w-full px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border rounded-xl duration-200 border-gray-300 focus:border-[#28A453] focus:ring-1 focus:ring-[#28A453] outline-none"
                 />
+              </div>
+
+              {/* Region */}
+              <div className="mb-4">
+                <h4 className="text-base font-semibold text-gray-900 mb-2">
+                  Viloyat
+                </h4>
+                <div className="relative">
+                  <select
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-700 focus:border-[#28A453] focus:ring-1 focus:ring-[#28A453] focus:ring-opacity-20 appearance-none transition-all duration-300 outline-0"
+                    value={localFilters.region || ""}
+                    onChange={(e) => {
+                      setLocalFilters((p) => ({ ...p, region: e.target.value, district: "" }));
+                    }}
+                  >
+                    <option value="">Viloyatni tanlang</option>
+                    {regions.map((region) => (
+                      <option key={region.id} value={region.id}>
+                        {region.name_uz}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* District */}
+              <div className="mb-4">
+                <h4 className="text-base font-semibold text-gray-900 mb-2">
+                  Tuman
+                </h4>
+                <div className="relative">
+                  <select
+                    className={`w-full px-4 py-3 bg-white border border-gray-300 rounded-xl text-gray-700 focus:border-[#28A453] focus:ring-1 focus:ring-[#28A453] focus:ring-opacity-20 appearance-none transition-all duration-300 outline-0 ${
+                      !localFilters.region ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                    value={localFilters.district || ""}
+                    onChange={(e) => setLocalFilters((p) => ({ ...p, district: e.target.value }))}
+                    disabled={!localFilters.region}
+                  >
+                    <option value="">Tumanni tanlang</option>
+                    {filteredDistricts.map((district) => (
+                      <option key={district.id} value={district.id}>
+                        {district.name_uz}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                {!localFilters.region && (
+                  <p className="text-xs text-gray-500 mt-2">
+                    Tumanni tanlash uchun avval viloyatni tanlang
+                  </p>
+                )}
               </div>
 
               {/* For whom */}
