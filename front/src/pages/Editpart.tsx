@@ -18,6 +18,7 @@ const Editpart = () => {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState<number | "">("");
   const [location, setLocation] = useState("");
+  const [location_link, setLocationLink] = useState<string>("");
   const [rooms, setRooms] = useState(0);
   const [phone_number, setPhone_number] = useState("");
   const [district, setDistrict] = useState(0);
@@ -32,10 +33,7 @@ const Editpart = () => {
   const [newImages, setNewImages] = useState<File[]>([]);
   const [allDistricts, setAllDistricts] = useState<DistrictType[]>([]);
   const [for_whom, setFor_whom] = useState<string>("");
-  const [selectFor_whom,setSelectFor_whom] = useState<string>("")
 
-  
-  
 
   // update
   function handleEditFn() {
@@ -44,11 +42,12 @@ const Editpart = () => {
     formData.append("description", description);
     formData.append("price", String(price));
     formData.append("location", location);
+    formData.append("location_link", location_link);
     formData.append("rooms", String(rooms));
     formData.append("phone_number", phone_number);
     formData.append("region", String(region));
     formData.append("district", String(district));
-    formData.append("for_whom",selectFor_whom)
+    formData.append("for_whom", for_whom || "");
     formData.append("floor_of_this_apartment", String(floor_of_this_apartment));
     formData.append("total_floor_of_building", String(total_floor_of_building));
 
@@ -70,6 +69,7 @@ const Editpart = () => {
       .catch((error) => {
         // Error handling
         console.log(error);
+        toast.error("Ma'lumotlar xato");
       });
   }
 
@@ -157,7 +157,8 @@ const Editpart = () => {
       setImages_upload(data.images);
       setDistrict(data.district);
       setRegion(data.region);
-      setFor_whom(data.for_whom);
+      setFor_whom(data.for_whom || "");
+      setLocationLink(data.location_link);
     });
   }, [numberId]);
 
@@ -337,10 +338,14 @@ const Editpart = () => {
               <div className="space-y-3">
                 <label className="block text-sm font-semibold text-gray-700">
                   <span className="text-red-500 mr-1">*</span>
-                  KIim uchun
+                  Kim uchun
                 </label>
-                <select onChange={(e) => setSelectFor_whom(e.target.value) } className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none">
-                  <option value={for_whom} selected>
+                <select
+                  value={for_whom} 
+                  onChange={(e) => setFor_whom(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none"
+                >
+                  <option value="">
                     {for_whom === "BOYS"
                       ? "Bolalar uchun"
                       : for_whom === "GIRLS"
@@ -363,11 +368,11 @@ const Editpart = () => {
                 {/* Price Input */}
                 <div className="space-y-2">
                   <label className="block text-sm font-semibold text-gray-700">
-                    Narxi ($) *
+                    Narxi (uz) *
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span className="text-gray-500 font-semibold">$</span>
+                      <span className="text-gray-500 font-semibold">uz</span>
                     </div>
                     <input
                       type="number"
@@ -414,6 +419,41 @@ const Editpart = () => {
                       type="text"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
+                      placeholder="Shahar, tuman, ko'cha"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all duration-200"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Manzil linki
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg
+                        className="h-5 w-5 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                    </div>
+                    <input
+                      type="text"
+                      value={location_link}
+                      onChange={(e) => setLocationLink(e.target.value)}
                       placeholder="Shahar, tuman, ko'cha"
                       className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all duration-200"
                     />

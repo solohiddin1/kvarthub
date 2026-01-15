@@ -13,6 +13,9 @@ const MyListings = () => {
   useEffect(() => {
     apiClient.get("/api/listings/my-listings/").then((res) => {
       setListing(res.data.result);
+       localStorage.setItem("product",JSON.stringify(res.data.result))
+     
+      
     });
   }, []);
 
@@ -36,39 +39,46 @@ const MyListings = () => {
   }
 
   // active disactive 
-  function toggleListingStatus(id: number) {
-   const  isComfirm = window.confirm("E'lonni qayta yoqishda pul yechib olinadi ")
-   if(isComfirm){
-     apiClient
-       .patch(`/api/listings/listings/${id}/update_status/`)
-       .then((res) => {
+ function toggleListingStatus(id: number, isCurrentlyActive: boolean) {
+  const message = isCurrentlyActive
+    ? "E'lonni faolsizlashtirishni istaysizmi?"
+    : "E'lonni faollashtirishda pul yechib olinadi. Davom etasizmi?";
+  
+  const isConfirmed = window.confirm(message);
+  
+  if (isConfirmed) {
+    apiClient
+      .patch(`/api/listings/listings/${id}/update_status/`)
+      .then((res) => {
         console.log(res.data);
         
-         if(res.data.success){
-          toast.success("E'lon muvaffaqiyatli faollashtirildi")
-           setListing((prev) =>
-             prev.map((item) =>
-               item.id === id ? { ...item, is_active: !item.is_active } : item
-             )
-           );
-         }
-         else{
-          toast.error(res.data.error.message_language.uz)
-         }
-       })
-       .catch((err) => {
-         console.log(err,);
-       });
-   }
-   else{
-    alert("E'lon faolashmadi")
-   }
+        if (res.data.success) {
+          const action = isCurrentlyActive ? "faolsizlashtirildi" : "faollashtirildi";
+          toast.success(`E'lon muvaffaqiyatli ${action}`);
+          
+          setListing((prev) =>
+            prev.map((item) =>
+              item.id === id ? { ...item, is_active: !item.is_active } : item
+            )
+          );
+        } else {
+          toast.error(res.data.error.message_language.uz);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("Xatolik yuz berdi");
+      });
+  } else {
+    const action = isCurrentlyActive ? "faolsizlashtirmaslik" : "faollashtirmaslik";
+    toast.info(`E'lonni ${action} bekor qilindi`);
   }
+}
 
   return (
     <>
       <HeaderPart />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
         {listings.map((item: ProductsType) => (
           <div
             key={item.id}
@@ -248,16 +258,16 @@ const MyListings = () => {
                   onClick={() => handleDeleteCard(item.id)}
                   className="font-semibold bg-red-600 py-3 rounded-3xl flex-1 text-white cursor-pointer hover:bg-red-700 transition-colors"
                 >
-                  Delete
+                 O'chirish
                 </button>
                 <button
                   onClick={() => navigate(`/my-listings/${item.id}`)}
                   className="font-semibold bg-blue-600 py-3 rounded-3xl flex-1 text-white cursor-pointer hover:bg-blue-700 transition-colors"
                 >
-                  Edit
+                  Yangilash
                 </button>
                 <button
-                onClick={() => toggleListingStatus(item.id)}
+                onClick={() => toggleListingStatus(item.id,item.is_active ?? false)}
                   className={`font-semibold py-3 rounded-3xl flex-1 text-white cursor-pointer transition-colors ${
                     item.is_active
                       ? "bg-yellow-600 hover:bg-yellow-700" // Deactivate - sariq

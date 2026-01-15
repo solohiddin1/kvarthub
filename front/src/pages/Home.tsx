@@ -37,7 +37,7 @@ const Home = () => {
       try {
         setLoading(true)
         const response = await apiClient.get('/api/listings/listings/')
-        localStorage.setItem("product",JSON.stringify(response.data))
+       
 
         
         

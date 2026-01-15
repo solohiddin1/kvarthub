@@ -17,6 +17,7 @@ const CreateListing = () => {
   const [price, setPrice] = useState(0);
   const [region, setRegion] = useState(0);
   const [district, setDistrict] = useState(0);
+  const [location_link, setLocationLink] = useState("");
   const [location, setLocation] = useState("");
   const [rooms, setRooms] = useState(0);
   const [phone_number, setPhone_number] = useState("");
@@ -31,7 +32,6 @@ const CreateListing = () => {
   const [expiry_year, setExpiry_year] = useState<number>(0);
   const [for_whom,setFor_whom] = useState<string>("")
  
-  
 
   // select regions
   const [selectRegion, setSelectRegion] = useState<RegionsType[]>([]);
@@ -84,6 +84,7 @@ const CreateListing = () => {
     formData.append("price", String(price));
     formData.append("region", String(region));
     formData.append("district", String(district));
+    formData.append("location_link", location_link);
     formData.append("location", location);
     formData.append("rooms", String(rooms));
     formData.append("phone_number", phone_number);
@@ -102,6 +103,8 @@ const CreateListing = () => {
         if (response.data.success) {
           toast.success("E'lon muvaffaqiyatli yaratildi!");
           navigate("/");
+          console.log(response.data);
+          
         } else {
           const errorMsg =
             response.data.error?.message_language?.uz ||
@@ -395,8 +398,7 @@ const CreateListing = () => {
                   </h3>
                 </div>
 
-                {/* Viloyat va Tuman */}
-
+               
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Location (manzil) */}
                   <div className="space-y-3">
@@ -467,6 +469,47 @@ const CreateListing = () => {
                       />
                     </div>
                   </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Location (manzil) */}
+                  <div className="space-y-3">
+                    <label className="block text-sm font-semibold text-gray-700">
+                      <span className="text-red-500 mr-1">*</span>
+                      Aniq manzil linki
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg
+                          className="w-5 h-5 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                        </svg>
+                      </div>
+                      <input
+                        type="text"
+                        className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
+                        placeholder="Ko'cha, uy, kvartira raqami"
+                        onChange={(e) => setLocationLink(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                 
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-6">

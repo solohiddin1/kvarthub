@@ -102,6 +102,7 @@ export interface ProductsType {
   district:number
   region:number
   for_whom:string
+  location_link:string
   is_active?: boolean
 }
 export interface DistrictType {
@@ -143,6 +144,7 @@ export interface Listing {
   description: string;
   price: string;
   location: string;
+  location_link:string
   rooms: number;
   phone_number: string;
   total_floor_of_building: number;

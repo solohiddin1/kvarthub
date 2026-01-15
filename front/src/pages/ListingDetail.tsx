@@ -215,7 +215,7 @@ const ListingDetail = () => {
             <div className="bg-linear-to-r from-green-50 to-emerald-50 p-6 rounded-2xl border border-green-100">
               <div className="flex items-end gap-2">
                 <span className="text-4xl md:text-5xl font-bold text-emerald-700">
-                  {listing.price} ming
+                  {listing.price} so'm
                 </span>
                 <span className="text-gray-600 text-lg mb-1">/oyiga</span>
               </div>
@@ -256,17 +256,15 @@ const ListingDetail = () => {
                 </p>
               </div>
 
-              <div className="bg-linear-to-br from-amber-50 to-white p-5 rounded-xl border border-amber-100 text-center">
+              <div onClick={() => window.open(listing.location_link, '_blank')} className="bg-linear-to-br from-amber-50 to-white p-5 rounded-xl border border-amber-100 text-center cursor-pointer">
                 <div className="text-3xl text-amber-600 mb-2">📍</div>
-                <h3 className="text-gray-600 text-sm mb-1">Lokatsiya</h3>
-                <p className="text-lg font-bold text-gray-900 truncate">
-                  {district}
-                </p>
+                <h3 className="text-lg font-bold text-gray-900 truncate mt-2 md:mt-8">
+                  Lokatsiya
+                </h3>
               </div>
             </div>
 
             {/* kim uchun  */}
-            {/* Kim uchun - O'ziga xos dizayn */}
             <div className="bg-linear-to-r from-pink-50 to-rose-50 p-6 rounded-2xl border border-rose-100">
               <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <svg
@@ -321,7 +319,7 @@ const ListingDetail = () => {
                     {listing.for_whom === "FAMILY"
                       ? "Oila uchun"
                       : listing.for_whom === "BOYS"
-                      ? "Yigitlar uchun"
+                      ? "Bolalar uchun"
                       : listing.for_whom === "GIRLS"
                       ? "Qizlar uchun"
                       : listing.for_whom === "FOREIGNERS"
@@ -331,7 +329,7 @@ const ListingDetail = () => {
                   <p className="text-sm text-gray-600 mt-1">
                     {listing.for_whom === "FAMILY" &&
                       "Ham oilaviy, ham yakka tartibda"}
-                    {listing.for_whom === "BOYS" && "Faqat yigitlar uchun"}
+                    {listing.for_whom === "BOYS" && "Faqat Bolalar uchun"}
                     {listing.for_whom === "GIRLS" && "Faqat qizlar uchun"}
                     {listing.for_whom === "FOREIGNERS" && "Barcha uchun ochiq"}
                   </p>
@@ -383,11 +381,8 @@ const ListingDetail = () => {
                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-                Aniq manzil
+                 Manzil
               </h2>
-              <p className="text-gray-800 text-lg font-medium mb-6">
-                {listing.location}
-              </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center gap-3 p-3 bg-white rounded-xl">

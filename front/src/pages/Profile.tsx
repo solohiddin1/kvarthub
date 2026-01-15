@@ -6,11 +6,8 @@ import { HeaderPart } from "../components";
 import {
   LikedIcon,
   LogOutIcon,
-  NoteIcon,
   PaymentIcon,
   ProfileIcon,
-  SupportIcon,
-  ThemeIcon,
 } from "../assets/icons";
 import { HomeOutlined, RightOutlined } from "@ant-design/icons";
 
@@ -144,7 +141,7 @@ const Profile = () => {
 
       <div className="pt-6 sm:pt-[60px] pb-30 px-4 sm:px-5">
         <h2 className="text-black font-semibold text-[20px] sm:text-[24px] border-b border-[#0000001A] pb-4 sm:pb-[19px]">
-          Profile
+         Profil
         </h2>
 
         {/* Profile header */}
@@ -178,10 +175,10 @@ const Profile = () => {
 
               <div className="border-b flex-1 pb-2 border-[#E7E6E5]">
                 <strong className="text-black text-[16px] sm:text-[20px] font-semibold">
-                  My Listings
+                  Mening roʻyxatlarim
                 </strong>
                 <p className="text-sm sm:text-base text-gray-600">
-                  {product?.length ?? 0} announcement
+                  {product?.length ?? 0} ta e'lon
                 </p>
               </div>
             </div>
@@ -220,11 +217,11 @@ const Profile = () => {
 
               <div className="border-b flex-1 pb-2 border-[#E7E6E5]">
                 <strong className="text-black text-[16px] sm:text-[20px] font-semibold">
-                  Favorites
+                  Sevimlilar
                 </strong>
 
                 <p className="text-sm sm:text-base text-gray-600">
-                  {savedCard?.length ?? 0} saved items
+                  {savedCard?.length ?? 0} saqlangan e'lonlar
                 </p>
               </div>
             </div>
@@ -243,9 +240,9 @@ const Profile = () => {
 
               <div className="border-b flex-1 pb-2 border-[#E7E6E5]">
                 <strong className="text-black text-[16px] sm:text-[20px] font-semibold">
-                  Payment
+                  To'lov
                 </strong>
-                <p className="text-sm sm:text-base text-gray-600">Free</p>
+                <p className="text-sm sm:text-base text-gray-600">Bepul</p>
               </div>
             </div>
 
@@ -302,7 +299,7 @@ const Profile = () => {
               </div>
               <div className="flex flex-col">
                 <strong className="text-[18px] sm:text-[20px] font-semibold text-red-600">
-                  Log Out
+                  Chiqish
                 </strong>
               </div>
             </div>
