@@ -99,4 +99,60 @@ export interface ProductsType {
   total_floor_of_building:number
   images: ImageType[]
   rooms: number
+  district:number
+  region:number
+  for_whom:string
+  location_link:string
+  is_active?: boolean
+}
+export interface DistrictType {
+  id: number;
+  name_uz: string;
+  name_ru: string;
+  name_en: string;
+  region: number;
+}
+ 
+
+ export interface RegionsType {
+  id: number;
+  name_uz: string;
+  name_ru: string;
+  name_en: string;
+  disctricts: DistrictType[]; // E'tibor bering: "disctricts" (typo backendda)
+}
+export interface PaymenType {
+    id: number,
+    card_number_last4: string,
+    card_holder_name: string,
+    expiry_month: number,
+    expiry_year: number,
+    balance: string,
+    is_active: true,
+    created_at:string
+    updated_at: string
+}
+
+export interface ListingImage {
+  id: number;
+  image: string;
+}
+
+export interface Listing {
+  id: number;
+  title: string;
+  description: string;
+  price: string;
+  location: string;
+  location_link:string
+  rooms: number;
+  phone_number: string;
+  total_floor_of_building: number;
+  floor_of_this_apartment: number;
+  region: number;
+  district: number;
+  for_whom:string
+  is_active: boolean;
+  images: ListingImage[];
+  host?: number;
 }

@@ -23,7 +23,7 @@ const Login = () => {
       await login(email, password);
       navigate("/");
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error?.message || "Login failed. Please check your credentials.";
+      const errorMessage = err.response?.data?.error?.message || "Tizimga kirishda xatolik yuz berdi. Hisob maʼlumotlaringizni tekshiring.";
       console.log(err.response);
       
       setError(errorMessage);
@@ -74,7 +74,7 @@ const Login = () => {
         >
           <img src={GoogleLogo} alt="Googlelogo" width={24} height={24} />
           <span className="text-[#333333] text-[20px] font-semibold">
-            Log in with Google
+           Google bilan kiring
           </span>
         </div>
 
@@ -96,7 +96,7 @@ const Login = () => {
           <Custombtn value={password} onChange={(e) => setPassword(e.target.value)} />
             <Link to={"/forgot-password"} className="flex items-center gap-2 justify-end mt-3">
               <div className="w-3.5 h-3.5 bg-[#0000000D] border rounded-xs"></div>
-              <span className="text-[14px] text-[#00000080] border-b">Forgot password?</span>
+              <span className="text-[14px] text-[#00000080] border-b">Parolni unutdingizmi?</span>
             </Link>
 
           {error && (
@@ -108,7 +108,7 @@ const Login = () => {
             disabled={loading}
             className="w-full py-[15px] mt-6 bg-[#28A453] rounded-4xl text-[20px] font-semibold text-white cursor-pointer hover:opacity-70 duration-300 active:scale-98 disabled:opacity-50"
           >
-            {loading ? "Logging in..." : "Log in"}
+            {loading ? "Tizimga kirilmoqda..." : "Tizimga kirish"}
           </button>
         </form>
 

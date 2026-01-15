@@ -76,7 +76,7 @@ const ForgotPassword = () => {
                 d="M10 19l-7-7m0 0l7-7m-7 7h18"
               />
             </svg>
-            Back to Login
+            Kirish sahifasiga qaytish
           </Link>
         </div>
 
@@ -112,11 +112,11 @@ const ForgotPassword = () => {
             {/* Title */}
             <div className="text-center mb-8">
               <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                Reset Password
+                Parolni tiklash
               </h1>
               <p className="text-gray-600">
-                Enter your email address and we'll send you a code to reset your
-                password
+                E-pochta manzilingizni kiriting va biz sizni qayta o'rnatish
+                uchun kod yuboramiz
               </p>
             </div>
 
@@ -153,7 +153,7 @@ const ForgotPassword = () => {
               {/* Email input */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
+                  E-pochta manzili
                 </label>
                 <div className="relative group">
                   <div className="absolute inset-0 bg-linear-to-r from-blue-500 to-purple-500 rounded-lg blur opacity-0 group-focus-within:opacity-20 transition-opacity duration-300"></div>
@@ -214,7 +214,7 @@ const ForgotPassword = () => {
                           d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                         />
                       </svg>
-                      <span>Send Reset Code</span>
+                      <span>Qayta tiklash kodini yuboring</span>
                     </>
                   )}
                 </div>
@@ -224,43 +224,43 @@ const ForgotPassword = () => {
             {/* Footer note */}
             <div className="mt-8 text-center">
               <p className="text-sm text-gray-500">
-                Remember your password?{" "}
+                Parolingizni eslab qoling?{" "}
                 <Link
                   to="/login"
                   className="text-blue-600 hover:text-blue-800 font-semibold transition-colors"
                 >
-                  Sign in here
+                  Bu yerga kiring
                 </Link>
               </p>
             </div>
             <div className="mt-8 flex justify-center">
-          <div className="flex items-center">
-            <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
-              1
+              <div className="flex items-center">
+                <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
+                  1
+                </div>
+                <div className="w-16 h-1 bg-gray-300"></div>
+                <div className="w-8 h-8 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center font-semibold">
+                  2
+                </div>
+                <div className="w-16 h-1 bg-gray-300"></div>
+                <div className="w-8 h-8 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center font-semibold">
+                  3
+                </div>
+              </div>
             </div>
-            <div className="w-16 h-1 bg-gray-300"></div>
-            <div className="w-8 h-8 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center font-semibold">
-              2
-            </div>
-            <div className="w-16 h-1 bg-gray-300"></div>
-            <div className="w-8 h-8 bg-gray-300 text-gray-500 rounded-full flex items-center justify-center font-semibold">
-              3
-            </div>
-          </div>
-        </div>
 
-        <div className="mt-2 flex justify-between text-sm text-gray-600 max-w-xs mx-auto">
-          <span className="text-blue-600 font-medium">Email</span>
-          <span className=" font-medium">Kod Tasdiqlash</span>
-          <span>Yangi Parol</span>
-        </div>
+            <div className="mt-2 flex justify-between text-sm text-gray-600 max-w-xs mx-auto">
+              <span className="text-blue-600 font-medium">Email</span>
+              <span className=" font-medium">Kod Tasdiqlash</span>
+              <span>Yangi Parol</span>
+            </div>
 
             {/* Loading overlay (agar kerak bo'lsa) */}
             {isLoading && (
-              <div className="absolute inset-0 bg-black bg-opacity-10 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+              <div className="absolute inset-0 backdrop-blur-sm bg-white/70 rounded-2xl flex items-center justify-center">
                 <div className="text-center">
-                  <div className="w-12 h-12 border-4 border-white border-t-blue-500 border-solid rounded-full animate-spin mx-auto mb-4"></div>
-                  <p className="text-white font-medium">
+                  <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-600 border-solid rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-gray-800 font-medium">
                     Email yuborilmoqda...
                   </p>
                 </div>
