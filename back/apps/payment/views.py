@@ -20,7 +20,6 @@ logger = get_logger()
 
 
 class AddCardView(generics.CreateAPIView):
-    """Add a new card and automatically credit 500"""
     serializer_class = CardCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -35,7 +34,6 @@ class AddCardView(generics.CreateAPIView):
 
 
 class ListCardsView(generics.ListAPIView):
-    """List user's cards"""
     serializer_class = CardSerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -49,7 +47,6 @@ class ListCardsView(generics.ListAPIView):
 
 
 class CardRetrieveView(generics.RetrieveAPIView):
-    """Get a specific card"""
     serializer_class = CardSerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -63,7 +60,6 @@ class CardRetrieveView(generics.RetrieveAPIView):
 
 
 class CardUpdateView(generics.UpdateAPIView):
-    """Update a specific card"""
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
@@ -92,7 +88,6 @@ class CardUpdateView(generics.UpdateAPIView):
 
 
 class CardDeleteView(generics.DestroyAPIView):
-    """Delete a specific card"""
     serializer_class = CardSerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -113,7 +108,6 @@ class CardDeleteView(generics.DestroyAPIView):
 
 
 class TransactionListView(generics.ListAPIView):
-    """List user's transactions"""
     serializer_class = TransactionSerializer
     permission_classes = [permissions.IsAuthenticated]
     
@@ -127,19 +121,9 @@ class TransactionListView(generics.ListAPIView):
 
 
 class ChargeCardView(APIView):
-    """Charge a user's card for a specific amount"""
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self, request):
-        """
-        Charge card for a listing or other purpose
-        Expected payload: {
-            "card_id": int,
-            "amount": float,
-            "listing_id": int (optional),
-            "description": str (optional)
-        }
-        """
         user = request.user
         card_id = request.data.get('card_id')
         amount = request.data.get('amount')
