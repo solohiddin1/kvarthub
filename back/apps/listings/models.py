@@ -21,7 +21,7 @@ class Listing(BaseModel):
     location = models.CharField(max_length=255)
     rooms = models.IntegerField(default=1)
     state = models.CharField(max_length=10, choices=state, default='ACCEPTED')
-    for_whom = models.CharField(max_length=15, choices=for_whom_state)
+    for_whom = models.CharField(max_length=15, choices=for_whom_state, blank=True, null=True)
     phone_number = models.CharField(max_length=15, null=True, blank=True)
     total_floor_of_building = models.IntegerField(null=True, blank=True)
     floor_of_this_apartment = models.IntegerField(null=True, blank=True)

@@ -133,6 +133,7 @@ class ListingsListView(ListAPIView):
         'district': ['exact'],
         'floor_of_this_apartment': ['exact'],
         'rooms': ['exact'],
+        'for_whom': ['exact'],
     }
 
 
