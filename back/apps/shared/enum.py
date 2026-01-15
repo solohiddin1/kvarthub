@@ -37,6 +37,7 @@ class ResultCodes(Enum):
     CARD_CREATION_FAILED = -105
     PAYMENT_FAILED = -106
     CARD_IN_USE = -107
+    INVALID_URL = -108
 
 
 
@@ -210,5 +211,10 @@ ResultMessages = {
         "uz": "Faol e'lonlarga ulangan kartani o'chirib bo'lmaydi, iltimos, avval e'lonlarni o'chiring yoki deaktivatsiya qiling",
         "en": "Cannot delete card linked to active listings, please deactivate listings first",
         "ru": "Невозможно удалить карту, связанную с активными объявлениями, пожалуйста, сначала деактивируйте объявления"
+    },
+    "INVALID_URL": {
+        "uz": "Noto'g'ri URL manzil!",
+        "en": "Invalid URL!",
+        "ru": "Неверный URL!"
     },
 }

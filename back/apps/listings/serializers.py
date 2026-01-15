@@ -117,6 +117,22 @@ class ListingSerializer(serializers.ModelSerializer):
             ListingImage.objects.create(listing=instance, image=image)
         
         return instance
+    
+    def validate_location_link(self, value):
+        """Validate that location_link is a valid URL"""
+        if not value:  # Allow empty/null values
+            return value
+            
+        from django.core.validators import URLValidator
+        from django.core.exceptions import ValidationError as DjangoValidationError
+        
+        validator = URLValidator()
+        try:
+            validator(value)
+        except DjangoValidationError:
+            raise serializers.ValidationError("Invalid URL for location_link")
+        
+        return value
 
     
 class ListingDetailSerializer(ListingSerializer):
