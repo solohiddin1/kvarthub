@@ -46,6 +46,7 @@ OUT = [
     'django_filters',
     'rest_framework.authtoken',
     'rest_framework_simplejwt.token_blacklist',
+    'django_celery_beat',
     
     # auth
     # 'allauth',
@@ -267,3 +268,13 @@ LISTING_CREATION_CHARGE = 50.00
 DAILY_LISTING_CHARGE = 10.00
 CARD_CREATED_INITIAL_BALANCE = 500.00
 LISTING_ACTIVATION_CHARGE = 5.00
+CARD_INITIAL_BALANCE = 500
+
+# Celery Configuration
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
