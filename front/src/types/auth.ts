@@ -100,6 +100,7 @@ export interface ProductsType {
   images: ImageType[]
   rooms: number
   district:number
+  region:number
   is_active?: boolean
 }
 export interface DistrictType {
