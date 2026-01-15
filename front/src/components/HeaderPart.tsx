@@ -32,10 +32,11 @@ const HeaderPart = () => {
             {({ isActive }) => (isActive ? <LikedFilledIcon /> : <LikedIcon />)}
           </NavLink>
             <NavLink
-              to={"/notification"}
+              // to={"/notification"}
+              to={""}
               className={({ isActive }) =>
                 `p-3.5 rounded-[50%] bg-[#0000000D] cursor-pointer border border-transparent   text-[#5C5C5C]  flex duration-300 hover:border-[#28A453] ${
-                  isActive ? "bg-[#ADEBC2] text-[#28A453]" : "bg-[#0000000D]"
+                  isActive ? "" : "bg-[#0000000D]"
                 }`
               }
             >
