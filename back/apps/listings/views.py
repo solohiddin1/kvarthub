@@ -12,6 +12,7 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView, ListAPIView, GenericAPIView
 
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db import transaction as db_transaction
 from django.conf import settings
@@ -157,7 +158,9 @@ class ListingsListView(ListAPIView):
     """List all listings"""
     queryset = Listing.objects.filter(is_active=True)
     serializer_class = BaseListingSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+
+    search_fields = ["title", "description", "location"]
 
     filterset_fields = {
         'price': ['gte', 'lte'],
