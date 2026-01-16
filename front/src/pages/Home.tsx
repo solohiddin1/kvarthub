@@ -213,11 +213,11 @@ const Home = () => {
                 height={212}
               />
 
-              <div className=" p-5">
+              <div className=" p-3">
                 <h2 className="line-clamp-2 font-medium text-[#000000] text-[18px]">
                   {item.title}
                 </h2>
-                <div className="flex items-center justify-between mt-3">
+                <div className="flex items-center justify-between mt-1">
                   <p className="text-[#757575]">${item.price}</p>
                   <p className="text-[14px] text-[#A6A6A6]">{item.rooms} rooms</p>
                 </div>
