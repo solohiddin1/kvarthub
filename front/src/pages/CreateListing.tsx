@@ -7,8 +7,6 @@ import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import type { DistrictType, RegionsType } from "../types/auth";
 
-
-
 const CreateListing = () => {
   const { loading } = useAuth();
   const navigate = useNavigate();
@@ -30,28 +28,30 @@ const CreateListing = () => {
   const [card_holder_name, setCard_holder_name] = useState<string>("");
   const [expiry_month, setExpiry_month] = useState<number>(0);
   const [expiry_year, setExpiry_year] = useState<number>(0);
-  const [for_whom,setFor_whom] = useState<string>("")
- 
+  const [for_whom, setFor_whom] = useState<string>("");
 
   // select regions
   const [selectRegion, setSelectRegion] = useState<RegionsType[]>([]);
-  const [selectedRegionDistricts, setSelectedRegionDistricts] = useState<DistrictType[]>([]);
-  
-  // viloyat tumanlarni olib kelish 
-   useEffect(() => {
-    apiClient.get("/api/shared/")
-      .then(res => {
+  const [selectedRegionDistricts, setSelectedRegionDistricts] = useState<
+    DistrictType[]
+  >([]);
+
+  // viloyat tumanlarni olib kelish
+  useEffect(() => {
+    apiClient
+      .get("/api/shared/")
+      .then((res) => {
         console.log("Regions data:", res.data);
         const regions = res.data.result || [];
         setSelectRegion(regions);
-        
+
         // Agar ma'lumotlar bo'lsa, birinchi viloyatni tanlash
         if (regions.length > 0) {
           setRegion(regions[0].id);
           setSelectedRegionDistricts(regions[0].disctricts || []);
         }
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Viloyatlarni olishda xatolik:", error);
         toast.error("Viloyatlarni yuklab bo'lmadi");
       });
@@ -62,9 +62,9 @@ const CreateListing = () => {
     const regionId = Number(e.target.value);
     setRegion(regionId);
     setDistrict(0); // Viloyat o'zgarganda tumani tozalash
-    
+
     // Tanlangan viloyatni topish va uning tumanlarini o'rnatish
-    const selectedRegion = selectRegion.find(r => r.id === regionId);
+    const selectedRegion = selectRegion.find((r) => r.id === regionId);
     setSelectedRegionDistricts(selectedRegion?.disctricts || []);
   };
 
@@ -88,61 +88,76 @@ const CreateListing = () => {
     formData.append("location", location);
     formData.append("rooms", String(rooms));
     formData.append("phone_number", phone_number);
-    formData.append("for_whom",for_whom)
+    formData.append("for_whom", for_whom);
     formData.append("floor_of_this_apartment", String(floor_of_this_apartment));
     formData.append("total_floor_of_building", String(total_floor_of_building));
     images_upload.forEach((img) => formData.append("images_upload", img));
+    console.log(phone_number);
+    
+    if(phone_number.length === 13){
 
-    apiClient
-      .post("/api/listings/create/", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-      .then((response) => {
-        if (response.data.success) {
-          toast.success("E'lon muvaffaqiyatli yaratildi!");
-          navigate("/");
-          console.log(response.data);
-          
-        } else {
-          const errorMsg =
-            response.data.error?.message_language?.uz ||
-            response.data.error?.message_language?.en ||
-            response.data.error?.message_language?.ru ||
-            response.data.error?.message ||
-            "Xatolik yuz berdi, qayta urinib ko'ring.";
-          toast.error(errorMsg);
-          
-          // Agar karta bo'lmasa, Payment page ga redirect qilish
-          const errorMessage = errorMsg.toLowerCase();
-          if (errorMessage.includes("karta") || errorMessage.includes("card") || 
-              errorMessage.includes("to'lov") || errorMessage.includes("balans")) {
-                setPaymentModal(true)
-              
+      apiClient
+        .post("/api/listings/create/", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((response) => {
+          if (response.data.success) {
+            toast.success("E'lon muvaffaqiyatli yaratildi!");
+            navigate("/");
+            console.log(response.data);
+          } else {
+            const errorMsg =
+              response.data.error?.message_language?.uz ||
+              response.data.error?.message_language?.en ||
+              response.data.error?.message_language?.ru ||
+              response.data.error?.message ||
+              "Xatolik yuz berdi, qayta urinib ko'ring.";
+            toast.error(errorMsg);
+  
+            // Agar karta bo'lmasa, Payment page ga redirect qilish
+            const errorMessage = errorMsg.toLowerCase();
+            if (
+              errorMessage.includes("karta") ||
+              errorMessage.includes("card") ||
+              errorMessage.includes("to'lov") ||
+              errorMessage.includes("balans")
+            ) {
+              setPaymentModal(true);
+            }
           }
-        }
-      })
-      .catch((error) => {
-        const errorMessage = error.response?.data?.message?.uz || 
-                            error.response?.data?.message_language?.uz ||
-                            error.response?.data?.error?.message_language?.uz ||
-                            error.response?.data?.error?.message ||
-                            "Xatolik yuz berdi, qayta urinib ko'ring.";
-        
-        toast.error(errorMessage);
-        console.log(error);
-        
-        // Agar karta bo'lmasa yoki balans yetarli bo'lmasa, Payment page ga redirect qilish
-        const errorMsgLower = errorMessage.toLowerCase();
-        if (errorMsgLower.includes("karta") || errorMsgLower.includes("card") || 
-            errorMsgLower.includes("to'lov") || errorMsgLower.includes("balans")) {
-          navigate("/payment");
-        }
-      })
-      .finally(() => {
-        setIsSubmitting(false);
-      });
+        })
+        .catch((error) => {
+          const errorMessage =
+            error.response?.data?.message?.uz ||
+            error.response?.data?.message_language?.uz ||
+            error.response?.data?.error?.message_language?.uz ||
+            error.response?.data?.error?.message ||
+            "Xatolik yuz berdi, qayta urinib ko'ring.";
+  
+          toast.error(errorMessage);
+          console.log(error);
+  
+          // Agar karta bo'lmasa yoki balans yetarli bo'lmasa, Payment page ga redirect qilish
+          const errorMsgLower = errorMessage.toLowerCase();
+          if (
+            errorMsgLower.includes("karta") ||
+            errorMsgLower.includes("card") ||
+            errorMsgLower.includes("to'lov") ||
+            errorMsgLower.includes("balans")
+          ) {
+            navigate("/payment");
+          }
+        })
+        .finally(() => {
+          setIsSubmitting(false);
+        });
+    }
+    else{
+      toast.error("Telefon raqam noto'g'ri formatda. Iltimos, +998901234567 shaklida kiriting.");
+  setIsSubmitting(false);
+    }
   }
   // remove images
   const removeImage = (index: number) => {
@@ -154,7 +169,7 @@ const CreateListing = () => {
     e.preventDefault();
     apiClient
       .post("/api/payment/cards/add/", {
-        card_number: card_number.replace(/\s/g, ''),
+        card_number: card_number.replace(/\s/g, ""),
         card_holder_name,
         expiry_month,
         expiry_year,
@@ -163,12 +178,13 @@ const CreateListing = () => {
         setPaymentModal(false);
         toast.success("Karta muvaffaqqiyatli qo'shildi");
         // Karta qo'shgandan keyin Payment page ga yuborish
-       setPaymentModal(false)
+        setPaymentModal(false);
       })
       .catch((error) => {
-        const errorMsg = error.response?.data?.message?.uz || 
-                        error.response?.data?.message_language?.uz ||
-                        "Karta ma'lumotlari xato";
+        const errorMsg =
+          error.response?.data?.message?.uz ||
+          error.response?.data?.message_language?.uz ||
+          "Karta ma'lumotlari xato";
         toast.error(errorMsg);
       });
   }
@@ -177,6 +193,14 @@ const CreateListing = () => {
       setSelectRegion(res.data.result);
     });
   }, []);
+
+
+
+  function hanleCheckerPhone(e:React.ChangeEvent<HTMLInputElement>){
+    setPhone_number(e.target.value);
+    
+
+  }
 
   if (loading) {
     return (
@@ -269,6 +293,7 @@ const CreateListing = () => {
                       <input
                         required
                         type="number"
+                        min={0}
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
                         placeholder="0"
                         onChange={(e) => setPrice(Number(e.target.value))}
@@ -320,7 +345,6 @@ const CreateListing = () => {
                   className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none"
                   onChange={handleRegionChange}
                 >
-                  
                   <option value="" disabled selected>
                     Viloyatni tanlang
                   </option>
@@ -376,7 +400,7 @@ const CreateListing = () => {
                 <select
                   required
                   className={`w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none`}
-                  onChange={(e) =>setFor_whom(e.target.value) }
+                  onChange={(e) => setFor_whom(e.target.value)}
                 >
                   <option value="" disabled selected>
                     Kim uchun
@@ -386,7 +410,6 @@ const CreateListing = () => {
                   <option value="BOYS">Bolalar uchun</option>
                   <option value="FOREIGNERS">Umumiy</option>
                 </select>
-               
               </div>
 
               {/* Location & Details */}
@@ -398,7 +421,6 @@ const CreateListing = () => {
                   </h3>
                 </div>
 
-               
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Location (manzil) */}
                   <div className="space-y-3">
@@ -462,9 +484,10 @@ const CreateListing = () => {
                       </div>
                       <input
                         type="text"
+                         maxLength={13} 
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
-                        placeholder="+998 90 123 45 67"
-                        onChange={(e) => setPhone_number(e.target.value)}
+                        placeholder="+998901234567"
+                        onChange={(e) => hanleCheckerPhone(e)}
                         required
                       />
                     </div>
@@ -503,13 +526,11 @@ const CreateListing = () => {
                       <input
                         type="text"
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
-                        placeholder="Ko'cha, uy, kvartira raqami"
+                        placeholder="Aniq manzil linki"
                         onChange={(e) => setLocationLink(e.target.value)}
                       />
                     </div>
                   </div>
-
-                 
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-6">
@@ -537,6 +558,7 @@ const CreateListing = () => {
                       <input
                         type="number"
                         placeholder="0"
+                        min={0}
                         onChange={(e) => setRooms(Number(e.target.value))}
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
                       />
@@ -566,6 +588,7 @@ const CreateListing = () => {
                       </div>
                       <input
                         type="number"
+                        min={0}
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
                         placeholder="Masalan: 5"
                         onChange={(e) =>
@@ -598,6 +621,7 @@ const CreateListing = () => {
                       </div>
                       <input
                         type="number"
+                        min={0}
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
                         placeholder="Masalan: 5"
                         onChange={(e) =>

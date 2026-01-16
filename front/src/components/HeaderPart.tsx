@@ -16,7 +16,7 @@ const HeaderPart = () => {
   const isHome = location.pathname == "/";
   return (
     <div className={`${isHome ? "bg-[#FFFFFF]" : "bg-[#F2F2F2]"}`}>
-      <div className="containers flex items-center justify-between py-[15px] sm:py-[30px] px-5 ">
+      <div className="containers flex items-center justify-between py-[15px] sm:py-[30px] pl-5 ">
       <Link to={"/"}>
         <img src={HeaderImg} alt="Header Logo" width={150} height={40} />
       </Link>
