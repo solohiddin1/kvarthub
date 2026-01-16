@@ -54,25 +54,30 @@ const Editpart = () => {
     newImages.forEach((file) => {
       formData.append(`images_upload`, file);
     });
+    if(phone_number.length === 13){
 
-    apiClient
-      .patch(`/api/listings/${numberId}/update/`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-      .then((res) => {
-        toast.success("Yangilandi");
-        navigate("/");
-        console.log(res.data);
-      })
-      .catch((error) => {
-        // Error handling
-        console.log(error);
-        toast.error("Ma'lumotlar xato");
-      });
+      apiClient
+        .patch(`/api/listings/${numberId}/update/`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((res) => {
+          toast.success("Yangilandi");
+          navigate("/");
+          console.log(res.data);
+        })
+        .catch((error) => {
+          // Error handling
+          console.log(error);
+          toast.error("Ma'lumotlar xato");
+        });
+    }
+    else{
+      toast.error("Telefon raqam noto'g'ri formatda. Iltimos, +998901234567 shaklida kiriting.");
+  
+    }
   }
-
   // img delete
   function handledeleteFn(id: string) {
     apiClient
@@ -200,6 +205,13 @@ const Editpart = () => {
     );
     setSelectDistrictValue(selectedDistrict?.name_uz || "");
   };
+
+
+function hanleCheckerPhone(e:React.ChangeEvent<HTMLInputElement>){
+    setPhone_number(e.target.value);
+    
+
+  }
 
   return (
     <>
@@ -518,9 +530,10 @@ const Editpart = () => {
                     </div>
                     <input
                       type="tel"
+                      maxLength={13}
                       value={phone_number}
-                      onChange={(e) => setPhone_number(e.target.value)}
-                      placeholder="+998 90 123 45 67"
+                      onChange={(e) => hanleCheckerPhone(e)}
+                      placeholder="+998901234567"
                       className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all duration-200"
                     />
                   </div>

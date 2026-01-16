@@ -182,12 +182,12 @@ const Home = () => {
       )}
 
       {!loading && products.length > 0 && (
-        <div className="containers grid grid-cols-1 md:grid-cols-3 lg:flex lg:flex-wrap lg:justify-between gap-3 py-5 px-5">
+        <div className="containers grid grid-cols-2 md:grid-cols-3 lg:flex lg:flex-wrap lg:justify-between gap-3 py-5 px-5">
           {products.map((item: ProductsType) => (
             <div
               key={item.id}
               onClick={() => navigate(`/listing/${item.id}`)}
-              className="bg-[#0000000D] lg:w-[357px] rounded-[20px] relative cursor-pointer transition-shadow"
+              className="bg-[#0000000D] min-h-[319px] lg:w-[357px] rounded-[20px] relative cursor-pointer transition-shadow"
             >
               <div
                 onClick={(e) => {
@@ -202,24 +202,28 @@ const Home = () => {
               </div>
 
               <img
-                className="rounded-[20px] w-[357px] h-80 object-cover"
+                className="rounded-[20px] w-[357px] h-53 md:h-80 object-cover "
                 src={
                   item.images && item.images.length > 0
                     ? item.images[0].image
                     : "/placeholder.jpg"
                 }
                 alt={item.title}
-                width={357}
-                height={320}
+                width={194}
+                height={212}
               />
 
-              <div className="pt-4 p-5 pb-7">
+              <div className=" p-3">
                 <h2 className="line-clamp-2 font-medium text-[#000000] text-[18px]">
                   {item.title}
                 </h2>
-                <div className="flex items-center justify-between mt-3">
+                <div className="flex items-center justify-between mt-1">
                   <p className="text-[#757575]">${item.price}</p>
                   <p className="text-[14px] text-[#A6A6A6]">{item.rooms} rooms</p>
+                </div>
+                <div className="flex items-center justify-between mt-3">
+                  <p className="text-[#757575]">{item.region}</p>
+                  <p className="text-[#757575]">{item.for_whom == "GIRLS" ? "Qizlarga" : item.for_whom == "BOYS" ? "Bolalarga" : item.for_whom == "FAMILY" ? "Oilaga" : "Umumiy"}</p>
                 </div>
               </div>
             </div>
