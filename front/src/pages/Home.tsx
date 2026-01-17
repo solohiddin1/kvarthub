@@ -157,7 +157,7 @@ const Home = () => {
             <li
               key={region.id}
               onClick={() => toggleRegion(region.id)}
-              className={`py-[13px] px-6 rounded-[30px] cursor-pointer transition ${
+              className={`py-[13px] px-6 rounded-[30px] cursor-pointer transition whitespace-nowrap ${
                 filters.region === String(region.id)
                   ? "bg-[#28A453] text-white"
                   : "bg-[#0000000D] hover:bg-gray-300"
@@ -218,11 +218,11 @@ const Home = () => {
                   {item.title}
                 </h2>
                 <div className="flex items-center justify-between mt-1">
-                  <p className="text-[#757575]">${item.price}</p>
+                  <p className="text-[#757575]">{item.price} UZS</p>
                   <p className="text-[14px] text-[#A6A6A6]">{item.rooms} rooms</p>
                 </div>
                 <div className="flex items-center justify-between mt-3">
-                  <p className="text-[#757575]">{item.region}</p>
+                  <p className="text-[#757575]">{item.location}</p>
                   <p className="text-[#757575]">{item.for_whom == "GIRLS" ? "Qizlarga" : item.for_whom == "BOYS" ? "Bolalarga" : item.for_whom == "FAMILY" ? "Oilaga" : "Umumiy"}</p>
                 </div>
               </div>
