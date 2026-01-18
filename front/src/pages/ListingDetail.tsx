@@ -191,11 +191,7 @@ const ListingDetail = () => {
           <div className="space-y-8">
             {/* Title Section */}
             <div className="space-y-2">
-              <div className="inline-block bg-linear-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-full mb-3">
-                <span className="text-blue-600 font-semibold text-sm">
-                  🏠 Uy joy
-                </span>
-              </div>
+             
               <h1 className="text-3xl md:text-4xl font-bold bg-linear-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
                 {listing.title}
               </h1>
@@ -209,22 +205,7 @@ const ListingDetail = () => {
                 </span>
                 <span className="text-gray-600 text-lg mb-1">/oyiga</span>
               </div>
-              <div className="flex items-center gap-2 mt-2">
-                <svg
-                  className="w-5 h-5 text-emerald-500"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span className="text-emerald-700 font-medium">
-                  To'lov faqat oylik asosida
-                </span>
-              </div>
+              
             </div>
 
             {/* Key Features Grid */}
@@ -248,8 +229,9 @@ const ListingDetail = () => {
 
               <div onClick={() => window.open(listing.location_link, '_blank')} className="bg-linear-to-br from-amber-50 to-white p-5 rounded-xl border border-amber-100 text-center cursor-pointer">
                 <div className="text-3xl text-amber-600 mb-2">📍</div>
-                <h3 className="text-lg font-bold text-gray-900 truncate mt-2 md:mt-8">
-                  Lokatsiya
+                <p className="text-gray-600 text-sm mb-1">Joylashuv</p>
+                <h3 className="text-lg font-bold text-gray-900 truncate ">
+                  {listing.location}
                 </h3>
               </div>
             </div>
