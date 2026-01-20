@@ -97,8 +97,9 @@ class CardDeleteView(generics.DestroyAPIView):
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         user = request.user
+        cards = Card.objects.filter(user=user, is_active=True)
         listings = user.listings.filter(host=user, is_active=True)
-        if listings.exists():
+        if listings.exists() and cards.count() <= 1:
             return ErrorResponse(
                 result=ResultCodes.CARD_IN_USE,
                 # message={"error": "Cannot delete card linked to active listings, please deactivate listings first"}

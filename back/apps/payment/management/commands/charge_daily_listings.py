@@ -113,7 +113,10 @@ class Command(BaseCommand):
                 if not dry_run:
                     with db_transaction.atomic():
                         # Deduct from card balance
-                        user_card.balance -= charge_amount
+                        balance_before = float(user_card.balance)
+                        charged = balance_before - charge_amount
+                        user_card.balance = charged
+
                         user_card.save()
                         
                         # Create transaction record

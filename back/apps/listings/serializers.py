@@ -1,3 +1,4 @@
+from apps.shared.models import District, Region
 from apps.users.models import User
 from rest_framework import serializers
 from apps.listings.models import Listing, ListingImage, Facility, ForWhom
@@ -10,9 +11,22 @@ class ListingImageSerializer(serializers.ModelSerializer):
             'image'
         ]
 
+class RegionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Region
+        fields = '__all__'
+
+class DistrictSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = District
+        fields = '__all__'
+
 class BaseListingSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField(read_only=True)
     for_whom = serializers.SerializerMethodField(read_only=True)
+
+    region = serializers.SerializerMethodField(read_only=True)
+    district = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Listing
@@ -28,21 +42,30 @@ class BaseListingSerializer(serializers.ModelSerializer):
             'region',
             'for_whom',
             'district',
+            'type',
             'is_active',
             'images',
         ]
-        read_only_fields = ['id', 'is_active']
+        read_only_fields = ['id', 'is_active', 'region', 'district']
         
     def get_images(self, obj):
         """Return serialized images for the listing"""
         images = ListingImage.objects.filter(listing=obj)
         return ListingImageSerializer(images, many=True, context=self.context).data
     
+    
     def get_for_whom(self, obj):
         """Return list of for_whom values"""
         return [fw.name for fw in obj.for_whom.all()]
 
+    def get_region(self, obj):
+        """Return region object"""
+        return RegionSerializer(obj.region, context=self.context).data if obj.region else None
 
+    def get_district(self, obj):
+        """Return district object"""
+        return DistrictSerializer(obj.district, context=self.context).data if obj.district else None
+    
 class FacilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Facility
@@ -90,6 +113,7 @@ class ListingSerializer(serializers.ModelSerializer):
             'for_whom',
             'for_whom_display',
             'district',
+            'type',
             'images',
             'images_upload',
             'facilities',
@@ -193,6 +217,8 @@ class ListingDetailSerializer(ListingSerializer):
     images = serializers.SerializerMethodField(required=False)
     facilities = serializers.StringRelatedField(many=True, read_only=True)
     host = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=True)
+    region = serializers.SerializerMethodField(read_only=True)
+    district = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Listing
@@ -223,6 +249,14 @@ class ListingDetailSerializer(ListingSerializer):
             'images',
             'facilities'
         ]
+    
+    def get_region(self, obj):
+        """Return region object"""
+        return RegionSerializer(obj.region, context=self.context).data if obj.region else None
+        
+    def get_district(self, obj):
+        """Return district object"""
+        return DistrictSerializer(obj.district, context=self.context).data if obj.district else None
         
     def get_images(self, obj):
         images = ListingImage.objects.filter(listing=obj)

@@ -1,3 +1,6 @@
+import requests
+import base64
+from io import BytesIO
 from apps.users.models import User
 from apps.shared.enum import ResultCodes
 from apps.shared.utils import SuccessResponse, ErrorResponse, detect_nsfw, get_logger
@@ -18,7 +21,6 @@ from django.db import transaction as db_transaction
 from django.conf import settings
 
 logger = get_logger()
-# Create your views here.
 
 class ListingCreateView(CreateAPIView):
     """Create a new listing with optional image uploads"""
@@ -87,7 +89,11 @@ class ListingCreateView(CreateAPIView):
                     "uz": "Iltimos, e'lon yaratishdan oldin to'lov kartasini qo'shing."
                 }
             )
-        
+        url = 'https://www.nyckel.com/v1/functions/house-presence-identifier/invoke'
+        headers = {
+            'Authorization': 'Bearer ' + settings.NYCKEL_TOKEN,
+        }
+
         # Define listing charge amount
         LISTING_CREATION_CHARGE = settings.LISTING_CREATION_CHARGE
         
@@ -107,16 +113,61 @@ class ListingCreateView(CreateAPIView):
         if images_upload:
             logger.info(f"Checking {len(images_upload)} images for NSFW content.")
             for image in images_upload:
-                # Ensure file pointer is at start for reading and restored afterward
-                try:
-                    image.seek(0)
-                except Exception:
-                    pass
+                # Read image bytes
+                image.seek(0)  # Ensure we're at the start of the file
+                image_bytes = image.read()
+                
+                # Send to Nyckel 
+                if settings.NYCKEL_TOKEN == 'None':
+                    logger.error("NYCKEL_TOKEN is not set in settings.")
+                    has_checker = False
+                else:
+                    has_checker = True
+                    # return ErrorResponse(
+                    #     result=ResultCodes.INTERNAL_SERVER_ERROR,
+                    #     message={
+                    #         "en": "Image validation service is not configured. Please contact support.",
+                    #         "ru": "Служба проверки изображений не настроена. Пожалуйста, свяжитесь с поддержкой.",
+                    #         "uz": "Rasmni tekshirish xizmati sozlanmagan. Iltimos, qo'llab-quvvatlash bilan bog'laning."
+                    #     }
+                    # )
+                if has_checker:
+                    result = requests.post(
+                        url, 
+                        headers=headers, 
+                        files={'data': (image.name, BytesIO(image_bytes), image.content_type)}
+                    )
+                    logger.info(f"Nyckel API response: {result.text}")
+                else:
+                    result = None
+                
+                # Nyckel response
+                if has_checker:
+                    try:
+                        nyckel_response = result.json()
+                        label_name = nyckel_response.get('labelName', '')
+                        confidence = nyckel_response.get('confidence', 0)
+                        
+                        # Reject if house is not present with high confidence
+                        if label_name == "House Not Present" and confidence >= 0.6:
+                            return ErrorResponse(
+                                result=ResultCodes.VALIDATION_ERROR,
+                                message={
+                                    "en": f"Image does not contain a house/property (confidence: {confidence:.2%}). Please upload actual property images.",
+                                    "ru": f"Изображение не содержит дом/недвижимость (уверенность: {confidence:.2%}). Пожалуйста, загрузите фактические изображения недвижимости.",
+                                    "uz": f"Rasmda uy/ko'chmas mulk yo'q (ishonch: {confidence:.2%}). Iltimos, haqiqiy uy rasmlarini yuklang."
+                                }
+                            )
+                    except Exception as e:
+                        logger.error(f"Error parsing Nyckel response: {str(e)}")
+                else:
+                    pass      
+                # Reset file pointer
+                image.seek(0)
+                
                 is_nsfw, confidence = detect_nsfw(image)
-                try:
-                    image.seek(0)
-                except Exception:
-                    pass
+                image.seek(0)  # Reset again
+                
                 if is_nsfw:
                     return ErrorResponse(
                         result=ResultCodes.VALIDATION_ERROR,
@@ -128,17 +179,16 @@ class ListingCreateView(CreateAPIView):
                     )
 
         # Validate incoming data - serializer will handle for_whom array extraction
+
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # Use atomic transaction to ensure payment and listing creation happen together
         with db_transaction.atomic():
-            # Charge the card
             card_balance_before = float(user_card.balance)
             user_card.balance = card_balance_before - LISTING_CREATION_CHARGE
             user_card.save()
             
-            # Save listing
             listing = serializer.save(host=user)
             
             # Create transaction record
@@ -154,7 +204,6 @@ class ListingCreateView(CreateAPIView):
             
             logger.info(f"Charged {LISTING_CREATION_CHARGE} from user {user.email} for listing creation.")
 
-        # Return listing with images
         return SuccessResponse(serializer.data)
 
 
@@ -173,6 +222,7 @@ class ListingsListView(ListAPIView):
         'floor_of_this_apartment': ['exact'],
         'rooms': ['exact'],
         'for_whom__name': ['exact'],
+        'type': ['exact'],
     }
 
     def list(self, request, *args, **kwargs):

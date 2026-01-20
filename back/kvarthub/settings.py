@@ -46,7 +46,7 @@ OUT = [
     'django_filters',
     'rest_framework.authtoken',
     'rest_framework_simplejwt.token_blacklist',
-    'django_celery_beat',
+    # 'django_celery_beat',
     
     # auth
     # 'allauth',
@@ -278,3 +278,5 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+NYCKEL_TOKEN = settings.NYCKEL_TOKEN
