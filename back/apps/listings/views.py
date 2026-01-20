@@ -114,33 +114,50 @@ class ListingCreateView(CreateAPIView):
                 image_bytes = image.read()
                 
                 # Send to Nyckel 
-                result = requests.post(
-                    url, 
-                    headers=headers, 
-                    files={'data': (image.name, BytesIO(image_bytes), image.content_type)}
-                )
-                
-                logger.info(f"Nyckel API response: {result.text}")
+                if settings.NYCKEL_TOKEN == 'None':
+                    logger.error("NYCKEL_TOKEN is not set in settings.")
+                    has_checker = False
+                else:
+                    has_checker = True
+                    # return ErrorResponse(
+                    #     result=ResultCodes.INTERNAL_SERVER_ERROR,
+                    #     message={
+                    #         "en": "Image validation service is not configured. Please contact support.",
+                    #         "ru": "Служба проверки изображений не настроена. Пожалуйста, свяжитесь с поддержкой.",
+                    #         "uz": "Rasmni tekshirish xizmati sozlanmagan. Iltimos, qo'llab-quvvatlash bilan bog'laning."
+                    #     }
+                    # )
+                if has_checker:
+                    result = requests.post(
+                        url, 
+                        headers=headers, 
+                        files={'data': (image.name, BytesIO(image_bytes), image.content_type)}
+                    )
+                    logger.info(f"Nyckel API response: {result.text}")
+                else:
+                    result = None
                 
                 # Nyckel response
-                try:
-                    nyckel_response = result.json()
-                    label_name = nyckel_response.get('labelName', '')
-                    confidence = nyckel_response.get('confidence', 0)
-                    
-                    # Reject if house is not present with high confidence
-                    if label_name == "House Not Present" and confidence >= 0.6:
-                        return ErrorResponse(
-                            result=ResultCodes.VALIDATION_ERROR,
-                            message={
-                                "en": f"Image does not contain a house/property (confidence: {confidence:.2%}). Please upload actual property images.",
-                                "ru": f"Изображение не содержит дом/недвижимость (уверенность: {confidence:.2%}). Пожалуйста, загрузите фактические изображения недвижимости.",
-                                "uz": f"Rasmda uy/ko'chmas mulk yo'q (ishonch: {confidence:.2%}). Iltimos, haqiqiy uy rasmlarini yuklang."
-                            }
-                        )
-                except Exception as e:
-                    logger.error(f"Error parsing Nyckel response: {str(e)}")
-                
+                if has_checker:
+                    try:
+                        nyckel_response = result.json()
+                        label_name = nyckel_response.get('labelName', '')
+                        confidence = nyckel_response.get('confidence', 0)
+                        
+                        # Reject if house is not present with high confidence
+                        if label_name == "House Not Present" and confidence >= 0.6:
+                            return ErrorResponse(
+                                result=ResultCodes.VALIDATION_ERROR,
+                                message={
+                                    "en": f"Image does not contain a house/property (confidence: {confidence:.2%}). Please upload actual property images.",
+                                    "ru": f"Изображение не содержит дом/недвижимость (уверенность: {confidence:.2%}). Пожалуйста, загрузите фактические изображения недвижимости.",
+                                    "uz": f"Rasmda uy/ko'chmas mulk yo'q (ishonch: {confidence:.2%}). Iltimos, haqiqiy uy rasmlarini yuklang."
+                                }
+                            )
+                    except Exception as e:
+                        logger.error(f"Error parsing Nyckel response: {str(e)}")
+                else:
+                    pass      
                 # Reset file pointer
                 image.seek(0)
                 

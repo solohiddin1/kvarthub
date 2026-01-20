@@ -48,7 +48,7 @@ class Settings(BaseSettings):
     WORKFLOW_ID: str
     WORKFLOW_USER: str
     WORKFLOW_SECRET: str
-    NYCKEL_TOKEN: str
+    NYCKEL_TOKEN: str = 'None'
 
 
     class Config:
