@@ -52,13 +52,11 @@ class BaseListingSerializer(serializers.ModelSerializer):
         return ListingImageSerializer(images, many=True, context=self.context).data
     
     def get_region(self, obj):
-        """Return region id"""
-        regions = obj.region
+        """Return region object"""
         return RegionSerializer(obj.region, context=self.context).data if obj.region else None
 
     def get_district(self, obj):
-        """Return district id"""
-
+        """Return district object"""
         return DistrictSerializer(obj.district, context=self.context).data if obj.district else None
     
 class FacilitySerializer(serializers.ModelSerializer):
