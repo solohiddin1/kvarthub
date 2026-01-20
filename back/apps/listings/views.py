@@ -46,9 +46,13 @@ class ListingCreateView(CreateAPIView):
                     'region': {'type': 'integer'},
                     'district': {'type': 'integer'},
                     'for_whom': {
-                        'type': 'string',
+                        'type': 'array',
+                        'items': {
+                            'type': 'string',
+                            'enum': ['BOYS', 'GIRLS', 'FAMILY', 'FOREIGNERS']
+                    },
                         'description': 'For whom (BOYS, GIRLS, FAMILY, FOREIGNERS)',
-                        'enum': ['BOYS', 'GIRLS', 'FAMILY', 'FOREIGNERS']
+                        # 'enum': ['BOYS', 'GIRLS', 'FAMILY', 'FOREIGNERS']
                     },
                     'state': {
                         'type': 'string',
@@ -123,7 +127,7 @@ class ListingCreateView(CreateAPIView):
                         }
                     )
 
-        # Validate incoming data directly (avoid copying QueryDict with files)
+        # Validate incoming data - serializer will handle for_whom array extraction
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -168,7 +172,7 @@ class ListingsListView(ListAPIView):
         'district': ['exact'],
         'floor_of_this_apartment': ['exact'],
         'rooms': ['exact'],
-        'for_whom': ['exact'],
+        'for_whom__name': ['exact'],
     }
 
     def list(self, request, *args, **kwargs):
