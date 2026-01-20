@@ -161,6 +161,8 @@ class ListingDetailSerializer(ListingSerializer):
     images = serializers.SerializerMethodField(required=False)
     facilities = serializers.StringRelatedField(many=True, read_only=True)
     host = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=True)
+    region = serializers.SerializerMethodField(read_only=True)
+    district = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Listing
@@ -191,6 +193,14 @@ class ListingDetailSerializer(ListingSerializer):
             'images',
             'facilities'
         ]
+    
+    def get_region(self, obj):
+        """Return region object"""
+        return RegionSerializer(obj.region, context=self.context).data if obj.region else None
+        
+    def get_district(self, obj):
+        """Return district object"""
+        return DistrictSerializer(obj.district, context=self.context).data if obj.district else None
         
     def get_images(self, obj):
         images = ListingImage.objects.filter(listing=obj)
