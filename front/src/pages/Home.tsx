@@ -143,6 +143,8 @@ const Home = () => {
     }))
   }
 
+  console.log(products)
+
   return (
     <div>
       <Header filters={filters} onChangeFilters={setFilters} />
@@ -222,7 +224,7 @@ const Home = () => {
                   <p className="text-[14px] text-[#A6A6A6]">{item.rooms} rooms</p>
                 </div>
                 <div className="flex items-center justify-between mt-3">
-                  <p className="text-[#757575]">{item.location}</p>
+                  <p className="text-[#757575]">{item.district.name_uz}</p>
                   <p className="text-[#757575]">{item.for_whom == "GIRLS" ? "Qizlarga" : item.for_whom == "BOYS" ? "Bolalarga" : item.for_whom == "FAMILY" ? "Oilaga" : "Umumiy"}</p>
                 </div>
               </div>

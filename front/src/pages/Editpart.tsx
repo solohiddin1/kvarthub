@@ -1,12 +1,7 @@
 import { useEffect, useState } from "react";
 import apiClient from "../services/api";
 import { useNavigate, useParams } from "react-router-dom";
-import type {
-  DistrictType,
-  ImageType,
-  ProductsType,
-  RegionsType,
-} from "../types/auth";
+import type { DistrictType, ImageType, ProductsType, RegionsType } from "../types/auth";
 import { toast } from "react-toastify";
 import { HeaderPart } from "../components";
 
@@ -21,8 +16,10 @@ const Editpart = () => {
   const [location_link, setLocationLink] = useState<string>("");
   const [rooms, setRooms] = useState(0);
   const [phone_number, setPhone_number] = useState("");
-  const [district, setDistrict] = useState(0);
-  const [region, setRegion] = useState(0);
+
+  const [district, setDistrict] = useState<number>(0);
+  const [region, setRegion] = useState<number>(0);
+
   const [selectRegion, setSelectRegion] = useState<RegionsType[]>([]);
   const [selectDistrict, setSelectDistrict] = useState<DistrictType[]>([]);
   const [selectRegionValue, setSelectRegionValue] = useState<string>("");
@@ -34,7 +31,6 @@ const Editpart = () => {
   const [allDistricts, setAllDistricts] = useState<DistrictType[]>([]);
   const [for_whom, setFor_whom] = useState<string>("");
 
-
   // update
   function handleEditFn() {
     const formData = new FormData();
@@ -45,22 +41,22 @@ const Editpart = () => {
     formData.append("location_link", location_link);
     formData.append("rooms", String(rooms));
     formData.append("phone_number", phone_number);
+
     formData.append("region", String(region));
     formData.append("district", String(district));
+
     formData.append("for_whom", for_whom || "");
     formData.append("floor_of_this_apartment", String(floor_of_this_apartment));
     formData.append("total_floor_of_building", String(total_floor_of_building));
 
     newImages.forEach((file) => {
-      formData.append(`images_upload`, file);
+      formData.append("images_upload", file);
     });
-    if(phone_number.length === 13){
 
+    if (phone_number.length === 13) {
       apiClient
         .patch(`/api/listings/${numberId}/update/`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         })
         .then((res) => {
           toast.success("Yangilandi");
@@ -68,16 +64,14 @@ const Editpart = () => {
           console.log(res.data);
         })
         .catch((error) => {
-          // Error handling
           console.log(error);
           toast.error("Ma'lumotlar xato");
         });
-    }
-    else{
+    } else {
       toast.error("Telefon raqam noto'g'ri formatda. Iltimos, +998901234567 shaklida kiriting.");
-  
     }
   }
+
   // img delete
   function handledeleteFn(id: string) {
     apiClient
@@ -97,14 +91,11 @@ const Editpart = () => {
       .get("/api/shared/regions")
       .then((res) => {
         setSelectRegion(res.data.result);
-        const regionName: RegionsType = res.data.result.find(
-          (item: RegionsType) => item.id === region
-        );
-        setSelectRegionValue(regionName?.name_uz || "");
+
+        const foundRegion = res.data.result.find((item: RegionsType) => item.id === region);
+        setSelectRegionValue(foundRegion?.name_uz || "");
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => console.log(err));
   }, []);
 
   // barcha tumanlarni olish
@@ -113,30 +104,20 @@ const Editpart = () => {
       .get("/api/shared/districts")
       .then((res) => {
         setAllDistricts(res.data.result);
-        const districtsName: DistrictType = res.data.result.find(
-          (item: DistrictType) => item.id === district
-        );
-        if (districtsName) {
-          setSelectDistrictValue(districtsName.name_uz);
-        }
+
+        const foundDistrict = res.data.result.find((item: DistrictType) => item.id === district);
+        if (foundDistrict) setSelectDistrictValue(foundDistrict.name_uz);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => console.log(err));
   }, []);
 
   // viloyat tanlanganida tumanlarni filter qilish
   useEffect(() => {
     if (region > 0 && allDistricts.length > 0) {
-      const filteredDistricts = allDistricts.filter(
-        (item: DistrictType) => item.region === region
-      );
+      const filteredDistricts = allDistricts.filter((item: DistrictType) => item.region === region);
       setSelectDistrict(filteredDistricts);
 
-      // Agar tanlangan tuman filter qilingan tumanlar ichida bo'lsa, uni saqlash
-      const currentDistrict = filteredDistricts.find(
-        (item: DistrictType) => item.id === district
-      );
+      const currentDistrict = filteredDistricts.find((item: DistrictType) => item.id === district);
       if (district > 0 && !currentDistrict) {
         setDistrict(0);
         setSelectDistrictValue("");
@@ -160,8 +141,11 @@ const Editpart = () => {
       setFloor_of_this_apartment(data.floor_of_this_apartment);
       setTotal_floor_of_building(data.total_floor_of_building);
       setImages_upload(data.images);
-      setDistrict(data.district);
-      setRegion(data.region);
+
+      // ✅ ProductsType da district object, region object:
+      setDistrict(data.district.id);
+      setRegion(data.region.id);
+
       setFor_whom(data.for_whom || "");
       setLocationLink(data.location_link);
     });
@@ -171,9 +155,7 @@ const Editpart = () => {
   useEffect(() => {
     if (region > 0 && selectRegion.length > 0) {
       const foundRegion = selectRegion.find((item) => item.id === region);
-      if (foundRegion) {
-        setSelectRegionValue(foundRegion.name_uz);
-      }
+      if (foundRegion) setSelectRegionValue(foundRegion.name_uz);
     }
   }, [region, selectRegion]);
 
@@ -181,9 +163,7 @@ const Editpart = () => {
   useEffect(() => {
     if (district > 0 && selectDistrict.length > 0) {
       const foundDistrict = selectDistrict.find((item) => item.id === district);
-      if (foundDistrict) {
-        setSelectDistrictValue(foundDistrict.name_uz);
-      }
+      if (foundDistrict) setSelectDistrictValue(foundDistrict.name_uz);
     }
   }, [district, selectDistrict]);
 
@@ -191,7 +171,6 @@ const Editpart = () => {
   const handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedRegionId = Number(e.target.value);
     setRegion(selectedRegionId);
-    // Yangi viloyat tanlanganda tuman reset qilish
     setDistrict(0);
     setSelectDistrictValue("");
   };
@@ -200,17 +179,12 @@ const Editpart = () => {
   const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedDistrictId = Number(e.target.value);
     setDistrict(selectedDistrictId);
-    const selectedDistrict = selectDistrict.find(
-      (item) => item.id === selectedDistrictId
-    );
-    setSelectDistrictValue(selectedDistrict?.name_uz || "");
+    const selected = selectDistrict.find((item) => item.id === selectedDistrictId);
+    setSelectDistrictValue(selected?.name_uz || "");
   };
 
-
-function hanleCheckerPhone(e:React.ChangeEvent<HTMLInputElement>){
+  function hanleCheckerPhone(e: React.ChangeEvent<HTMLInputElement>) {
     setPhone_number(e.target.value);
-    
-
   }
 
   return (
