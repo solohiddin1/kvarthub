@@ -124,7 +124,8 @@ const Saved = () => {
                       </h3>
                       <div className="mt-2">
                         <p className="text-sm text-gray-500">
-                          Haqiqatan ham barcha saqlangan kartalarni o'chirmoqchimisiz?
+                          Haqiqatan ham barcha saqlangan kartalarni
+                          o'chirmoqchimisiz?
                         </p>
                         <p className="mt-2 text-sm text-gray-400 italic">
                           Bu amalni ortga qaytarib bo'lmaydi
@@ -254,8 +255,11 @@ const Saved = () => {
                 {/* liked button start */}
                 <div
                   onClick={() => SavedCard(item.id)}
-                  className={`w-10 md:w-12 h-10 md:h-12 flex justify-center items-center rounded-xl bg-[#FFFFFF4D] absolute top-2 right-2 cursor-pointer ${likedBtnId.includes(item.id) ? "text-[#FF383C]" : "text-black"
-                    }`}
+                  className={`w-10 md:w-12 h-10 md:h-12 flex justify-center items-center rounded-xl bg-[#FFFFFF4D] absolute top-2 right-2 cursor-pointer ${
+                    likedBtnId.includes(item.id)
+                      ? "text-[#FF383C]"
+                      : "text-black"
+                  }`}
                 >
                   {likedBtnId.includes(item.id) ? (
                     <LikedFilledIcon />
@@ -264,23 +268,45 @@ const Saved = () => {
                   )}
                 </div>
                 {/* liked button end */}
-                <img className="rounded-xl"
+                <img
+                  className="rounded-xl w-[357px] h-53 md:h-80 object-cover"
                   src={
                     item.images && item.images.length > 0
                       ? item.images[0].image
                       : "/placeholder.jpg"
                   }
                   alt={item.title}
-                  width={357}
-                  height={320}
+                  width={194}
+                  height={212}
                 />
-                <div className="pt-4  p-5  pb-7">
-                  <h2 className="line-clamp-2 font-medium text-[#000000] text-[18px]">
+                <div className="p-3">
+                  <h2 className="line-clamp-2 font-medium text-black text-[18px]">
                     {item.title}
                   </h2>
-                  <div className="flex items-center justify-between mt-3">
-                    <p className="text-[#757575]">{item.price} UZS</p>
-                    <p className="text-[14px] text-[#A6A6A6]">{item.rooms} rooms</p>
+
+                  <div className="flex items-center justify-between mt-1 gap-2">
+                    <div className="flex items-center text-[#757575] text-[16px] font-medium truncate">
+                      <span className="">{item.price}</span>
+                      <span className="ml-1 shrink-0">UZS</span>
+                    </div>
+                    <p className="text-[14px] text-[#A6A6A6] shrink-0">
+                      {item.rooms} rooms
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between mt-3 gap-2">
+                    <p className="text-[#757575] text-sm truncate">
+                      {item.district.name_uz}
+                    </p>
+                    <p className="text-[#757575] text-sm shrink-0">
+                      {item.for_whom == "GIRLS"
+                        ? "Qizlarga"
+                        : item.for_whom == "BOYS"
+                          ? "Bolalarga"
+                          : item.for_whom == "FAMILY"
+                            ? "Oilaga"
+                            : "Umumiy"}
+                    </p>
                   </div>
                 </div>
               </div>

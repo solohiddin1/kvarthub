@@ -99,9 +99,10 @@ export interface ProductsType {
   total_floor_of_building:number
   images: ImageType[]
   rooms: number
-  district:number
-  region:number
+  district: DistrictType;
+  region: RegionsType;
   for_whom:string
+  for_whom_display:string[]
   location_link:string
   is_active?: boolean
 }
@@ -111,6 +112,7 @@ export interface DistrictType {
   name_ru: string;
   name_en: string;
   region: number;
+  soato_id: number;
 }
  
 
@@ -119,7 +121,8 @@ export interface DistrictType {
   name_uz: string;
   name_ru: string;
   name_en: string;
-  disctricts: DistrictType[]; // E'tibor bering: "disctricts" (typo backendda)
+  soato_id: number;
+  disctricts: DistrictType[]; 
 }
 export interface PaymenType {
     id: number,

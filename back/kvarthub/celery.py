@@ -1,8 +1,9 @@
 import os
 from celery import Celery
 from celery.schedules import crontab
+from apps.shared.utils import get_logger
 
-# Set the default Django settings module for the 'celery' program.
+logger = get_logger()
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'kvarthub.settings')
 
 app = Celery('kvarthub')
@@ -13,14 +14,13 @@ app = Celery('kvarthub')
 #   should have a `CELERY_` prefix.
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
-# Load task modules from all registered Django apps.
 app.autodiscover_tasks()
 
 # Configure Celery Beat schedule
 app.conf.beat_schedule = {
     'charge-daily-listings': {
         'task': 'apps.payment.tasks.charge_daily_listings_task',
-        'schedule': crontab(hour=0, minute=1),  # Run every day at 00:01 (12:01 AM)
+        'schedule': crontab(hour=0, minute=1),
     },
 }
 
@@ -30,3 +30,4 @@ app.conf.timezone = 'UTC'
 @app.task(bind=True)
 def debug_task(self):
     print(f'Request: {self.request!r}')
+    logger.info(f'Debug Task Executed: {self.request!r}')

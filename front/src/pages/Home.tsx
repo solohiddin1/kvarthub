@@ -15,6 +15,7 @@ interface Region {
   soato_id: number
 }
 
+
 const Home = () => {
   const navigate = useNavigate()
   const [products, setProducts] = useState<ProductsType[]>([])
@@ -22,7 +23,10 @@ const Home = () => {
   const [productsCount, setProductsCount] = useState<number>(0)
   const [regions, setRegions] = useState<Region[]>([])
   const [regionsLoading, setRegionsLoading] = useState(false)
+  
+  
 
+  
   const [filters, setFilters] = useState<ListingFilters>({
     search: "",
     min_price: "",
@@ -142,6 +146,8 @@ const Home = () => {
       region: p.region === String(regionId) ? "" : String(regionId),
     }))
   }
+  
+
 
   return (
     <div>
@@ -222,8 +228,9 @@ const Home = () => {
                   <p className="text-[14px] text-[#A6A6A6]">{item.rooms} rooms</p>
                 </div>
                 <div className="flex items-center justify-between mt-3">
-                  <p className="text-[#757575]">{item.location}</p>
+                  <p className="text-[#757575]">{item.district.name_uz}</p>
                   <p className="text-[#757575]">{item.for_whom == "GIRLS" ? "Qizlarga" : item.for_whom == "BOYS" ? "Bolalarga" : item.for_whom == "FAMILY" ? "Oilaga" : "Umumiy"}</p>
+                  
                 </div>
               </div>
             </div>
