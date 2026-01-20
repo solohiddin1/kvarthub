@@ -13,6 +13,10 @@ class Listing(BaseModel):
         ('FAMILY', 'FAMILY'),
         ('FOREIGNERS', 'FOREIGNERS'),
     )
+    listing_type = (
+        ('EMPTY', 'EMPTY'),  # Bush kvartira
+        ('PARTNERSHIP', 'PARTNERSHIP'),  # Sheriklik
+    )
 
     title = models.CharField(max_length=255)
     description = models.TextField()
@@ -23,6 +27,7 @@ class Listing(BaseModel):
     rooms = models.IntegerField(default=1)
     state = models.CharField(max_length=10, choices=state, default='ACCEPTED')
     for_whom = models.CharField(max_length=15, choices=for_whom_state, blank=True, null=True)
+    type = models.CharField(max_length=15, choices=listing_type, blank=True, null=True)
     phone_number = models.CharField(max_length=15, null=True, blank=True)
     total_floor_of_building = models.IntegerField(null=True, blank=True)
     floor_of_this_apartment = models.IntegerField(null=True, blank=True)

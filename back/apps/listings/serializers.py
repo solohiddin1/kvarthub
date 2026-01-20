@@ -12,6 +12,8 @@ class ListingImageSerializer(serializers.ModelSerializer):
 
 class BaseListingSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField(read_only=True)
+    region_name = serializers.SerializerMethodField(read_only=True)
+    district_name = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Listing
@@ -25,17 +27,28 @@ class BaseListingSerializer(serializers.ModelSerializer):
             'total_floor_of_building',
             'floor_of_this_apartment',  
             'region',
+            'region_name',
             'for_whom',
             'district',
+            'district_name',
+            'type',
             'is_active',
             'images',
         ]
-        read_only_fields = ['id', 'is_active']
+        read_only_fields = ['id', 'is_active', 'region_name', 'district_name']
         
     def get_images(self, obj):
         """Return serialized images for the listing"""
         images = ListingImage.objects.filter(listing=obj)
         return ListingImageSerializer(images, many=True, context=self.context).data
+    
+    def get_region_name(self, obj):
+        """Return region name_uz"""
+        return obj.region.name_uz if obj.region else None
+    
+    def get_district_name(self, obj):
+        """Return district name_uz"""
+        return obj.district.name_uz if obj.district else None
 
 
 class FacilitySerializer(serializers.ModelSerializer):
@@ -77,6 +90,7 @@ class ListingSerializer(serializers.ModelSerializer):
             'region',
             'for_whom',
             'district',
+            'type',
             'images',
             'images_upload',
             'facilities',
