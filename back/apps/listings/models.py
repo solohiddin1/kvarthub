@@ -43,7 +43,7 @@ class Listing(BaseModel):
     location_link = models.URLField(max_length=500, null=True, blank=True)
     rooms = models.IntegerField(default=1)
     state = models.CharField(max_length=10, choices=state, default='ACCEPTED')
-    for_whom = models.CharField(max_length=15, choices=for_whom_state, blank=True, null=True)
+    for_whom = models.ManyToManyField(ForWhom, blank=True, related_name='listings')
     type = models.CharField(max_length=15, choices=listing_type, blank=True, null=True)
     phone_number = models.CharField(max_length=15, null=True, blank=True)
     total_floor_of_building = models.IntegerField(null=True, blank=True)
