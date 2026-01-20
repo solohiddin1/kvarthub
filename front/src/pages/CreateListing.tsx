@@ -167,6 +167,28 @@ const CreateListing = () => {
   // payment part
   function PaymentFn(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.preventDefault();
+    
+    // Validate all fields
+    if (!card_number || card_number.replace(/\s/g, "").length !== 16) {
+      toast.error("Karta raqamini to'liq kiriting (16 ta raqam)");
+      return;
+    }
+    
+    if (!card_holder_name || card_holder_name.trim().length < 3) {
+      toast.error("Karta egasining ismini kiriting");
+      return;
+    }
+    
+    if (!expiry_month || expiry_month < 1 || expiry_month > 12) {
+      toast.error("Oyni to'g'ri kiriting (1-12)");
+      return;
+    }
+    
+    if (!expiry_year || expiry_year < 24) {
+      toast.error("Yilni to'g'ri kiriting");
+      return;
+    }
+    
     apiClient
       .post("/api/payment/cards/add/", {
         card_number: card_number.replace(/\s/g, ""),
@@ -945,7 +967,7 @@ const CreateListing = () => {
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">To'lov miqdori:</span>
                       <span className="text-xl font-bold text-blue-600">
-                        $50.00
+                        50.00 UZS
                       </span>
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
