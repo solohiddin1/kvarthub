@@ -189,13 +189,8 @@ const ListingDetail = () => {
 
           {/* Listing Details */}
           <div className="space-y-8">
-            {/* Title Section */}
-            <div className="space-y-2">
-             
-              <h1 className="text-3xl md:text-4xl font-bold bg-linear-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                {listing.title}
-              </h1>
-            </div>
+           
+            
 
             {/* Price Section */}
             <div className="bg-linear-to-r from-green-50 to-emerald-50 p-6 rounded-2xl border border-green-100">

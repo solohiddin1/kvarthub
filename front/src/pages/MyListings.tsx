@@ -293,7 +293,7 @@ const MyListings = () => {
                   <div>
                     <div className="text-sm text-gray-500">Narxi</div>
                     <div className="font-bold text-lg text-gray-900">
-                      ${item.price.toLocaleString()}
+                      {item.price.toLocaleString()} UZS
                     </div>
                   </div>
                 </div>

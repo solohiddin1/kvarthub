@@ -279,7 +279,7 @@ const Saved = () => {
                     {item.title}
                   </h2>
                   <div className="flex items-center justify-between mt-3">
-                    <p className="text-[#757575]">{item.price}</p>
+                    <p className="text-[#757575]">{item.price} UZS</p>
                     <p className="text-[14px] text-[#A6A6A6]">{item.rooms} rooms</p>
                   </div>
                 </div>
