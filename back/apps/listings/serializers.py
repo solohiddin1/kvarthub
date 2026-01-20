@@ -1,3 +1,4 @@
+from apps.shared.models import District, Region
 from apps.users.models import User
 from rest_framework import serializers
 from apps.listings.models import Listing, ListingImage, Facility
@@ -10,10 +11,20 @@ class ListingImageSerializer(serializers.ModelSerializer):
             'image'
         ]
 
+class RegionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Region
+        fields = '__all__'
+
+class DistrictSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = District
+        fields = '__all__'
+
 class BaseListingSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField(read_only=True)
-    region_name = serializers.SerializerMethodField(read_only=True)
-    district_name = serializers.SerializerMethodField(read_only=True)
+    region = serializers.SerializerMethodField(read_only=True)
+    district = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Listing
@@ -27,30 +38,29 @@ class BaseListingSerializer(serializers.ModelSerializer):
             'total_floor_of_building',
             'floor_of_this_apartment',  
             'region',
-            'region_name',
             'for_whom',
             'district',
-            'district_name',
             'type',
             'is_active',
             'images',
         ]
-        read_only_fields = ['id', 'is_active', 'region_name', 'district_name']
+        read_only_fields = ['id', 'is_active', 'region', 'district']
         
     def get_images(self, obj):
         """Return serialized images for the listing"""
         images = ListingImage.objects.filter(listing=obj)
         return ListingImageSerializer(images, many=True, context=self.context).data
     
-    def get_region_name(self, obj):
-        """Return region name_uz"""
-        return obj.region.name_uz if obj.region else None
+    def get_region(self, obj):
+        """Return region id"""
+        regions = obj.region
+        return RegionSerializer(obj.region, context=self.context).data if obj.region else None
+
+    def get_district(self, obj):
+        """Return district id"""
+
+        return DistrictSerializer(obj.district, context=self.context).data if obj.district else None
     
-    def get_district_name(self, obj):
-        """Return district name_uz"""
-        return obj.district.name_uz if obj.district else None
-
-
 class FacilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Facility
