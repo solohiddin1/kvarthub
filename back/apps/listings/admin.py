@@ -1,7 +1,12 @@
 from django.contrib import admin
-from apps.listings.models import Listing, ListingImage, Facility
+from apps.listings.models import Listing, ListingImage, Facility, ForWhom
 
 # Register your models here.
+
+@admin.register(ForWhom)
+class ForWhomAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
+    search_fields = ('name',)
 
 @admin.register(ListingImage)
 class ListingImageAdmin(admin.ModelAdmin):

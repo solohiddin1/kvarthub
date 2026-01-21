@@ -116,6 +116,21 @@ const ListingDetail = () => {
       ? listing.images[selectedImageIndex].image
       : "/placeholder.jpg";
 
+
+      console.log(listing)
+  type ForWhomType = "BOYS" | "GIRLS" | "FAMILY" | "FOREIGNERS";
+
+  const FOR_WHOM_META: Record<ForWhomType, { label: string; icon: string; color: string; desc: string }> = {
+    FAMILY: { label: "Oila uchun", icon: "👨‍👩‍👧‍👦", color: "text-blue-700", desc: "Ham oilaviy, ham yakka tartibda" },
+    BOYS: { label: "Bolalar uchun", icon: "👨‍🦱", color: "text-green-700", desc: "Faqat bolalar uchun" },
+    GIRLS: { label: "Qizlar uchun", icon: "👩", color: "text-rose-700", desc: "Faqat qizlar uchun" },
+    FOREIGNERS: { label: "Chet elliklar", icon: "🌍", color: "text-gray-700", desc: "Barcha uchun ochiq" },
+  };
+
+  const forWhomList: ForWhomType[] = Array.isArray(listing?.for_whom) ? (listing!.for_whom as ForWhomType[]) : [];
+  const primaryForWhom: ForWhomType | null = forWhomList[0] ?? null;
+
+
   return (
     <>
       <Header />
@@ -154,17 +169,7 @@ const ListingDetail = () => {
                 className="w-full h-[500px] object-cover transition-transform duration-500 group-hover:scale-105"
               />
               {/* Status Badge on Image */}
-              <div className="absolute top-4 left-4">
-                <span
-                  className={`px-4 py-2 rounded-full text-sm font-semibold shadow-lg ${
-                    listing.is_active
-                      ? "bg-linear-to-r from-green-500 to-emerald-600 text-white"
-                      : "bg-linear-to-r from-red-500 to-red-600 text-white"
-                  }`}
-                >
-                  {listing.is_active ? "✅ Faol" : "⛔ Nofaol"}
-                </span>
-              </div>
+
             </div>
 
             {/* Image Thumbnails */}
@@ -177,11 +182,10 @@ const ListingDetail = () => {
                     onClick={() => setSelectedImageIndex(idx)}
                   >
                     <div
-                      className={`absolute inset-0 rounded-xl transition-all duration-300 ${
-                        idx === selectedImageIndex
-                          ? "ring-3 ring-blue-500 ring-offset-2"
-                          : "group-hover:ring-2 group-hover:ring-blue-300"
-                      }`}
+                      className={`absolute inset-0 rounded-xl transition-all duration-300 ${idx === selectedImageIndex
+                        ? "ring-3 ring-blue-500 ring-offset-2"
+                        : "group-hover:ring-2 group-hover:ring-blue-300"
+                        }`}
                     ></div>
                     <img
                       src={img.image}
@@ -201,11 +205,7 @@ const ListingDetail = () => {
           <div className="space-y-8">
             {/* Title Section */}
             <div className="space-y-2">
-              <div className="inline-block bg-linear-to-r from-blue-50 to-indigo-50 px-4 py-2 rounded-full mb-3">
-                <span className="text-blue-600 font-semibold text-sm">
-                  🏠 Uy joy
-                </span>
-              </div>
+
               <h1 className="text-3xl md:text-4xl font-bold bg-linear-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
                 {listing.title}
               </h1>
@@ -219,22 +219,7 @@ const ListingDetail = () => {
                 </span>
                 <span className="text-gray-600 text-lg mb-1">/oyiga</span>
               </div>
-              <div className="flex items-center gap-2 mt-2">
-                <svg
-                  className="w-5 h-5 text-emerald-500"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span className="text-emerald-700 font-medium">
-                  To'lov faqat oylik asosida
-                </span>
-              </div>
+
             </div>
 
             {/* Key Features Grid */}
@@ -258,8 +243,9 @@ const ListingDetail = () => {
 
               <div onClick={() => window.open(listing.location_link, '_blank')} className="bg-linear-to-br from-amber-50 to-white p-5 rounded-xl border border-amber-100 text-center cursor-pointer">
                 <div className="text-3xl text-amber-600 mb-2">📍</div>
-                <h3 className="text-lg font-bold text-gray-900 truncate mt-2 md:mt-8">
-                  Lokatsiya
+                <p className="text-gray-600 text-sm mb-1">Joylashuv</p>
+                <h3 className="text-lg font-bold text-gray-900 truncate ">
+                  {listing.location}
                 </h3>
               </div>
             </div>
@@ -267,74 +253,46 @@ const ListingDetail = () => {
             {/* kim uchun  */}
             <div className="bg-linear-to-r from-pink-50 to-rose-50 p-6 rounded-2xl border border-rose-100">
               <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <svg
-                  className="w-6 h-6 text-rose-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5 0h-15"
-                  />
+                <svg className="w-6 h-6 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5 0h-15" />
                 </svg>
                 Kim uchun
               </h2>
-              <div className="flex items-center gap-4">
-                {/* Ikonka qo'shish */}
-                <div
-                  className={`w-14 h-14 rounded-xl flex items-center justify-center ${
-                    listing.for_whom === "FAMILY"
-                      ? "bg-linear-to-r from-blue-100 to-blue-200 border-2 border-blue-200"
-                      : listing.for_whom === "BOYS"
-                      ? "bg-linear-to-r from-green-100 to-green-200 border-2 border-green-200"
-                      : listing.for_whom === "GIRLS"
-                      ? "bg-linear-to-r from-pink-100 to-rose-200 border-2 border-rose-200"
-                      : "bg-linear-to-r from-gray-100 to-gray-200 border-2 border-gray-200"
-                  }`}
-                >
-                  <span className="text-2xl">
-                    {listing.for_whom === "FAMILY" && "👨‍👩‍👧‍👦"}
-                    {listing.for_whom === "BOYS" && "👨‍🦱"}
-                    {listing.for_whom === "GIRLS" && "👩"}
-                    {listing.for_whom === "FOREIGNERS" && "🌍"}
-                  </span>
-                </div>
 
-                {/* Matn qismi */}
-                <div>
-                  <p
-                    className={`text-xl font-bold ${
-                      listing.for_whom === "FAMILY"
-                        ? "text-blue-700"
-                        : listing.for_whom === "BOYS"
-                        ? "text-green-700"
-                        : listing.for_whom === "GIRLS"
-                        ? "text-rose-700"
-                        : "text-gray-700"
-                    }`}
-                  >
-                    {listing.for_whom === "FAMILY"
-                      ? "Oila uchun"
-                      : listing.for_whom === "BOYS"
-                      ? "Bolalar uchun"
-                      : listing.for_whom === "GIRLS"
-                      ? "Qizlar uchun"
-                      : listing.for_whom === "FOREIGNERS"
-                      ? "Umumiy"
-                      : "Tanlanmagan"}
-                  </p>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {listing.for_whom === "FAMILY" &&
-                      "Ham oilaviy, ham yakka tartibda"}
-                    {listing.for_whom === "BOYS" && "Faqat Bolalar uchun"}
-                    {listing.for_whom === "GIRLS" && "Faqat qizlar uchun"}
-                    {listing.for_whom === "FOREIGNERS" && "Barcha uchun ochiq"}
-                  </p>
+              {forWhomList.length === 0 ? (
+                <p className="text-gray-700 font-semibold">Tanlanmagan</p>
+              ) : (
+                <div className="flex items-start gap-4">
+                  {/* Primary icon */}
+                  <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-white/70 border border-rose-200">
+                    <span className="text-2xl">{primaryForWhom ? FOR_WHOM_META[primaryForWhom].icon : "👥"}</span>
+                  </div>
+
+                  {/* Text + chips */}
+                  <div className="flex-1">
+                    <p className={`text-xl font-bold ${primaryForWhom ? FOR_WHOM_META[primaryForWhom].color : "text-gray-700"}`}>
+                      {forWhomList.map((k) => FOR_WHOM_META[k].label).join(", ")}
+                    </p>
+
+                    <p className="text-sm text-gray-600 mt-1">
+                      {primaryForWhom ? FOR_WHOM_META[primaryForWhom].desc : ""}
+                    </p>
+
+                    {/* badges */}
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {forWhomList.map((k) => (
+                        <span
+                          key={k}
+                          className="px-3 py-1 rounded-full bg-white border border-rose-200 text-sm text-gray-700"
+                        >
+                          {FOR_WHOM_META[k].icon} {FOR_WHOM_META[k].label}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
             {/* Description */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -381,7 +339,7 @@ const ListingDetail = () => {
                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-                 Manzil
+                Manzil
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

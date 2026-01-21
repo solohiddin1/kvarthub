@@ -1,7 +1,7 @@
 from apps.shared.models import District, Region
 from apps.users.models import User
 from rest_framework import serializers
-from apps.listings.models import Listing, ListingImage, Facility
+from apps.listings.models import Listing, ListingImage, Facility, ForWhom
 
 class ListingImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -23,6 +23,8 @@ class DistrictSerializer(serializers.ModelSerializer):
 
 class BaseListingSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField(read_only=True)
+    for_whom = serializers.SerializerMethodField(read_only=True)
+
     region = serializers.SerializerMethodField(read_only=True)
     district = serializers.SerializerMethodField(read_only=True)
 
@@ -51,6 +53,12 @@ class BaseListingSerializer(serializers.ModelSerializer):
         images = ListingImage.objects.filter(listing=obj)
         return ListingImageSerializer(images, many=True, context=self.context).data
     
+    
+    def get_for_whom(self, obj):
+        """Return list of for_whom values"""
+
+        return [fw.name for fw in obj.for_whom.all()] if obj.for_whom else None
+
     def get_region(self, obj):
         """Return region object"""
         return RegionSerializer(obj.region, context=self.context).data if obj.region else None
@@ -79,6 +87,13 @@ class ListingSerializer(serializers.ModelSerializer):
     )
     facilities = serializers.StringRelatedField(many=True, read_only=True)
     host = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
+    for_whom = serializers.ListField(
+        child=serializers.ChoiceField(choices=ForWhom.FOR_WHOM_CHOICES),
+        write_only=True,
+        required=False,
+        help_text='List of audience types (e.g., ["BOYS", "GIRLS"])'
+    )
+    for_whom_display = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Listing
@@ -97,6 +112,7 @@ class ListingSerializer(serializers.ModelSerializer):
             'is_active',
             'region',
             'for_whom',
+            'for_whom_display',
             'district',
             'type',
             'images',
@@ -114,11 +130,44 @@ class ListingSerializer(serializers.ModelSerializer):
         """Return serialized images for the listing"""
         images = ListingImage.objects.filter(listing=obj)
         return ListingImageSerializer(images, many=True, context=self.context).data
+    
+    def get_for_whom_display(self, obj):
+        """Return list of for_whom values"""
+        return [fw.name for fw in obj.for_whom.all()]
+    
+    def to_internal_value(self, data):
+        """Handle for_whom array from multipart/form-data (QueryDict)"""
+        # Extract for_whom as list before parent processing
+        if hasattr(data, 'getlist') and 'for_whom' in data:
+            for_whom_list = data.getlist('for_whom')
+            # Store it temporarily
+            self._for_whom_list = for_whom_list
+        
+        # Convert QueryDict to regular dict to avoid copy issues with files
+        if hasattr(data, 'dict'):
+            data_dict = {}
+            for key in data.keys():
+                if key == 'for_whom' and hasattr(self, '_for_whom_list'):
+                    data_dict[key] = self._for_whom_list
+                elif key == 'images_upload':
+                    # Handle multiple files
+                    data_dict[key] = data.getlist(key) if hasattr(data, 'getlist') else data.get(key)
+                else:
+                    data_dict[key] = data.get(key)
+            return super().to_internal_value(data_dict)
+        
+        return super().to_internal_value(data)
 
     def create(self, validated_data):
-        """Handle image upload during creation"""
+        """Handle image upload and for_whom during creation"""
         images_data = validated_data.pop('images_upload', [])
+        for_whom_data = validated_data.pop('for_whom', [])
         listing = Listing.objects.create(**validated_data)
+        
+        # Add for_whom relationships
+        for fw_name in for_whom_data:
+            fw_obj, _ = ForWhom.objects.get_or_create(name=fw_name)
+            listing.for_whom.add(fw_obj)
         
         for image in images_data:
             ListingImage.objects.create(listing=listing, image=image)
@@ -126,13 +175,21 @@ class ListingSerializer(serializers.ModelSerializer):
         return listing
 
     def update(self, instance, validated_data):
-        """Handle image upload during update"""
+        """Handle image upload and for_whom during update"""
         images_data = validated_data.pop('images_upload', [])
+        for_whom_data = validated_data.pop('for_whom', None)
         
         # Update listing fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
+        
+        # Update for_whom relationships if provided
+        if for_whom_data is not None:
+            instance.for_whom.clear()
+            for fw_name in for_whom_data:
+                fw_obj, _ = ForWhom.objects.get_or_create(name=fw_name)
+                instance.for_whom.add(fw_obj)
         
         # Add new images (without deleting old ones)
         for image in images_data:

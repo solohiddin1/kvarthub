@@ -4,57 +4,73 @@ import apiClient from "../services/api";
 import { HeaderPart } from "../components";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 
 const MyListings = () => {
   const navigate = useNavigate();
   const [listings, setListing] = useState<ProductsType[]>([]);
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [selectedListing, setSelectedListing] = useState<{
+    id: number;
+    is_active: boolean;
+    title: string;
+  } | null>(null);
+  
   console.log(listings);
 
   useEffect(() => {
     apiClient.get("/api/listings/my-listings/").then((res) => {
       setListing(res.data.result);
-       localStorage.setItem("product",JSON.stringify(res.data.result))
-     
-      
+      localStorage.setItem("product", JSON.stringify(res.data.result));
     });
   }, []);
 
   // delete part
   function handleDeleteCard(id: number) {
-    const isComfirm = window.confirm("Haqiqatdan ham o'chirmoqchimisz");
-    if (isComfirm) {
+    const isConfirm = window.confirm("Haqiqatdan ham o'chirmoqchimisz?");
+    if (isConfirm) {
       apiClient
         .delete(`/api/listings/listings/${id}/delete/`)
         .then(() => {
           const newListings = listings.filter((item) => item.id !== id);
           setListing(newListings);
-          toast.success("o'chirildi");
+          toast.success("O'chirildi");
         })
         .catch((error) => {
           console.log(error);
+          toast.error("Xatolik yuz berdi");
         });
     } else {
       toast.info("O'chirilmadi");
     }
   }
 
-  // active disactive 
- function toggleListingStatus(id: number, isCurrentlyActive: boolean) {
-  const message = isCurrentlyActive
-    ? "E'lonni faolsizlashtirishni istaysizmi?"
-    : "E'lonni faollashtirishda pul yechib olinadi. Davom etasizmi?";
-  
-  const isConfirmed = window.confirm(message);
-  
-  if (isConfirmed) {
+  // Modalni ochish
+  const openStatusModal = (id: number, is_active: boolean, title: string) => {
+    setSelectedListing({ id, is_active, title });
+    setShowStatusModal(true);
+  };
+
+  // Modalni yopish
+  const closeStatusModal = () => {
+    setShowStatusModal(false);
+    setSelectedListing(null);
+  };
+
+  // Statusni o'zgartirish
+  const handleToggleStatus = () => {
+    if (!selectedListing) return;
+
+    const { id, is_active } = selectedListing;
+    
     apiClient
       .patch(`/api/listings/listings/${id}/update_status/`)
       .then((res) => {
         console.log(res.data);
         
         if (res.data.success) {
-          const action = isCurrentlyActive ? "faolsizlashtirildi" : "faollashtirildi";
-          toast.success(`E'lon muvaffaqiyatli ${action}`);
+          const actionText = is_active ? "faolsizlashtirildi" : "faollashtirildi";
+          toast.success(`E'lon muvaffaqiyatli ${actionText}`);
           
           setListing((prev) =>
             prev.map((item) =>
@@ -68,17 +84,111 @@ const MyListings = () => {
       .catch((err) => {
         console.log(err);
         toast.error("Xatolik yuz berdi");
+      })
+      .finally(() => {
+        closeStatusModal();
       });
-  } else {
-    const action = isCurrentlyActive ? "faolsizlashtirmaslik" : "faollashtirmaslik";
-    toast.info(`E'lonni ${action} bekor qilindi`);
-  }
-}
+  };
 
   return (
     <>
       <HeaderPart />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+      
+      {/* Status modal */}
+      {showStatusModal && selectedListing && (
+        <div className="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  E'lon holatini o'zgartirish
+                </h3>
+              </div>
+
+              <div className="mb-6">
+                <h4 className="font-medium text-gray-900 mb-2">"{selectedListing.title}"</h4>
+                <p className="text-gray-600 text-sm">
+                  {selectedListing.is_active
+                    ? "Siz bu e'lonni faolsizlashtirmoqchimisiz? Faolsizlashtirilgan e'lonlar saytda ko'rinmaydi."
+                    : "Siz bu e'lonni faollashtirmoqchimisiz? E'lon faollashtirilgandan so'ng saytda ko'rinadi."}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between mb-6">
+                <div className="text-center">
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    selectedListing.is_active
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                  }`}>
+                    Joriy: {selectedListing.is_active ? "Faol" : "Nofaol"}
+                  </span>
+                </div>
+                <div className="text-gray-400">→</div>
+                <div className="text-center">
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    selectedListing.is_active
+                      ? "bg-red-100 text-red-800"
+                      : "bg-green-100 text-green-800"
+                  }`}>
+                    Yangi: {selectedListing.is_active ? "Nofaol" : "Faol"}
+                  </span>
+                </div>
+              </div>
+
+              {!selectedListing.is_active && (
+                <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div className="flex items-center gap-2 text-blue-700 mb-1">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <span className="font-medium text-sm">Diqqat!</span>
+                  </div>
+                  <p className="text-blue-600 text-sm">
+                    Faollashtirish jarayonida hisobingizdan pul yechib olinishi mumkin.
+                  </p>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={closeStatusModal}
+                  className="cursor-pointer px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  onClick={handleToggleStatus}
+                  className={` cursor-pointer px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${
+                    selectedListing.is_active
+                      ? "bg-yellow-600 hover:bg-yellow-700"
+                      : "bg-green-600 hover:bg-green-700"
+                  }`}
+                >
+                  {selectedListing.is_active ? "Faolsizlashtirish" : "Faollashtirish"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Ortga qaytish tugmasi */}
+      <button 
+        onClick={() => navigate(-1)} 
+        className="flex items-center gap-1 ml-6 py-2 px-3 cursor-pointer mt-3 font-semibold bg-blue-600 rounded-2xl text-white hover:bg-blue-700"
+      >
+        <ArrowLeftOutlined/>
+        <span>Ortga qaytish</span>
+      </button>
+      
+      {/* E'lonlar ro'yxati */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10 p-4">
         {listings.map((item: ProductsType) => (
           <div
             key={item.id}
@@ -88,21 +198,18 @@ const MyListings = () => {
             <div className="relative h-64 overflow-hidden">
               {item.images.length > 0 ? (
                 <div className="relative h-full">
-                  {/* Main Image */}
                   <img
                     src={item.images[0].image}
                     alt={item.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
 
-                  {/* Image Gallery Indicator */}
                   {item.images.length > 1 && (
                     <div className="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
                       +{item.images.length - 1} photos
                     </div>
                   )}
 
-                  {/* Favorite Button */}
                   <button className="absolute top-3 right-3 w-10 h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-md transition-all hover:scale-110">
                     <svg
                       className="w-5 h-5 text-gray-600 hover:text-red-500"
@@ -140,7 +247,6 @@ const MyListings = () => {
 
             {/* Content Section */}
             <div className="p-5">
-              {/* Title and Category */}
               <div className="mb-3">
                 <div className="flex justify-between items-start">
                   <h3 className="font-bold text-lg text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
@@ -168,9 +274,7 @@ const MyListings = () => {
                 )}
               </div>
 
-              {/* Features Grid */}
               <div className="grid grid-cols-2 gap-3 mb-4">
-                {/* Price */}
                 <div className="flex items-center">
                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-2">
                     <svg
@@ -189,12 +293,11 @@ const MyListings = () => {
                   <div>
                     <div className="text-sm text-gray-500">Narxi</div>
                     <div className="font-bold text-lg text-gray-900">
-                      ${item.price.toLocaleString()}
+                      {item.price.toLocaleString()} UZS
                     </div>
                   </div>
                 </div>
 
-                {/* Rooms */}
                 <div className="flex items-center">
                   <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-2">
                     <svg
@@ -219,7 +322,6 @@ const MyListings = () => {
                   </div>
                 </div>
 
-                {/* Location (if exists) */}
                 {item.location && (
                   <div className="flex items-center">
                     <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center mr-2">
@@ -258,7 +360,7 @@ const MyListings = () => {
                   onClick={() => handleDeleteCard(item.id)}
                   className="font-semibold bg-red-600 py-3 rounded-3xl flex-1 text-white cursor-pointer hover:bg-red-700 transition-colors"
                 >
-                 O'chirish
+                  O'chirish
                 </button>
                 <button
                   onClick={() => navigate(`/my-listings/${item.id}`)}
@@ -267,11 +369,11 @@ const MyListings = () => {
                   Yangilash
                 </button>
                 <button
-                onClick={() => toggleListingStatus(item.id,item.is_active ?? false)}
+                  onClick={() => openStatusModal(item.id, item.is_active ?? false, item.title)}
                   className={`font-semibold py-3 rounded-3xl flex-1 text-white cursor-pointer transition-colors ${
                     item.is_active
-                      ? "bg-yellow-600 hover:bg-yellow-700" // Deactivate - sariq
-                      : "bg-green-600 hover:bg-green-700" // Activate - yashil
+                      ? "bg-yellow-600 hover:bg-yellow-700"
+                      : "bg-green-600 hover:bg-green-700"
                   }`}
                 >
                   {item.is_active ? "Faolsizlashtirish" : "Faollashtirish"}

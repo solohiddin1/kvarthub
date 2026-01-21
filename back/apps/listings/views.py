@@ -48,9 +48,13 @@ class ListingCreateView(CreateAPIView):
                     'region': {'type': 'integer'},
                     'district': {'type': 'integer'},
                     'for_whom': {
-                        'type': 'string',
+                        'type': 'array',
+                        'items': {
+                            'type': 'string',
+                            'enum': ['BOYS', 'GIRLS', 'FAMILY', 'FOREIGNERS']
+                    },
                         'description': 'For whom (BOYS, GIRLS, FAMILY, FOREIGNERS)',
-                        'enum': ['BOYS', 'GIRLS', 'FAMILY', 'FOREIGNERS']
+                        # 'enum': ['BOYS', 'GIRLS', 'FAMILY', 'FOREIGNERS']
                     },
                     'state': {
                         'type': 'string',
@@ -85,10 +89,6 @@ class ListingCreateView(CreateAPIView):
                     "uz": "Iltimos, e'lon yaratishdan oldin to'lov kartasini qo'shing."
                 }
             )
-        url = 'https://www.nyckel.com/v1/functions/house-presence-identifier/invoke'
-        headers = {
-            'Authorization': 'Bearer ' + settings.NYCKEL_TOKEN,
-        }
 
         # Define listing charge amount
         LISTING_CREATION_CHARGE = settings.LISTING_CREATION_CHARGE
@@ -107,39 +107,44 @@ class ListingCreateView(CreateAPIView):
         # Check for NSFW content in uploaded images BEFORE touching request.data
         images_upload = request.FILES.getlist('images_upload')
         if images_upload:
-            logger.info(f"Checking {len(images_upload)} images for NSFW content.")
+            logger.info(f"Checking {len(images_upload)} images for content validation.")
+            
+            # Prepare validation tasks
+            has_nyckel = settings.NYCKEL_TOKEN and settings.NYCKEL_TOKEN != 'None'
+            
             for image in images_upload:
-                # Read image bytes
-                image.seek(0)  # Ensure we're at the start of the file
+                # Read image bytes once
+                image.seek(0)
                 image_bytes = image.read()
+                image.seek(0)
                 
-                # Send to Nyckel 
-                if settings.NYCKEL_TOKEN == 'None':
-                    logger.error("NYCKEL_TOKEN is not set in settings.")
-                    has_checker = False
-                else:
-                    has_checker = True
-                    # return ErrorResponse(
-                    #     result=ResultCodes.INTERNAL_SERVER_ERROR,
-                    #     message={
-                    #         "en": "Image validation service is not configured. Please contact support.",
-                    #         "ru": "Служба проверки изображений не настроена. Пожалуйста, свяжитесь с поддержкой.",
-                    #         "uz": "Rasmni tekshirish xizmati sozlanmagan. Iltimos, qo'llab-quvvatlash bilan bog'laning."
-                    #     }
-                    # )
-                if has_checker:
-                    result = requests.post(
-                        url, 
-                        headers=headers, 
-                        files={'data': (image.name, BytesIO(image_bytes), image.content_type)}
-                    )
-                    logger.info(f"Nyckel API response: {result.text}")
-                else:
-                    result = None
+                # Run NSFW check first (faster, local check)
+                # is_nsfw, nsfw_confidence = detect_nsfw(image)
+                # image.seek(0)
                 
-                # Nyckel response
-                if has_checker:
+                # if is_nsfw:
+                #     return ErrorResponse(
+                #         result=ResultCodes.VALIDATION_ERROR,
+                #         message={
+                #             "en": f"Image contains inappropriate content (confidence: {nsfw_confidence:.2%}). Please upload appropriate property images.",
+                #             "ru": f"Изображение содержит неприемлемый контент (уверенность: {nsfw_confidence:.2%}). Пожалуйста, загрузите соответствующие изображения недвижимости.",
+                #             "uz": f"Rasm nomaqbul kontent o'z ichiga oladi (ishonch: {nsfw_confidence:.2%}). Iltimos, tegishli uy rasmlarini yuklang."
+                #         }
+                #     )
+                
+                # Only check Nyckel for house presence if configured
+                if has_nyckel:
+                    url = 'https://www.nyckel.com/v1/functions/house-presence-identifier/invoke'
+                    headers = {'Authorization': 'Bearer ' + settings.NYCKEL_TOKEN}
+                    
                     try:
+                        result = requests.post(
+                            url, 
+                            headers=headers, 
+                            files={'data': (image.name, BytesIO(image_bytes), image.content_type)},
+                            timeout=5  # Add timeout to prevent hanging
+                        )
+                        
                         nyckel_response = result.json()
                         label_name = nyckel_response.get('labelName', '')
                         confidence = nyckel_response.get('confidence', 0)
@@ -155,24 +160,11 @@ class ListingCreateView(CreateAPIView):
                                 }
                             )
                     except Exception as e:
-                        logger.error(f"Error parsing Nyckel response: {str(e)}")
-                else:
-                    pass      
-                # Reset file pointer
-                image.seek(0)
-                
-                is_nsfw, confidence = detect_nsfw(image)
-                image.seek(0)  # Reset again
-                
-                if is_nsfw:
-                    return ErrorResponse(
-                        result=ResultCodes.VALIDATION_ERROR,
-                        message={
-                            "en": f"Image contains inappropriate content (confidence: {confidence:.2%}). Please upload appropriate property images.",
-                            "ru": f"Изображение содержит неприемлемый контент (уверенность: {confidence:.2%}). Пожалуйста, загрузите соответствующие изображения недвижимости.",
-                            "uz": f"Rasm nomaqbul kontent o'z ichiga oladi (ishonch: {confidence:.2%}). Iltimos, tegishli uy rasmlarini yuklang."
-                        }
-                    )
+                        logger.error(f"Nyckel API error: {str(e)}")
+                        # Continue without Nyckel validation if it fails
+
+        # Validate incoming data - serializer will handle for_whom array extraction
+
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -184,7 +176,7 @@ class ListingCreateView(CreateAPIView):
             
             listing = serializer.save(host=user)
             
-            # Create transaction record
+            # Create transaction recordqqqs\q
             Transaction.objects.create(
                 user=user,
                 card=user_card,
@@ -214,7 +206,7 @@ class ListingsListView(ListAPIView):
         'district': ['exact'],
         'floor_of_this_apartment': ['exact'],
         'rooms': ['exact'],
-        'for_whom': ['exact'],
+        'for_whom__name': ['exact'],
         'type': ['exact'],
     }
 
