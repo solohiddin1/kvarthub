@@ -176,7 +176,7 @@ class ListingCreateView(CreateAPIView):
             
             listing = serializer.save(host=user)
             
-            # Create transaction record
+            # Create transaction recordqqqs\q
             Transaction.objects.create(
                 user=user,
                 card=user_card,

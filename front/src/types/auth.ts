@@ -87,6 +87,8 @@ export interface ImageType {
   image: string
 }
 
+export type ForWhomType = "BOYS" | "GIRLS" | "FAMILY" | "FOREIGNERS";
+
 export interface ProductsType {
   id: number
   title: string
@@ -101,7 +103,7 @@ export interface ProductsType {
   rooms: number
   district: DistrictType;
   region: RegionsType;
-  for_whom:string
+  for_whom: ForWhomType[];
   location_link:string
   is_active?: boolean
 }

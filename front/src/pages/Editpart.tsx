@@ -29,7 +29,10 @@ const Editpart = () => {
   const [images_upload, setImages_upload] = useState<ImageType[]>([]);
   const [newImages, setNewImages] = useState<File[]>([]);
   const [allDistricts, setAllDistricts] = useState<DistrictType[]>([]);
-  const [for_whom, setFor_whom] = useState<string>("");
+
+  type ForWhomType = "BOYS" | "GIRLS" | "FAMILY" | "FOREIGNERS";
+  const [for_whom, setFor_whom] = useState<ForWhomType[]>([]);
+
 
   // update
   function handleEditFn() {
@@ -45,7 +48,8 @@ const Editpart = () => {
     formData.append("region", String(region));
     formData.append("district", String(district));
 
-    formData.append("for_whom", for_whom || "");
+    for_whom.forEach((v) => formData.append("for_whom", v));
+
     formData.append("floor_of_this_apartment", String(floor_of_this_apartment));
     formData.append("total_floor_of_building", String(total_floor_of_building));
 
@@ -146,7 +150,7 @@ const Editpart = () => {
       setDistrict(data.district.id);
       setRegion(data.region.id);
 
-      setFor_whom(data.for_whom || "");
+      setFor_whom(Array.isArray(data.for_whom) ? data.for_whom : []);
       setLocationLink(data.location_link);
     });
   }, [numberId]);
@@ -300,9 +304,8 @@ const Editpart = () => {
                   value={district}
                   onChange={handleDistrictChange}
                   disabled={!region}
-                  className={`w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none ${
-                    !region ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                  className={`w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none ${!region ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                 >
                   <option value="">
                     {selectDistrictValue ||
@@ -327,25 +330,20 @@ const Editpart = () => {
                   Kim uchun
                 </label>
                 <select
-                  value={for_whom} 
-                  onChange={(e) => setFor_whom(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none"
+                  multiple
+                  value={for_whom}
+                  onChange={(e) => {
+                    const values = Array.from(e.target.selectedOptions).map(
+                      (opt) => opt.value as ForWhomType
+                    );
+                    setFor_whom(values);
+                  }}
+                  className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl ..."
                 >
-                  <option value="">
-                    {for_whom === "BOYS"
-                      ? "Bolalar uchun"
-                      : for_whom === "GIRLS"
-                      ? "Qizlar uchun"
-                      : for_whom === "FAMILY"
-                      ? "Oila uchun"
-                      : for_whom === "FOREIGNERS"
-                      ? "Umumiy"
-                      : "Tanlang"}
-                  </option>
                   <option value="FAMILY">Oila uchun</option>
                   <option value="GIRLS">Qizlar uchun</option>
                   <option value="BOYS">Bolalar uchun</option>
-                  <option value="FOREIGNERS">Umumiy</option>
+                  <option value="FOREIGNERS">Chet elliklar</option>
                 </select>
               </div>
 
