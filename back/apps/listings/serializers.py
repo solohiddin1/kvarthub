@@ -56,8 +56,8 @@ class BaseListingSerializer(serializers.ModelSerializer):
     
     def get_for_whom(self, obj):
         """Return list of for_whom values"""
-        
-        return obj.for_whom.name if obj.for_whom else None
+
+        return [fw.name for fw in obj.for_whom.all()] if obj.for_whom else None
 
     def get_region(self, obj):
         """Return region object"""
