@@ -156,6 +156,10 @@ const Home = () => {
     return list.map((x) => FOR_WHOM_LABEL_UZ[x]).join(", ");
   }
 
+  function formatPrice(price: string) {
+    return price.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  }
+
   console.log(products)
 
   return (
@@ -231,12 +235,12 @@ const Home = () => {
                   {item.title}
                 </h2>
                 <div className="flex items-center justify-between mt-1">
-                  <p className="text-[#757575]">{item.price} UZS</p>
+                  <p className="text-[#757575]">{formatPrice(item.price)} UZS</p>
                   <p className="text-[14px] text-[#A6A6A6]">{item.rooms} rooms</p>
                 </div>
                 <div className="flex items-center justify-between mt-3">
                   <p className="text-[#757575]">{item.district.name_uz}</p>
-                  <p className="text-[#757575]">{formatForWhom(item.for_whom)}</p>
+                  <p className="text-[#757575] text-[13px] line-clamp-1 max-w-[120px]">{formatForWhom(item.for_whom)}</p>
                 </div>
               </div>
             </div>

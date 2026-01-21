@@ -86,11 +86,11 @@ class ListingCreateView(CreateAPIView):
         
         # If it's not the first listing, check for payment card and balance
         if not is_first_listing:
-            # Check if user has an active card
+            # Check if user has active cards
             from apps.payment.models import Card
-            user_card = Card.objects.filter(user=user, is_active=True).first()
+            user_cards = Card.objects.filter(user=user, is_active=True).order_by('-balance')
             
-            if not user_card:
+            if not user_cards.exists():
                 return ErrorResponse(
                     result=ResultCodes.VALIDATION_ERROR,
                     message={
@@ -100,14 +100,22 @@ class ListingCreateView(CreateAPIView):
                     }
                 )
             
-            # Check if user has sufficient balance
-            if user_card.balance < LISTING_CREATION_CHARGE:
+            # Try to find a card with sufficient balance
+            user_card = None
+            for card in user_cards:
+                if card.balance >= LISTING_CREATION_CHARGE:
+                    user_card = card
+                    break
+            
+            # If no card has sufficient balance
+            if not user_card:
+                total_balance = sum(card.balance for card in user_cards)
                 return ErrorResponse(
                     result=ResultCodes.VALIDATION_ERROR,
                     message={
-                        "en": f"Insufficient balance. You need {LISTING_CREATION_CHARGE} to create a listing. Current balance: {user_card.balance}",
-                        "ru": f"Недостаточно средств. Для создания объявления требуется {LISTING_CREATION_CHARGE}. Текущий баланс: {user_card.balance}",
-                        "uz": f"Balansda mablag' yetarli emas. E'lon yaratish uchun {LISTING_CREATION_CHARGE} kerak. Joriy balans: {user_card.balance}"
+                        "en": f"Insufficient balance in all cards. You need {LISTING_CREATION_CHARGE} to create a listing. Total balance across all cards: {total_balance}",
+                        "ru": f"Недостаточно средств на всех картах. Для создания объявления требуется {LISTING_CREATION_CHARGE}. Общий баланс на всех картах: {total_balance}",
+                        "uz": f"Barcha kartalarda mablag' yetarli emas. E'lon yaratish uchun {LISTING_CREATION_CHARGE} kerak. Barcha kartalardagi umumiy balans: {total_balance}"
                     }
                 )
         else:
@@ -303,10 +311,10 @@ class ListingStatusUpdateView(UpdateAPIView):
             instance.is_active = True
             # Charge the user for activating the listing
             with db_transaction.atomic():
-                card = None
                 from apps.payment.models import Card
-                card = Card.objects.filter(user=user, is_active=True).first()
-                if not card:
+                user_cards = Card.objects.filter(user=user, is_active=True).order_by('-balance')
+                
+                if not user_cards.exists():
                     return ErrorResponse(
                         result=ResultCodes.VALIDATION_ERROR,
                         message={
@@ -315,13 +323,23 @@ class ListingStatusUpdateView(UpdateAPIView):
                             "uz": "Iltimos, e'lonni faollashtirishdan oldin to'lov kartasini qo'shing."
                         }
                     )
-                if card.balance < settings.LISTING_ACTIVATION_CHARGE:
+                
+                # Try to find a card with sufficient balance
+                card = None
+                for c in user_cards:
+                    if c.balance >= settings.LISTING_ACTIVATION_CHARGE:
+                        card = c
+                        break
+                
+                # If no card has sufficient balance
+                if not card:
+                    total_balance = sum(c.balance for c in user_cards)
                     return ErrorResponse(
                         result=ResultCodes.VALIDATION_ERROR,
                         message={
-                            "en": f"Insufficient balance. You need {settings.LISTING_ACTIVATION_CHARGE} to activate the listing. Current balance: {card.balance}",
-                            "ru": f"Недостаточно средств. Для активации объявления требуется {settings.LISTING_ACTIVATION_CHARGE}. Текущий баланс: {card.balance}",
-                            "uz": f"Balansda mablag' yetarli emas. E'lonni faollashtirish uchun {settings.LISTING_ACTIVATION_CHARGE} kerak. Joriy balans: {card.balance}"
+                            "en": f"Insufficient balance in all cards. You need {settings.LISTING_ACTIVATION_CHARGE} to activate the listing. Total balance across all cards: {total_balance}",
+                            "ru": f"Недостаточно средств на всех картах. Для активации объявления требуется {settings.LISTING_ACTIVATION_CHARGE}. Общий баланс на всех картах: {total_balance}",
+                            "uz": f"Barcha kartalarda mablag' yetarli emas. E'lonni faollashtirish uchun {settings.LISTING_ACTIVATION_CHARGE} kerak. Barcha kartalardagi umumiy balans: {total_balance}"
                         }
                     )
                 # Deduct amount

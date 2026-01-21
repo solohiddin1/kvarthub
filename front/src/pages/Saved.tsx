@@ -238,7 +238,7 @@ const Saved = () => {
               </p>
               <button
                 onClick={() => navigate("/")}
-                className="px-8 py-3 bg-linear-to-r from-blue-500 to-blue-600 text-white font-medium rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-md hover:shadow-lg cursor-pointer"
+                className="px-8 py-3 bg-linear-to-r from-green-500 to-green-600 text-white font-medium rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-md hover:shadow-lg cursor-pointer"
               >
                 Mahsulotlarni ko'rish
               </button>
