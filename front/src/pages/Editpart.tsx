@@ -150,7 +150,7 @@ const Editpart = () => {
       setDistrict(data.district.id);
       setRegion(data.region.id);
 
-      setFor_whom(Array.isArray(data.for_whom) ? data.for_whom : []);
+      setFor_whom(data.for_whom_display || (Array.isArray(data.for_whom) ? data.for_whom : []));
       setLocationLink(data.location_link);
     });
   }, [numberId]);
@@ -199,10 +199,10 @@ const Editpart = () => {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Uy joy e'lon qo'shish
+              E'lonni tahrirlash
             </h1>
             <p className="text-gray-600">
-              Barcha maydonlarni to'ldiring va e'loningizni joylashtiring
+              Barcha maydonlarni to'ldiring va e'loningizni yangilang
             </p>
           </div>
 
@@ -329,22 +329,39 @@ const Editpart = () => {
                   <span className="text-red-500 mr-1">*</span>
                   Kim uchun
                 </label>
-                <select
-                  multiple
-                  value={for_whom}
-                  onChange={(e) => {
-                    const values = Array.from(e.target.selectedOptions).map(
-                      (opt) => opt.value as ForWhomType
-                    );
-                    setFor_whom(values);
-                  }}
-                  className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl ..."
-                >
-                  <option value="FAMILY">Oila uchun</option>
-                  <option value="GIRLS">Qizlar uchun</option>
-                  <option value="BOYS">Bolalar uchun</option>
-                  <option value="FOREIGNERS">Chet elliklar</option>
-                </select>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { value: "FAMILY", label: "Oila uchun", icon: "👨‍👩‍👧‍👦" },
+                    { value: "GIRLS", label: "Qizlar uchun", icon: "👩" },
+                    { value: "BOYS", label: "O'g'il bolalar uchun", icon: "👨" },
+                    { value: "FOREIGNERS", label: "Chet elliklar", icon: "🌍" },
+                  ].map((option) => (
+                    <label
+                      key={option.value}
+                      className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                        for_whom.includes(option.value as ForWhomType)
+                          ? "border-green-500 bg-green-50"
+                          : "border-gray-300 hover:border-green-300"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={for_whom.includes(option.value as ForWhomType)}
+                        onChange={() => {
+                          const val = option.value as ForWhomType;
+                          setFor_whom((prev) =>
+                            prev.includes(val)
+                              ? prev.filter((v) => v !== val)
+                              : [...prev, val]
+                          );
+                        }}
+                        className="w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500"
+                      />
+                      <span className="text-2xl">{option.icon}</span>
+                      <span className="font-medium text-gray-700">{option.label}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
 
               {/* Price and Location Row */}
@@ -612,12 +629,12 @@ const Editpart = () => {
                   />
                   <label
                     htmlFor="image-upload"
-                    className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-2xl hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 cursor-pointer group"
+                    className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-2xl hover:border-green-400 hover:bg-green-50 transition-all duration-200 cursor-pointer group"
                   >
                     <div className="p-8 text-center">
-                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center group-hover:bg-green-200 transition-colors">
                         <svg
-                          className="w-8 h-8 text-blue-600"
+                          className="w-8 h-8 text-green-600"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -712,7 +729,7 @@ const Editpart = () => {
                 <button
                   onClick={handleEditFn}
                   type="submit"
-                  className="w-full py-4 bg-linear-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  className="w-full py-4 bg-linear-to-r from-green-600 to-green-700 text-white font-semibold rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
                   E'lonni joylashtirish
                 </button>

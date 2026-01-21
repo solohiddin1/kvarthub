@@ -148,14 +148,15 @@ export interface Listing {
   description: string;
   price: string;
   location: string;
-  location_link:string
+  location_link?: string | null;
   rooms: number;
   phone_number: string;
   total_floor_of_building: number;
   floor_of_this_apartment: number;
-  region: number;
-  district: number;
-  for_whom:string
+  type?: string;
+  region: RegionsType;
+  district: DistrictType;
+  for_whom?: ForWhomType[] | string | null;
   is_active: boolean;
   images: ListingImage[];
   host?: number;
