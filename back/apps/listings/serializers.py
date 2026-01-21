@@ -87,12 +87,12 @@ class ListingSerializer(serializers.ModelSerializer):
     )
     facilities = serializers.StringRelatedField(many=True, read_only=True)
     host = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
-    for_whom = serializers.ListField(
-        child=serializers.ChoiceField(choices=ForWhom.FOR_WHOM_CHOICES),
-        write_only=True,
-        required=False,
-        help_text='List of audience types (e.g., ["BOYS", "GIRLS"])'
-    )
+    # for_whom = serializers.ListField(
+    #     child=serializers.ChoiceField(choices=ForWhom.FOR_WHOM_CHOICES),
+    #     write_only=True,
+    #     required=False,
+    #     help_text='List of audience types (e.g., ["BOYS", "GIRLS"])'
+    # )
     for_whom_display = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -135,28 +135,28 @@ class ListingSerializer(serializers.ModelSerializer):
         """Return list of for_whom values"""
         return [fw.name for fw in obj.for_whom.all()]
     
-    def to_internal_value(self, data):
-        """Handle for_whom array from multipart/form-data (QueryDict)"""
-        # Extract for_whom as list before parent processing
-        if hasattr(data, 'getlist') and 'for_whom' in data:
-            for_whom_list = data.getlist('for_whom')
-            # Store it temporarily
-            self._for_whom_list = for_whom_list
+    # def to_internal_value(self, data):
+    #     """Handle for_whom array from multipart/form-data (QueryDict)"""
+    #     # Extract for_whom as list before parent processing
+    #     if hasattr(data, 'getlist') and 'for_whom' in data:
+    #         for_whom_list = data.getlist('for_whom')
+    #         # Store it temporarily
+    #         self._for_whom_list = for_whom_list
         
         # Convert QueryDict to regular dict to avoid copy issues with files
-        if hasattr(data, 'dict'):
-            data_dict = {}
-            for key in data.keys():
-                if key == 'for_whom' and hasattr(self, '_for_whom_list'):
-                    data_dict[key] = self._for_whom_list
-                elif key == 'images_upload':
-                    # Handle multiple files
-                    data_dict[key] = data.getlist(key) if hasattr(data, 'getlist') else data.get(key)
-                else:
-                    data_dict[key] = data.get(key)
-            return super().to_internal_value(data_dict)
+        # if hasattr(data, 'dict'):
+        #     data_dict = {}
+        #     for key in data.keys():
+        #         if key == 'for_whom' and hasattr(self, '_for_whom_list'):
+        #             data_dict[key] = self._for_whom_list
+        #         elif key == 'images_upload':
+        #             # Handle multiple files
+        #             data_dict[key] = data.getlist(key) if hasattr(data, 'getlist') else data.get(key)
+        #         else:
+        #             data_dict[key] = data.get(key)
+        #     return super().to_internal_value(data_dict)
         
-        return super().to_internal_value(data)
+        # return super().to_internal_value(data)
 
     def create(self, validated_data):
         """Handle image upload and for_whom during creation"""
