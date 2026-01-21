@@ -1,12 +1,7 @@
 import { useEffect, useState } from "react";
 import apiClient from "../services/api";
 import { useNavigate, useParams } from "react-router-dom";
-import type {
-  DistrictType,
-  ImageType,
-  ProductsType,
-  RegionsType,
-} from "../types/auth";
+import type { DistrictType, ImageType, ProductsType, RegionsType } from "../types/auth";
 import { toast } from "react-toastify";
 import { HeaderPart } from "../components";
 
@@ -21,8 +16,10 @@ const Editpart = () => {
   const [location_link, setLocationLink] = useState<string>("");
   const [rooms, setRooms] = useState(0);
   const [phone_number, setPhone_number] = useState("");
-  const [district, setDistrict] = useState(0);
-  const [region, setRegion] = useState(0);
+
+  const [district, setDistrict] = useState<number>(0);
+  const [region, setRegion] = useState<number>(0);
+
   const [selectRegion, setSelectRegion] = useState<RegionsType[]>([]);
   const [selectDistrict, setSelectDistrict] = useState<DistrictType[]>([]);
   const [selectRegionValue, setSelectRegionValue] = useState<string>("");
@@ -32,7 +29,9 @@ const Editpart = () => {
   const [images_upload, setImages_upload] = useState<ImageType[]>([]);
   const [newImages, setNewImages] = useState<File[]>([]);
   const [allDistricts, setAllDistricts] = useState<DistrictType[]>([]);
-  const [for_whom, setFor_whom] = useState<string>("");
+
+  type ForWhomType = "BOYS" | "GIRLS" | "FAMILY" | "FOREIGNERS";
+  const [for_whom, setFor_whom] = useState<ForWhomType[]>([]);
 
 
   // update
@@ -45,22 +44,23 @@ const Editpart = () => {
     formData.append("location_link", location_link);
     formData.append("rooms", String(rooms));
     formData.append("phone_number", phone_number);
+
     formData.append("region", String(region));
     formData.append("district", String(district));
-    formData.append("for_whom", for_whom || "");
+
+    for_whom.forEach((v) => formData.append("for_whom", v));
+
     formData.append("floor_of_this_apartment", String(floor_of_this_apartment));
     formData.append("total_floor_of_building", String(total_floor_of_building));
 
     newImages.forEach((file) => {
-      formData.append(`images_upload`, file);
+      formData.append("images_upload", file);
     });
-    if(phone_number.length === 13){
 
+    if (phone_number.length === 13) {
       apiClient
         .patch(`/api/listings/${numberId}/update/`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         })
         .then((res) => {
           toast.success("Yangilandi");
@@ -68,16 +68,14 @@ const Editpart = () => {
           console.log(res.data);
         })
         .catch((error) => {
-          // Error handling
           console.log(error);
           toast.error("Ma'lumotlar xato");
         });
-    }
-    else{
+    } else {
       toast.error("Telefon raqam noto'g'ri formatda. Iltimos, +998901234567 shaklida kiriting.");
-  
     }
   }
+
   // img delete
   function handledeleteFn(id: string) {
     apiClient
@@ -97,14 +95,11 @@ const Editpart = () => {
       .get("/api/shared/regions")
       .then((res) => {
         setSelectRegion(res.data.result);
-        const regionName: RegionsType = res.data.result.find(
-          (item: RegionsType) => item.id === region
-        );
-        setSelectRegionValue(regionName?.name_uz || "");
+
+        const foundRegion = res.data.result.find((item: RegionsType) => item.id === region);
+        setSelectRegionValue(foundRegion?.name_uz || "");
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => console.log(err));
   }, []);
 
   // barcha tumanlarni olish
@@ -113,30 +108,20 @@ const Editpart = () => {
       .get("/api/shared/districts")
       .then((res) => {
         setAllDistricts(res.data.result);
-        const districtsName: DistrictType = res.data.result.find(
-          (item: DistrictType) => item.id === district
-        );
-        if (districtsName) {
-          setSelectDistrictValue(districtsName.name_uz);
-        }
+
+        const foundDistrict = res.data.result.find((item: DistrictType) => item.id === district);
+        if (foundDistrict) setSelectDistrictValue(foundDistrict.name_uz);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => console.log(err));
   }, []);
 
   // viloyat tanlanganida tumanlarni filter qilish
   useEffect(() => {
     if (region > 0 && allDistricts.length > 0) {
-      const filteredDistricts = allDistricts.filter(
-        (item: DistrictType) => item.region === region
-      );
+      const filteredDistricts = allDistricts.filter((item: DistrictType) => item.region === region);
       setSelectDistrict(filteredDistricts);
 
-      // Agar tanlangan tuman filter qilingan tumanlar ichida bo'lsa, uni saqlash
-      const currentDistrict = filteredDistricts.find(
-        (item: DistrictType) => item.id === district
-      );
+      const currentDistrict = filteredDistricts.find((item: DistrictType) => item.id === district);
       if (district > 0 && !currentDistrict) {
         setDistrict(0);
         setSelectDistrictValue("");
@@ -160,9 +145,12 @@ const Editpart = () => {
       setFloor_of_this_apartment(data.floor_of_this_apartment);
       setTotal_floor_of_building(data.total_floor_of_building);
       setImages_upload(data.images);
-      setDistrict(data.district);
-      setRegion(data.region);
-      setFor_whom(data.for_whom || "");
+
+      // ✅ ProductsType da district object, region object:
+      setDistrict(data.district.id);
+      setRegion(data.region.id);
+
+      setFor_whom(Array.isArray(data.for_whom) ? data.for_whom : []);
       setLocationLink(data.location_link);
     });
   }, [numberId]);
@@ -171,9 +159,7 @@ const Editpart = () => {
   useEffect(() => {
     if (region > 0 && selectRegion.length > 0) {
       const foundRegion = selectRegion.find((item) => item.id === region);
-      if (foundRegion) {
-        setSelectRegionValue(foundRegion.name_uz);
-      }
+      if (foundRegion) setSelectRegionValue(foundRegion.name_uz);
     }
   }, [region, selectRegion]);
 
@@ -181,9 +167,7 @@ const Editpart = () => {
   useEffect(() => {
     if (district > 0 && selectDistrict.length > 0) {
       const foundDistrict = selectDistrict.find((item) => item.id === district);
-      if (foundDistrict) {
-        setSelectDistrictValue(foundDistrict.name_uz);
-      }
+      if (foundDistrict) setSelectDistrictValue(foundDistrict.name_uz);
     }
   }, [district, selectDistrict]);
 
@@ -191,7 +175,6 @@ const Editpart = () => {
   const handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedRegionId = Number(e.target.value);
     setRegion(selectedRegionId);
-    // Yangi viloyat tanlanganda tuman reset qilish
     setDistrict(0);
     setSelectDistrictValue("");
   };
@@ -200,17 +183,12 @@ const Editpart = () => {
   const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedDistrictId = Number(e.target.value);
     setDistrict(selectedDistrictId);
-    const selectedDistrict = selectDistrict.find(
-      (item) => item.id === selectedDistrictId
-    );
-    setSelectDistrictValue(selectedDistrict?.name_uz || "");
+    const selected = selectDistrict.find((item) => item.id === selectedDistrictId);
+    setSelectDistrictValue(selected?.name_uz || "");
   };
 
-
-function hanleCheckerPhone(e:React.ChangeEvent<HTMLInputElement>){
+  function hanleCheckerPhone(e: React.ChangeEvent<HTMLInputElement>) {
     setPhone_number(e.target.value);
-    
-
   }
 
   return (
@@ -326,9 +304,8 @@ function hanleCheckerPhone(e:React.ChangeEvent<HTMLInputElement>){
                   value={district}
                   onChange={handleDistrictChange}
                   disabled={!region}
-                  className={`w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none ${
-                    !region ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                  className={`w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none ${!region ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                 >
                   <option value="">
                     {selectDistrictValue ||
@@ -353,25 +330,20 @@ function hanleCheckerPhone(e:React.ChangeEvent<HTMLInputElement>){
                   Kim uchun
                 </label>
                 <select
-                  value={for_whom} 
-                  onChange={(e) => setFor_whom(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none"
+                  multiple
+                  value={for_whom}
+                  onChange={(e) => {
+                    const values = Array.from(e.target.selectedOptions).map(
+                      (opt) => opt.value as ForWhomType
+                    );
+                    setFor_whom(values);
+                  }}
+                  className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl ..."
                 >
-                  <option value="">
-                    {for_whom === "BOYS"
-                      ? "Bolalar uchun"
-                      : for_whom === "GIRLS"
-                      ? "Qizlar uchun"
-                      : for_whom === "FAMILY"
-                      ? "Oila uchun"
-                      : for_whom === "FOREIGNERS"
-                      ? "Umumiy"
-                      : "Tanlang"}
-                  </option>
                   <option value="FAMILY">Oila uchun</option>
                   <option value="GIRLS">Qizlar uchun</option>
                   <option value="BOYS">Bolalar uchun</option>
-                  <option value="FOREIGNERS">Umumiy</option>
+                  <option value="FOREIGNERS">Chet elliklar</option>
                 </select>
               </div>
 

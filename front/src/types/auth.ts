@@ -87,6 +87,8 @@ export interface ImageType {
   image: string
 }
 
+export type ForWhomType = "BOYS" | "GIRLS" | "FAMILY" | "FOREIGNERS";
+
 export interface ProductsType {
   id: number
   title: string
@@ -99,9 +101,9 @@ export interface ProductsType {
   total_floor_of_building:number
   images: ImageType[]
   rooms: number
-  district:number
-  region:number
-  for_whom:string
+  district: DistrictType;
+  region: RegionsType;
+  for_whom: ForWhomType[];
   location_link:string
   is_active?: boolean
 }
@@ -111,6 +113,7 @@ export interface DistrictType {
   name_ru: string;
   name_en: string;
   region: number;
+  soato_id: number;
 }
  
 
@@ -119,7 +122,8 @@ export interface DistrictType {
   name_uz: string;
   name_ru: string;
   name_en: string;
-  disctricts: DistrictType[]; // E'tibor bering: "disctricts" (typo backendda)
+  soato_id: number;
+  disctricts: DistrictType[]; 
 }
 export interface PaymenType {
     id: number,

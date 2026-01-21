@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import apiClient from "../services/api";
 import { toast } from "react-toastify";
 import { HeaderPart } from "../components";
+import { useNavigate } from "react-router";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 
 export interface PaymentType {
   id: number;
@@ -23,7 +25,7 @@ const Payment = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedCard, setSelectedCard] = useState<PaymentType | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  console.log(isProcessing);
+  const navigate = useNavigate()
 
   // Yangi karta form state
   const [newCard, setNewCard] = useState({
@@ -271,6 +273,10 @@ const Payment = () => {
       <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 p-4 md:p-6">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
+            <button className="flex items-center gap-3 my-4 cursor-pointer bg-linear-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 py-2 px-3" onClick={() =>navigate(-1)}>
+             <ArrowLeftOutlined/>
+              <span>Ortga qaytish</span>
+            </button>
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
             <div>
               <h1 className="text-3xl font-bold text-gray-800">
@@ -427,7 +433,7 @@ const Payment = () => {
               {payments.map((card) => {
                 if (!card) return null;
 
-                const cardType = getCardType("4" + card.card_number_last4); // Visa deb faraz qilamiz
+                const cardType = getCardType("4" + card.card_number_last4); 
                 const gradientClass = getCardColor(cardType);
 
                 return (
@@ -714,7 +720,7 @@ const Payment = () => {
 
         {/* Status Change Modal */}
         {showStatusModal && selectedCard && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-3xl p-8 max-w-md w-full">
               <div className="text-center mb-6">
                 <div
@@ -785,7 +791,7 @@ const Payment = () => {
 
         {/* Delete Card Modal */}
         {showDeleteModal && selectedCard && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-3xl p-8 max-w-md w-full">
               <div className="text-center mb-6">
                 <div className="w-16 h-16 mx-auto rounded-full bg-red-100 flex items-center justify-center mb-4">

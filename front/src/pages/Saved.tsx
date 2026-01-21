@@ -245,7 +245,7 @@ const Saved = () => {
             </div>
           </div>
         ) : (
-          <div className="containers  grid grid-cols-1 md:grid-cols-3 lg:flex lg:flex-wrap lg:justify-between  gap-3 py-5 px-5">
+          <div className="containers  grid grid-cols-2 md:grid-cols-3 lg:flex lg:flex-wrap lg:justify-between  gap-3 py-5 px-5">
             {savedCard.map((item: ProductsType) => (
               <div
                 key={item.id}
@@ -264,7 +264,7 @@ const Saved = () => {
                   )}
                 </div>
                 {/* liked button end */}
-                <img
+                <img className="rounded-xl"
                   src={
                     item.images && item.images.length > 0
                       ? item.images[0].image
@@ -279,7 +279,7 @@ const Saved = () => {
                     {item.title}
                   </h2>
                   <div className="flex items-center justify-between mt-3">
-                    <p className="text-[#757575]">${item.price}</p>
+                    <p className="text-[#757575]">{item.price} UZS</p>
                     <p className="text-[14px] text-[#A6A6A6]">{item.rooms} rooms</p>
                   </div>
                 </div>
