@@ -24,7 +24,7 @@ import nyckel
 
 logger = get_logger()
 
-class ListingCreateView(GenericAPIView):
+class ListingCreateView(CreateAPIView):
     """Create a new listing with optional image uploads"""
     queryset = Listing.objects.all()
     serializer_class = ListingSerializer

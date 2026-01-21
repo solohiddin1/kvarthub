@@ -13,6 +13,7 @@ const CreateListing = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(0);
+  const [priceDisplay, setPriceDisplay] = useState("");
   const [region, setRegion] = useState(0);
   const [district, setDistrict] = useState(0);
   const [location_link, setLocationLink] = useState("");
@@ -28,7 +29,31 @@ const CreateListing = () => {
   const [card_holder_name, setCard_holder_name] = useState<string>("");
   const [expiry_month, setExpiry_month] = useState<number>(0);
   const [expiry_year, setExpiry_year] = useState<number>(0);
-  const [for_whom, setFor_whom] = useState<string>("");
+  const [for_whom, setFor_whom] = useState<string[]>([]);
+
+  // Handle for_whom checkbox changes
+  const handleForWhomChange = (value: string) => {
+    setFor_whom(prev => 
+      prev.includes(value) 
+        ? prev.filter(item => item !== value)
+        : [...prev, value]
+    );
+  };
+
+  // Format price with spaces
+  const formatPrice = (value: string) => {
+    const numValue = value.replace(/\s/g, '');
+    if (!numValue) return '';
+    return numValue.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\s/g, '');
+    if (value === '' || /^\d+$/.test(value)) {
+      setPrice(Number(value));
+      setPriceDisplay(formatPrice(value));
+    }
+  };
 
   // select regions
   const [selectRegion, setSelectRegion] = useState<RegionsType[]>([]);
@@ -76,6 +101,31 @@ const CreateListing = () => {
   //  formani backentga yuborish
   function handleFormSubmit(e: React.FormEvent) {
     e.preventDefault();
+    
+    // Validate for_whom selection
+    if (for_whom.length === 0) {
+      toast.error("Kim uchun maydonidan kamida bitta variantni tanlang");
+      return;
+    }
+    
+    // Validate rooms
+    if (rooms > 200) {
+      toast.error("Xonalar soni 200 dan oshmasligi kerak");
+      return;
+    }
+    
+    // Validate total floor
+    if (total_floor_of_building > 150) {
+      toast.error("Bino qavatlari soni 150 dan oshmasligi kerak");
+      return;
+    }
+    
+    // Validate floor of apartment vs total floor
+    if (floor_of_this_apartment > total_floor_of_building) {
+      toast.error("Kvartira qavati binoning umumiy qavatidan oshmasligi kerak");
+      return;
+    }
+    
     setIsSubmitting(true);
 
     const formData = new FormData();
@@ -88,7 +138,8 @@ const CreateListing = () => {
     formData.append("location", location);
     formData.append("rooms", String(rooms));
     formData.append("phone_number", phone_number);
-    formData.append("for_whom", for_whom);
+    // Append for_whom array
+    for_whom.forEach(item => formData.append("for_whom", item));
     formData.append("floor_of_this_apartment", String(floor_of_this_apartment));
     formData.append("total_floor_of_building", String(total_floor_of_building));
     images_upload.forEach((img) => formData.append("images_upload", img));
@@ -314,11 +365,11 @@ const CreateListing = () => {
                       </div>
                       <input
                         required
-                        type="number"
-                        min={0}
+                        type="text"
+                        value={priceDisplay}
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
                         placeholder="0"
-                        onChange={(e) => setPrice(Number(e.target.value))}
+                        onChange={handlePriceChange}
                       />
                     </div>
                   </div>
@@ -417,21 +468,37 @@ const CreateListing = () => {
               <div className="space-y-3">
                 <label className="block text-sm font-semibold text-gray-700">
                   <span className="text-red-500 mr-1">*</span>
-                  Kim uchun
+                  Kim uchun (Bir nechta tanlanishi mumkin)
                 </label>
-                <select
-                  required
-                  className={`w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none`}
-                  onChange={(e) => setFor_whom(e.target.value)}
-                >
-                  <option value="" disabled selected>
-                    Kim uchun
-                  </option>
-                  <option value="FAMILY">Oila uchun</option>
-                  <option value="GIRLS">Qizlar uchun</option>
-                  <option value="BOYS">Bolalar uchun</option>
-                  <option value="FOREIGNERS">Umumiy</option>
-                </select>
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { value: 'FAMILY', label: 'Oila uchun', icon: '👨‍👩‍👧‍👦' },
+                    { value: 'GIRLS', label: 'Qizlar uchun', icon: '👩' },
+                    { value: 'BOYS', label: 'Bolalar uchun', icon: '👨‍🦱' },
+                    { value: 'FOREIGNERS', label: 'Umumiy', icon: '🌍' }
+                  ].map((option) => (
+                    <label
+                      key={option.value}
+                      className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                        for_whom.includes(option.value)
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-300 hover:border-blue-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                        checked={for_whom.includes(option.value)}
+                        onChange={() => handleForWhomChange(option.value)}
+                      />
+                      <span className="text-2xl">{option.icon}</span>
+                      <span className="font-medium text-gray-700">{option.label}</span>
+                    </label>
+                  ))}
+                </div>
+                {for_whom.length === 0 && (
+                  <p className="text-xs text-red-500">Kamida bitta variantni tanlang</p>
+                )}
               </div>
 
               {/* Location & Details */}
@@ -581,6 +648,7 @@ const CreateListing = () => {
                         type="number"
                         placeholder="0"
                         min={0}
+                        max={200}
                         onChange={(e) => setRooms(Number(e.target.value))}
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
                       />
@@ -644,6 +712,7 @@ const CreateListing = () => {
                       <input
                         type="number"
                         min={0}
+                        max={150}
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
                         placeholder="Masalan: 5"
                         onChange={(e) =>

@@ -87,12 +87,12 @@ class ListingSerializer(serializers.ModelSerializer):
     )
     facilities = serializers.StringRelatedField(many=True, read_only=True)
     host = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
-    # for_whom = serializers.ListField(
-    #     child=serializers.ChoiceField(choices=ForWhom.FOR_WHOM_CHOICES),
-    #     write_only=True,
-    #     required=False,
-    #     help_text='List of audience types (e.g., ["BOYS", "GIRLS"])'
-    # )
+    for_whom = serializers.ListField(
+        child=serializers.ChoiceField(choices=ForWhom.FOR_WHOM_CHOICES),
+        write_only=True,
+        required=False,
+        help_text='List of audience types (e.g., ["BOYS", "GIRLS"])'
+    )
     for_whom_display = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -197,6 +197,30 @@ class ListingSerializer(serializers.ModelSerializer):
         
         return instance
     
+    def validate_rooms(self, value):
+        """Validate rooms count"""
+        if value and value > 200:
+            raise serializers.ValidationError("Xonalar soni 200 dan oshmasligi kerak.")
+        return value
+    
+    def validate_total_floor_of_building(self, value):
+        """Validate total floor count"""
+        if value and value > 150:
+            raise serializers.ValidationError("Bino qavatlari soni 150 dan oshmasligi kerak.")
+        return value
+    
+    def validate(self, data):
+        """Validate that floor of apartment is less than total floors"""
+        floor_apt = data.get('floor_of_this_apartment')
+        total_floor = data.get('total_floor_of_building')
+        
+        if floor_apt and total_floor and floor_apt > total_floor:
+            raise serializers.ValidationError({
+                'floor_of_this_apartment': "Kvartira qavati binoning umumiy qavatidan oshmasligi kerak."
+            })
+        
+        return data
+    
     def validate_location_link(self, value):
         """Validate that location_link is a valid URL"""
         if not value:  # Allow empty/null values
@@ -220,6 +244,7 @@ class ListingDetailSerializer(ListingSerializer):
     host = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=True)
     region = serializers.SerializerMethodField(read_only=True)
     district = serializers.SerializerMethodField(read_only=True)
+    for_whom_display = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Listing
@@ -236,10 +261,10 @@ class ListingDetailSerializer(ListingSerializer):
             'total_floor_of_building',
             'floor_of_this_apartment',  
             'is_active',
-            'for_whom',
+            'for_whom_display',
             'region',
             'district',
-
+            'type',
             'images',
             'images_upload',
             'facilities',
@@ -250,6 +275,10 @@ class ListingDetailSerializer(ListingSerializer):
             'images',
             'facilities'
         ]
+    
+    def get_for_whom_display(self, obj):
+        """Return list of for_whom values"""
+        return [fw.name for fw in obj.for_whom.all()]
     
     def get_region(self, obj):
         """Return region object"""

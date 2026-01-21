@@ -13,8 +13,6 @@ const ListingDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [region, setRegion] = useState<string>("");
-  const [district, setDistrict] = useState<string>("");
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -40,42 +38,6 @@ const ListingDetail = () => {
       fetchListing();
     }
   }, [id]);
-
-  // viloyatni olish
-  useEffect(() => {
-    apiClient
-      .get("/api/shared/regions/")
-      .then((res) => {
-        if (listing?.region) {
-          const regionName: RegionsType = res.data.result.find(
-            (item: RegionsType) => item.id === listing?.region
-          );
-          if (regionName) {
-            setRegion(regionName.name_uz);
-          }
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [listing]);
-
-  // tumanni olish
-  useEffect(() => {
-    apiClient
-      .get("/api/shared/districts/")
-      .then((res) => {
-        if (res.data.result.length > 0) {
-          const DistrictsName: DistrictType = res.data.result.find(
-            (item: DistrictType) => item.id === listing?.district
-          );
-          setDistrict(DistrictsName.name_uz);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [listing]);
 
   if (loading) {
     return (
@@ -116,8 +78,12 @@ const ListingDetail = () => {
       ? listing.images[selectedImageIndex].image
       : "/placeholder.jpg";
 
+  // Format price with spaces for readability
+  const formatPrice = (price: string) => {
+    return price.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  };
 
-      console.log(listing)
+  console.log(listing)
   type ForWhomType = "BOYS" | "GIRLS" | "FAMILY" | "FOREIGNERS";
 
   const FOR_WHOM_META: Record<ForWhomType, { label: string; icon: string; color: string; desc: string }> = {
@@ -127,8 +93,12 @@ const ListingDetail = () => {
     FOREIGNERS: { label: "Chet elliklar", icon: "🌍", color: "text-gray-700", desc: "Barcha uchun ochiq" },
   };
 
-  const forWhomList: ForWhomType[] = Array.isArray(listing?.for_whom) ? (listing!.for_whom as ForWhomType[]) : [];
-  const primaryForWhom: ForWhomType | null = forWhomList[0] ?? null;
+  const forWhomList: ForWhomType[] = Array.isArray(listing?.for_whom_display) 
+    ? (listing!.for_whom_display as ForWhomType[]).filter((item): item is ForWhomType => 
+        item != null && item in FOR_WHOM_META
+      ) 
+    : [];
+  const primaryForWhom: ForWhomType | null = forWhomList.length > 0 ? forWhomList[0] : null;
 
 
   return (
@@ -215,7 +185,7 @@ const ListingDetail = () => {
             <div className="bg-linear-to-r from-green-50 to-emerald-50 p-6 rounded-2xl border border-green-100">
               <div className="flex items-end gap-2">
                 <span className="text-4xl md:text-5xl font-bold text-emerald-700">
-                  {listing.price} so'm
+                  {formatPrice(listing.price)} so'm
                 </span>
                 <span className="text-gray-600 text-lg mb-1">/oyiga</span>
               </div>
@@ -349,7 +319,7 @@ const ListingDetail = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Viloyat</p>
-                    <p className="font-semibold text-gray-900">{region}</p>
+                    <p className="font-semibold text-gray-900">{listing.region?.name_uz || 'N/A'}</p>
                   </div>
                 </div>
 
@@ -359,7 +329,7 @@ const ListingDetail = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Tuman</p>
-                    <p className="font-semibold text-gray-900">{district}</p>
+                    <p className="font-semibold text-gray-900">{listing.district?.name_uz || 'N/A'}</p>
                   </div>
                 </div>
               </div>
