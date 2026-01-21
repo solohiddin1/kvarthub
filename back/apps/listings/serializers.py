@@ -237,7 +237,15 @@ class ListingSerializer(serializers.ModelSerializer):
         
         return value
 
-    
+
+class ForWhomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ForWhom
+        fields = [
+            'id',
+            'name',
+        ]
+
 class ListingDetailSerializer(ListingSerializer):
     images = serializers.SerializerMethodField(required=False)
     facilities = serializers.StringRelatedField(many=True, read_only=True)
@@ -265,6 +273,9 @@ class ListingDetailSerializer(ListingSerializer):
             'region',
             'district',
             'type',
+
+            'for_whom',
+
             'images',
             'images_upload',
             'facilities',
@@ -287,7 +298,11 @@ class ListingDetailSerializer(ListingSerializer):
     def get_district(self, obj):
         """Return district object"""
         return DistrictSerializer(obj.district, context=self.context).data if obj.district else None
-        
+    
+    def get_for_whom(self, obj):
+        """Return list of for_whom values"""
+        return [fw.name for fw in obj.for_whom.all()]
+    
     def get_images(self, obj):
         images = ListingImage.objects.filter(listing=obj)
         return ListingImageSerializer(images, many=True, context=self.context).data
