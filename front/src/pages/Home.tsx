@@ -147,6 +147,8 @@ const Home = () => {
     }))
   }
   
+  console.log(products);
+  
 
 
   return (

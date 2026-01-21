@@ -92,7 +92,7 @@ const CreateListing = () => {
     formData.append("floor_of_this_apartment", String(floor_of_this_apartment));
     formData.append("total_floor_of_building", String(total_floor_of_building));
     images_upload.forEach((img) => formData.append("images_upload", img));
-    console.log(for_whom);
+    console.log(typeof(for_whom));
     
     if(phone_number.length === 13){
 
@@ -103,7 +103,7 @@ const CreateListing = () => {
           },
         })
         .then((response) => {
-          console.log(response.data);
+          console.log("Response",response.data);
           
           if (response.data.success) {
             toast.success("E'lon muvaffaqiyatli yaratildi!");
