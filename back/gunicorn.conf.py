@@ -4,7 +4,7 @@ import multiprocessing
 wsgi_app = "kvarthub.wsgi:application"
 
 # Server socket
-bind = "127.0.0.1:8000"   # or unix socket (recommended, see below)
+bind = "127.0.0.1:8000"
 
 # Workers
 workers = multiprocessing.cpu_count() * 2 + 1
