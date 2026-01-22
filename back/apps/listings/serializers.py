@@ -56,8 +56,8 @@ class BaseListingSerializer(serializers.ModelSerializer):
     
     def get_for_whom(self, obj):
         """Return list of for_whom values"""
-        
-        return obj.for_whom.name if obj.for_whom else None
+
+        return [fw.name for fw in obj.for_whom.all()] if obj.for_whom else None
 
     def get_region(self, obj):
         """Return region object"""
@@ -135,28 +135,28 @@ class ListingSerializer(serializers.ModelSerializer):
         """Return list of for_whom values"""
         return [fw.name for fw in obj.for_whom.all()]
     
-    def to_internal_value(self, data):
-        """Handle for_whom array from multipart/form-data (QueryDict)"""
-        # Extract for_whom as list before parent processing
-        if hasattr(data, 'getlist') and 'for_whom' in data:
-            for_whom_list = data.getlist('for_whom')
-            # Store it temporarily
-            self._for_whom_list = for_whom_list
+    # def to_internal_value(self, data):
+    #     """Handle for_whom array from multipart/form-data (QueryDict)"""
+    #     # Extract for_whom as list before parent processing
+    #     if hasattr(data, 'getlist') and 'for_whom' in data:
+    #         for_whom_list = data.getlist('for_whom')
+    #         # Store it temporarily
+    #         self._for_whom_list = for_whom_list
         
         # Convert QueryDict to regular dict to avoid copy issues with files
-        if hasattr(data, 'dict'):
-            data_dict = {}
-            for key in data.keys():
-                if key == 'for_whom' and hasattr(self, '_for_whom_list'):
-                    data_dict[key] = self._for_whom_list
-                elif key == 'images_upload':
-                    # Handle multiple files
-                    data_dict[key] = data.getlist(key) if hasattr(data, 'getlist') else data.get(key)
-                else:
-                    data_dict[key] = data.get(key)
-            return super().to_internal_value(data_dict)
+        # if hasattr(data, 'dict'):
+        #     data_dict = {}
+        #     for key in data.keys():
+        #         if key == 'for_whom' and hasattr(self, '_for_whom_list'):
+        #             data_dict[key] = self._for_whom_list
+        #         elif key == 'images_upload':
+        #             # Handle multiple files
+        #             data_dict[key] = data.getlist(key) if hasattr(data, 'getlist') else data.get(key)
+        #         else:
+        #             data_dict[key] = data.get(key)
+        #     return super().to_internal_value(data_dict)
         
-        return super().to_internal_value(data)
+        # return super().to_internal_value(data)
 
     def create(self, validated_data):
         """Handle image upload and for_whom during creation"""
@@ -197,6 +197,30 @@ class ListingSerializer(serializers.ModelSerializer):
         
         return instance
     
+    def validate_rooms(self, value):
+        """Validate rooms count"""
+        if value and value > 200:
+            raise serializers.ValidationError("Xonalar soni 200 dan oshmasligi kerak.")
+        return value
+    
+    def validate_total_floor_of_building(self, value):
+        """Validate total floor count"""
+        if value and value > 150:
+            raise serializers.ValidationError("Bino qavatlari soni 150 dan oshmasligi kerak.")
+        return value
+    
+    def validate(self, data):
+        """Validate that floor of apartment is less than total floors"""
+        floor_apt = data.get('floor_of_this_apartment')
+        total_floor = data.get('total_floor_of_building')
+        
+        if floor_apt and total_floor and floor_apt > total_floor:
+            raise serializers.ValidationError({
+                'floor_of_this_apartment': "Kvartira qavati binoning umumiy qavatidan oshmasligi kerak."
+            })
+        
+        return data
+    
     def validate_location_link(self, value):
         """Validate that location_link is a valid URL"""
         if not value:  # Allow empty/null values
@@ -213,13 +237,22 @@ class ListingSerializer(serializers.ModelSerializer):
         
         return value
 
-    
+
+class ForWhomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ForWhom
+        fields = [
+            'id',
+            'name',
+        ]
+
 class ListingDetailSerializer(ListingSerializer):
     images = serializers.SerializerMethodField(required=False)
     facilities = serializers.StringRelatedField(many=True, read_only=True)
     host = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=True)
     region = serializers.SerializerMethodField(read_only=True)
     district = serializers.SerializerMethodField(read_only=True)
+    for_whom_display = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Listing
@@ -236,9 +269,12 @@ class ListingDetailSerializer(ListingSerializer):
             'total_floor_of_building',
             'floor_of_this_apartment',  
             'is_active',
-            'for_whom',
+            'for_whom_display',
             'region',
             'district',
+            'type',
+
+            'for_whom',
 
             'images',
             'images_upload',
@@ -251,6 +287,10 @@ class ListingDetailSerializer(ListingSerializer):
             'facilities'
         ]
     
+    def get_for_whom_display(self, obj):
+        """Return list of for_whom values"""
+        return [fw.name for fw in obj.for_whom.all()]
+    
     def get_region(self, obj):
         """Return region object"""
         return RegionSerializer(obj.region, context=self.context).data if obj.region else None
@@ -258,7 +298,11 @@ class ListingDetailSerializer(ListingSerializer):
     def get_district(self, obj):
         """Return district object"""
         return DistrictSerializer(obj.district, context=self.context).data if obj.district else None
-        
+    
+    def get_for_whom(self, obj):
+        """Return list of for_whom values"""
+        return [fw.name for fw in obj.for_whom.all()]
+    
     def get_images(self, obj):
         images = ListingImage.objects.filter(listing=obj)
         return ListingImageSerializer(images, many=True, context=self.context).data

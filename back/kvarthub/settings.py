@@ -119,7 +119,12 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES':['rest_framework.permissions.AllowAny'],
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend'
-    ]
+    ],
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.FormParser',
+    )
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -266,9 +271,9 @@ CORS_ALLOW_HEADERS = [
 # Payment Settings
 LISTING_CREATION_CHARGE = 50.00
 DAILY_LISTING_CHARGE = 10.00
-CARD_CREATED_INITIAL_BALANCE = 500.00
+CARD_CREATED_INITIAL_BALANCE = 5000.00
 LISTING_ACTIVATION_CHARGE = 5.00
-CARD_INITIAL_BALANCE = 500
+CARD_INITIAL_BALANCE = 5000.00
 
 # Celery Configuration
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
@@ -276,7 +281,9 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'UTC'
+CELERY_TIMEZONE = 'Asia/Tashkent'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 NYCKEL_TOKEN = settings.NYCKEL_TOKEN
+CLIENT_ID = settings.CLIENT_ID
+CLIENT_SECRET = settings.CLIENT_SECRET

@@ -181,7 +181,7 @@ const MyListings = () => {
       {/* Ortga qaytish tugmasi */}
       <button 
         onClick={() => navigate(-1)} 
-        className="flex items-center gap-1 ml-6 py-2 px-3 cursor-pointer mt-3 font-semibold bg-blue-600 rounded-2xl text-white hover:bg-blue-700"
+        className="flex items-center gap-1 ml-6 py-2 px-3 cursor-pointer mt-3 font-semibold bg-green-600 rounded-2xl text-white hover:bg-green-700"
       >
         <ArrowLeftOutlined/>
         <span>Ortga qaytish</span>

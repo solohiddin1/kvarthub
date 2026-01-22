@@ -87,6 +87,8 @@ export interface ImageType {
   image: string
 }
 
+export type ForWhomType = "BOYS" | "GIRLS" | "FAMILY" | "FOREIGNERS";
+
 export interface ProductsType {
   id: number
   title: string
@@ -99,12 +101,13 @@ export interface ProductsType {
   total_floor_of_building:number
   images: ImageType[]
   rooms: number
+  for_whomdispley:string[]
   district: DistrictType;
   region: RegionsType;
-  for_whom:string
-  for_whom_display:string[]
+  for_whom: ForWhomType[];
   location_link:string
   is_active?: boolean
+  for_whom_display:string[]
 }
 export interface DistrictType {
   id: number;
@@ -147,15 +150,27 @@ export interface Listing {
   description: string;
   price: string;
   location: string;
-  location_link:string
+  location_link?: string | null;
   rooms: number;
   phone_number: string;
   total_floor_of_building: number;
   floor_of_this_apartment: number;
-  region: number;
-  district: number;
-  for_whom:string
+  type?: string;
+  region: RegionsType;
+  district: DistrictType;
+  for_whom?: ForWhomType[] | string | null;
   is_active: boolean;
   images: ListingImage[];
   host?: number;
+for_whom_display:string[]
+
+}
+ 
+
+export interface Region {
+  id: number
+  name_uz: string
+  name_ru: string
+  name_en: string
+  soato_id: number
 }
