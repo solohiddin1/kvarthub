@@ -14,7 +14,7 @@ class Region(models.Model):
     name_en = models.CharField(max_length=30, verbose_name=_("name_en"), null=True, blank=True)
 
     def __str__(self):
-        return self.name_uz or self.name_en or self.name_ru
+        return f"{self.name_uz or self.name_en or self.name_ru}"
 
     class Meta:
         verbose_name = _("Region")

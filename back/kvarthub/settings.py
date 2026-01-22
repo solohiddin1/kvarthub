@@ -47,6 +47,7 @@ OUT = [
     'rest_framework.authtoken',
     'rest_framework_simplejwt.token_blacklist',
     'django_celery_beat',
+    'import_export',
     
     # auth
     # 'allauth',
