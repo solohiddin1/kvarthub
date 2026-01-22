@@ -91,7 +91,6 @@ const ListingDetail = () => {
     images.length > 0 ? images[Math.min(selectedImageIndex, images.length - 1)]?.image : "/placeholder.jpg";
 
   const forWhomList = useMemo(() => normalizeForWhom(listing?.for_whom_display), [listing?.for_whom_display]);
-  const primaryForWhom = forWhomList[0] ?? null;
 
   const mapUrl = useMemo(() => {
     if (!listing) return "#";

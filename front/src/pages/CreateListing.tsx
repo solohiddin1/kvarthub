@@ -6,7 +6,6 @@ import apiClient from "../services/api";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import type { DistrictType, RegionsType } from "../types/auth";
-import { DeleteColumnOutlined } from "@ant-design/icons";
 
 const CreateListing = () => {
   const { loading } = useAuth();

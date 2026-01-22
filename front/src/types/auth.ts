@@ -104,6 +104,7 @@ export interface ProductsType {
   district: DistrictType;
   region: RegionsType;
   for_whom: ForWhomType[];
+  for_whom_display?: ForWhomType[];
   location_link:string
   is_active?: boolean
 }
