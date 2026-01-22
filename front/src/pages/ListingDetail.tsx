@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import type { DistrictType,  Listing, RegionsType } from "../types/auth";
 
 
+
 const ListingDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -41,6 +42,34 @@ const ListingDetail = () => {
   }, [id]);
 
 
+
+  // viloyatni olish (name_uz)
+  useEffect(() => {
+    if (!listing?.region) return;
+    apiClient
+      .get("/api/shared/regions/")
+      .then((res) => {
+        const found: RegionsType | undefined = res.data?.result?.find(
+          (item: RegionsType) => item.id === listing.region.id
+        );
+        setRegionName(found?.name_uz || "");
+      })
+      .catch(() => { });
+  }, [listing?.region]);
+
+  // tumanni olish (name_uz)
+  useEffect(() => {
+    if (!listing?.district) return;
+    apiClient
+      .get("/api/shared/districts/")
+      .then((res) => {
+        const found: DistrictType | undefined = res.data?.result?.find(
+          (item: DistrictType) => item.id === listing.district.id
+        );
+        setDistrictName(found?.name_uz || "");
+      })
+      .catch(() => { });
+  }, [listing?.district]);
 
   // viloyatni olish (name_uz)
   useEffect(() => {
@@ -251,7 +280,7 @@ const ListingDetail = () => {
                   </summary>
 
                   <div className="px-4 pb-4 sm:px-6 sm:pb-6">
-                    {listing.for_whom_display.map(item => (
+                    {listing.for_whom_display?.map(item => (
                       <p>
                         {item == "FAMILY" ? "Oilaga" : item == "GIRLS" ? "Qizlarga" : item == "BOYS" ? "Bolalarga" : "Chet ellikga" }
                       </p>

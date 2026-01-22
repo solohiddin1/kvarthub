@@ -105,9 +105,9 @@ export interface ProductsType {
   district: DistrictType;
   region: RegionsType;
   for_whom: ForWhomType[];
+  for_whom_display?: ForWhomType[];
   location_link:string
   is_active?: boolean
-  for_whom_display:string[]
 }
 export interface DistrictType {
   id: number;
@@ -158,11 +158,11 @@ export interface Listing {
   type?: string;
   region: RegionsType;
   district: DistrictType;
-  for_whom?: ForWhomType[] | string | null;
+  for_whom_display?: ForWhomType[];
   is_active: boolean;
   images: ListingImage[];
   host?: number;
-for_whom_display:string[]
+
 
 }
  
