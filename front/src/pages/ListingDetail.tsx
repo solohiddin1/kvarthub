@@ -14,15 +14,9 @@ const FOR_WHOM_META: Record<ForWhomType, ForWhomMeta> = {
   FOREIGNERS: { label: "Chet elliklar", icon: "🌍", color: "text-slate-700", desc: "Barcha uchun ochiq" },
 };
 
-// Agar backend hozircha string qaytarayotgan bo‘lsa ham, biz uni arrayga normalize qilamiz
-function normalizeForWhom(value: Listing["for_whom"]): ForWhomType[] {
+// Backend for_whom_display ni array sifatida qaytaradi
+function normalizeForWhom(value: Listing["for_whom_display"]): ForWhomType[] {
   if (Array.isArray(value)) return value as ForWhomType[];
-  if (typeof value === "string") {
-    const v = value.trim();
-    // "FAMILY,BOYS" yoki "FAMILY" ko‘rinishlarini ushlash
-    const parts = v.includes(",") ? v.split(",").map((x) => x.trim()) : [v];
-    return parts.filter(Boolean) as ForWhomType[];
-  }
   return [];
 }
 
@@ -96,7 +90,7 @@ const ListingDetail = () => {
   const mainImage =
     images.length > 0 ? images[Math.min(selectedImageIndex, images.length - 1)]?.image : "/placeholder.jpg";
 
-  const forWhomList = useMemo(() => normalizeForWhom(listing?.for_whom), [listing?.for_whom]);
+  const forWhomList = useMemo(() => normalizeForWhom(listing?.for_whom_display), [listing?.for_whom_display]);
   const primaryForWhom = forWhomList[0] ?? null;
 
   const mapUrl = useMemo(() => {
@@ -282,30 +276,15 @@ const ListingDetail = () => {
                     {forWhomList.length === 0 ? (
                       <p className="text-slate-700 font-semibold">Tanlanmagan</p>
                     ) : (
-                      <div className="flex items-start gap-3">
-                        <div className="h-12 w-12 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center">
-                          <span className="text-2xl">{primaryForWhom ? FOR_WHOM_META[primaryForWhom].icon : "👥"}</span>
-                        </div>
-
-                        <div className="flex-1">
-                          <p className={`text-lg sm:text-xl font-extrabold ${primaryForWhom ? FOR_WHOM_META[primaryForWhom].color : "text-slate-800"}`}>
-                            {forWhomList.map((k) => FOR_WHOM_META[k].label).join(", ")}
-                          </p>
-                          {primaryForWhom && (
-                            <p className="text-sm text-slate-600 mt-1">{FOR_WHOM_META[primaryForWhom].desc}</p>
-                          )}
-
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {forWhomList.map((k) => (
-                              <span
-                                key={k}
-                                className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-semibold text-slate-700"
-                              >
-                                {FOR_WHOM_META[k].icon} {FOR_WHOM_META[k].label}
-                              </span>
-                            ))}
+                      <div className="flex flex-wrap gap-3">
+                        {forWhomList.map((k) => (
+                          <div key={k} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                            <span className="text-2xl">{FOR_WHOM_META[k].icon}</span>
+                            <p className={`text-lg font-extrabold ${FOR_WHOM_META[k].color}`}>
+                              {FOR_WHOM_META[k].label}
+                            </p>
                           </div>
-                        </div>
+                        ))}
                       </div>
                     )}
                   </div>
