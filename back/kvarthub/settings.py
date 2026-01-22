@@ -287,3 +287,4 @@ CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 NYCKEL_TOKEN = settings.NYCKEL_TOKEN
 CLIENT_ID = settings.CLIENT_ID
 CLIENT_SECRET = settings.CLIENT_SECRET
+FRONTEND_URL = "https://kvarthub.solohiddin.tech"
