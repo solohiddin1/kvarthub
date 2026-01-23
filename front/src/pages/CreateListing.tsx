@@ -14,8 +14,8 @@ const CreateListing = () => {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(0);
   const [priceDisplay, setPriceDisplay] = useState("");
-  const [region, setRegion] = useState(0);
-  const [district, setDistrict] = useState(0);
+  const [region, setRegion] = useState("");
+  const [district, setDistrict] = useState("");
   const [location_link, setLocationLink] = useState("");
   const [location, setLocation] = useState("");
   const [rooms, setRooms] = useState(0);
@@ -69,12 +69,7 @@ const CreateListing = () => {
         console.log("Regions data:", res.data);
         const regions = res.data.result || [];
         setSelectRegion(regions);
-
-        // Agar ma'lumotlar bo'lsa, birinchi viloyatni tanlash
-        if (regions.length > 0) {
-          setRegion(regions[0].id);
-          setSelectedRegionDistricts(regions[0].disctricts || []);
-        }
+        // Don't auto-select first region - let user choose
       })
       .catch((error) => {
         console.error("Viloyatlarni olishda xatolik:", error);
@@ -84,18 +79,18 @@ const CreateListing = () => {
 
   // Viloyat tanlanganda tumanlarni o'zgartirish
   const handleRegionChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    const regionId = Number(e.target.value);
+    const regionId = e.target.value;
     setRegion(regionId);
-    setDistrict(0); // Viloyat o'zgarganda tumani tozalash
+    setDistrict(""); // Viloyat o'zgarganda tumani tozalash
 
     // Tanlangan viloyatni topish va uning tumanlarini o'rnatish
-    const selectedRegion = selectRegion.find((r) => r.id === regionId);
+    const selectedRegion = selectRegion.find((r) => r.id === Number(regionId));
     setSelectedRegionDistricts(selectedRegion?.disctricts || []);
   }, [selectRegion]);
 
   // Tuman tanlanganda
   const handleDistrictChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setDistrict(Number(e.target.value));
+    setDistrict(e.target.value);
   }, []);
 
   // Memoize region options
@@ -156,8 +151,8 @@ const CreateListing = () => {
     formData.append("title", title);
     formData.append("description", description);
     formData.append("price", String(price));
-    formData.append("region", String(region));
-    formData.append("district", String(district));
+    formData.append("region", region);
+    formData.append("district", district);
     formData.append("location_link", location_link);
     formData.append("location", location);
     formData.append("rooms", String(rooms));
