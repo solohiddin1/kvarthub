@@ -31,6 +31,8 @@ const CreateListing = () => {
   const [expiry_month, setExpiry_month] = useState<number>(0);
   const [expiry_year, setExpiry_year] = useState<number>(0);
   const [for_whom, setFor_whom] = useState<string[]>([]);
+  console.log(images_upload.length);
+  
 
   // Handle for_whom checkbox changes
   const handleForWhomChange = (value: string) => {
@@ -129,13 +131,13 @@ const CreateListing = () => {
     }
     
     // Validate rooms
-    if (rooms > 200) {
+     if (rooms > 200) {
       toast.error("Xonalar soni 200 dan oshmasligi kerak");
       return;
     }
     
     // Validate total floor
-    if (total_floor_of_building > 150) {
+     if (total_floor_of_building > 150) {
       toast.error("Bino qavatlari soni 150 dan oshmasligi kerak");
       return;
     }
@@ -144,6 +146,10 @@ const CreateListing = () => {
     if (floor_of_this_apartment > total_floor_of_building) {
       toast.error("Kvartira qavati binoning umumiy qavatidan oshmasligi kerak");
       return;
+    }
+    if(images_upload.length == 0 ){
+      toast.error("Kamida 1 ta rasm tanlang")
+      return
     }
     
     setIsSubmitting(true);
@@ -389,8 +395,7 @@ const CreateListing = () => {
                         required
                         type="text"
                         value={priceDisplay}
-//                         type="number"
-//                         min={0}
+//                        
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
                         placeholder="0"
                         onChange={handlePriceChange}
@@ -659,6 +664,7 @@ const CreateListing = () => {
                       <input
                         type="number"
                         placeholder="0"
+                        required
                         min={0}
                         max={200}
                         onChange={(e) => setRooms(Number(e.target.value))}
@@ -752,7 +758,7 @@ const CreateListing = () => {
                     accept=".png,.jpg,.jpeg,.webp,.webx"
                     multiple
                     className="hidden"
-                    required
+                   
                     onChange={(e) => {
                       if (!e.target.files) return;
                       setImages_upload([
