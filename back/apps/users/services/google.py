@@ -7,7 +7,7 @@ from django.shortcuts import redirect
 from config.config import settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from apps.shared.enum import ResultCodes
-
+from django.conf import settings
 
 GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID
 GOOGLE_CLIENT_SECRET = settings.GOOGLE_CLIENT_SECRET
@@ -84,6 +84,7 @@ class GoogleCallback(APIView):
         token = RefreshToken.for_user(user)
 
         # Redirect to frontend callback with tokens
-        redirect_url = f"http://localhost:5173/auth/callback?access={token.access_token}&refresh={str(token)}"
+
+        redirect_url = f"{settings.FRONTEND_URL}/auth/callback?access={token.access_token}&refresh={str(token)}"
         return redirect(redirect_url)
 
