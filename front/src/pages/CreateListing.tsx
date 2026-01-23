@@ -20,7 +20,7 @@ const CreateListing = () => {
   const [location_link, setLocationLink] = useState("");
   const [location, setLocation] = useState("");
   const [rooms, setRooms] = useState(0);
-  const [phone_number, setPhone_number] = useState("");
+  const [phone_number, setPhone_number] = useState("+998");
   const [floor_of_this_apartment, setFloor_of_this_apartment] = useState(0);
   const [total_floor_of_building, setTotal_floor_of_building] = useState(0);
   const [images_upload, setImages_upload] = useState<File[]>([]);
@@ -31,8 +31,71 @@ const CreateListing = () => {
   const [expiry_month, setExpiry_month] = useState<number>(0);
   const [expiry_year, setExpiry_year] = useState<number>(0);
   const [for_whom, setFor_whom] = useState<string[]>([]);
-  console.log(images_upload.length);
-  
+  const [locationLinkError, setLocationLinkError] = useState<string>("");
+
+  // URL validation function - matches Django URLValidator
+  const isValidUrl = (url: string): boolean => {
+    if (!url || url.trim() === '') return true; // Empty is valid since it's optional
+    
+    // Trim the URL
+    url = url.trim();
+    
+    try {
+      const urlObj = new URL(url);
+      
+      // Must be http or https
+      if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
+        return false;
+      }
+      
+      // Must have a valid hostname (not empty)
+      if (!urlObj.hostname || urlObj.hostname.length === 0) {
+        return false;
+      }
+      
+      // Basic domain validation - must have at least one dot or be localhost
+      if (urlObj.hostname !== 'localhost' && !urlObj.hostname.includes('.')) {
+        return false;
+      }
+      
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  // Handle location link change with validation
+  const handleLocationLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.trim();
+    setLocationLink(value);
+    
+    if (value && !isValidUrl(value)) {
+      setLocationLinkError("Noto'g'ri URL. Misol: https://maps.google.com/...");
+    } else {
+      setLocationLinkError("");
+    }
+  };
+
+  // Check if form is valid
+  const isFormValid = useMemo(() => {
+    const isLocationLinkValid = !location_link || isValidUrl(location_link);
+    return (
+      title.trim() !== "" &&
+      description.trim() !== "" &&
+      price > 0 &&
+      region !== "" &&
+      district !== "" &&
+      location.trim() !== "" &&
+      rooms > 0 &&
+      phone_number.replace(/\s/g, '').length === 13 &&
+      for_whom.length > 0 &&
+      floor_of_this_apartment > 0 &&
+      total_floor_of_building > 0 &&
+      floor_of_this_apartment <= total_floor_of_building &&
+      images_upload.length > 0 &&
+      isLocationLinkValid
+    );
+  }, [title, description, price, region, district, location, rooms, phone_number, for_whom, floor_of_this_apartment, total_floor_of_building, images_upload, location_link]);
 
   // Handle for_whom checkbox changes
   const handleForWhomChange = (value: string) => {
@@ -55,6 +118,27 @@ const CreateListing = () => {
     if (value === '' || /^\d+$/.test(value)) {
       setPrice(Number(value));
       setPriceDisplay(formatPrice(value));
+    }
+  };
+
+  // Prevent non-numeric keyboard input
+  const handleNumericKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Allow: backspace, delete, tab, escape, enter, home, end, arrows
+    if (
+      [46, 8, 9, 27, 13, 110, 190].indexOf(e.keyCode) !== -1 ||
+      // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+      (e.keyCode === 65 && e.ctrlKey === true) ||
+      (e.keyCode === 67 && e.ctrlKey === true) ||
+      (e.keyCode === 86 && e.ctrlKey === true) ||
+      (e.keyCode === 88 && e.ctrlKey === true) ||
+      // Allow: home, end, left, right
+      (e.keyCode >= 35 && e.keyCode <= 39)
+    ) {
+      return;
+    }
+    // Prevent if not a number
+    if ((e.shiftKey || e.keyCode < 48 || e.keyCode > 57) && (e.keyCode < 96 || e.keyCode > 105)) {
+      e.preventDefault();
     }
   };
 
@@ -130,6 +214,12 @@ const CreateListing = () => {
       return;
     }
     
+    // Validate location link if provided
+    if (location_link && !isValidUrl(location_link)) {
+      toast.error("Manzil linki noto'g'ri formatda. Iltimos, to'g'ri URL kiriting.");
+      return;
+    }
+    
     // Validate rooms
      if (rooms > 200) {
       toast.error("Xonalar soni 200 dan oshmasligi kerak");
@@ -163,7 +253,7 @@ const CreateListing = () => {
     formData.append("location_link", location_link);
     formData.append("location", location);
     formData.append("rooms", String(rooms));
-    formData.append("phone_number", phone_number);
+    formData.append("phone_number", phone_number.replace(/\s/g, ''));
     // Append for_whom array
     for_whom.forEach(item => formData.append("for_whom", item));
     formData.append("floor_of_this_apartment", String(floor_of_this_apartment));
@@ -171,7 +261,7 @@ const CreateListing = () => {
     images_upload.forEach((img) => formData.append("images_upload", img));
     console.log(typeof(for_whom));
     
-    if(phone_number.length === 13){
+    if(phone_number.replace(/\s/g, '').length === 13){
 
       apiClient
         .post("/api/listings/create/", formData, {
@@ -298,10 +388,48 @@ const CreateListing = () => {
 
 
   function hanleCheckerPhone(e:React.ChangeEvent<HTMLInputElement>){
-    setPhone_number(e.target.value);
+    let value = e.target.value;
     
-
+    // Always ensure it starts with +998
+    if (!value.startsWith('+998')) {
+      value = '+998';
+    }
+    
+    // Only allow numbers after +998
+    const afterPrefix = value.slice(4).replace(/\D/g, '');
+    
+    // Limit to 9 digits after +998
+    const limitedDigits = afterPrefix.slice(0, 9);
+    
+    // Format with spaces: +998 XX XXX XX XX
+    let formatted = '+998';
+    if (limitedDigits.length > 0) {
+      formatted += ' ' + limitedDigits.slice(0, 2);
+    }
+    if (limitedDigits.length > 2) {
+      formatted += ' ' + limitedDigits.slice(2, 5);
+    }
+    if (limitedDigits.length > 5) {
+      formatted += ' ' + limitedDigits.slice(5, 7);
+    }
+    if (limitedDigits.length > 7) {
+      formatted += ' ' + limitedDigits.slice(7, 9);
+    }
+    
+    setPhone_number(formatted);
   }
+
+  // Prevent deletion of +998 prefix
+  const handlePhoneKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const input = e.currentTarget;
+    const cursorPosition = input.selectionStart || 0;
+    
+    // Prevent backspace and delete if cursor is within +998
+    if ((e.key === 'Backspace' && cursorPosition <= 4) || 
+        (e.key === 'Delete' && cursorPosition < 4)) {
+      e.preventDefault();
+    }
+  };
 
   if (loading) {
     return (
@@ -395,10 +523,11 @@ const CreateListing = () => {
                         required
                         type="text"
                         value={priceDisplay}
-//                        
+                        inputMode="numeric"
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
                         placeholder="0"
                         onChange={handlePriceChange}
+                        onKeyDown={handleNumericKeyDown}
                       />
                     </div>
                   </div>
@@ -590,10 +719,19 @@ const CreateListing = () => {
                       </div>
                       <input
                         type="text"
-                         maxLength={13} 
+                        maxLength={17}
+                        inputMode="tel"
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
-                        placeholder="+998901234567"
+                        placeholder="+998 90 123 45 67"
+                        value={phone_number}
                         onChange={(e) => hanleCheckerPhone(e)}
+                        onKeyDown={handlePhoneKeyDown}
+                        onFocus={(e) => {
+                          // Set cursor after +998 on focus if no digits entered
+                          if (e.target.value === '+998') {
+                            setTimeout(() => e.target.setSelectionRange(4, 4), 0);
+                          }
+                        }}
                         required
                       />
                     </div>
@@ -604,8 +742,7 @@ const CreateListing = () => {
                   {/* Location (manzil) */}
                   <div className="space-y-3">
                     <label className="block text-sm font-semibold text-gray-700">
-                      <span className="text-red-500 mr-1">*</span>
-                      Aniq manzil linki
+                      Aniq manzil linki (ixtiyoriy)
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -630,12 +767,25 @@ const CreateListing = () => {
                         </svg>
                       </div>
                       <input
-                        type="text"
-                        className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
-                        placeholder="Aniq manzil linki"
-                        onChange={(e) => setLocationLink(e.target.value)}
+                        type="url"
+                        value={location_link}
+                        className={`w-full pl-10 pr-4 py-3.5 border rounded-xl focus:ring-2 outline-none transition-all duration-200 ${
+                          locationLinkError
+                            ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                            : 'border-gray-300 focus:ring-green-500 focus:border-green-500'
+                        }`}
+                        placeholder="https://maps.google.com/..."
+                        onChange={handleLocationLinkChange}
                       />
                     </div>
+                    {locationLinkError && (
+                      <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        {locationLinkError}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -663,11 +813,19 @@ const CreateListing = () => {
                       </div>
                       <input
                         type="number"
-                        placeholder="0"
-                        required
-                        min={0}
+                        placeholder="1"
+                        min={1}
                         max={200}
-                        onChange={(e) => setRooms(Number(e.target.value))}
+                        required
+                        inputMode="numeric"
+                        value={rooms || ''}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === '' || /^[0-9]+$/.test(value)) {
+                            setRooms(Number(value));
+                          }
+                        }}
+                        onKeyDown={handleNumericKeyDown}
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
                       />
                     </div>
@@ -696,12 +854,19 @@ const CreateListing = () => {
                       </div>
                       <input
                         type="number"
-                        min={0}
+                        min={1}
+                        required
+                        inputMode="numeric"
+                        value={floor_of_this_apartment || ''}
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
                         placeholder="Masalan: 5"
-                        onChange={(e) =>
-                          setFloor_of_this_apartment(Number(e.target.value))
-                        }
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === '' || /^[0-9]+$/.test(value)) {
+                            setFloor_of_this_apartment(Number(value));
+                          }
+                        }}
+                        onKeyDown={handleNumericKeyDown}
                       />
                     </div>
                   </div>
@@ -729,13 +894,20 @@ const CreateListing = () => {
                       </div>
                       <input
                         type="number"
-                        min={0}
+                        min={1}
                         max={150}
+                        required
+                        inputMode="numeric"
+                        value={total_floor_of_building || ''}
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
                         placeholder="Masalan: 5"
-                        onChange={(e) =>
-                          setTotal_floor_of_building(Number(e.target.value))
-                        }
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === '' || /^[0-9]+$/.test(value)) {
+                            setTotal_floor_of_building(Number(value));
+                          }
+                        }}
+                        onKeyDown={handleNumericKeyDown}
                       />
                     </div>
                   </div>
@@ -851,12 +1023,33 @@ const CreateListing = () => {
 
               {/* Submit Button */}
               <div className="pt-8 border-t border-gray-100">
+                {!isFormValid && (
+                  <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-sm text-yellow-800 font-medium">⚠️ Iltimos, barcha majburiy maydonlarni to'ldiring:</p>
+                    <ul className="mt-2 text-xs text-yellow-700 list-disc list-inside space-y-1">
+                      {title.trim() === "" && <li>Mo'ljal</li>}
+                      {description.trim() === "" && <li>To'liq malumot</li>}
+                      {price === 0 && <li>Narx</li>}
+                      {region === "" && <li>Viloyat</li>}
+                      {district === "" && <li>Tuman</li>}
+                      {location.trim() === "" && <li>Aniq manzil</li>}
+                      {rooms === 0 && <li>Xonalar soni</li>}
+                      {phone_number.replace(/\s/g, '').length !== 13 && <li>Telefon raqam (+998 formatida)</li>}
+                      {for_whom.length === 0 && <li>Kim uchun (kamida 1 ta)</li>}
+                      {floor_of_this_apartment === 0 && <li>Binoning qavati</li>}
+                      {total_floor_of_building === 0 && <li>Umumiy binoning qavati</li>}
+                      {floor_of_this_apartment > total_floor_of_building && <li>Kvartira qavati binoning umumiy qavatidan oshmasligi kerak</li>}
+                      {images_upload.length === 0 && <li>Kamida 1 ta rasm</li>}
+                      {locationLinkError && <li>Manzil linki noto'g'ri formatda</li>}
+                    </ul>
+                  </div>
+                )}
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !isFormValid}
                   className={`w-full py-4 bg-linear-to-r from-green-600 to-green-700 text-white font-bold rounded-xl transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 text-lg flex items-center justify-center ${
-                    isSubmitting
-                      ? "opacity-70 cursor-not-allowed"
+                    isSubmitting || !isFormValid
+                      ? "opacity-50 cursor-not-allowed"
                       : "hover:from-green-700 hover:to-green-800"
                   }`}
                 >

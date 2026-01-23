@@ -108,6 +108,7 @@ export interface ProductsType {
   for_whom_display?: ForWhomType[];
   location_link:string
   is_active?: boolean
+  state?: "CHECKING" | "ACCEPTED" | "REJECTED"
 }
 export interface DistrictType {
   id: number;

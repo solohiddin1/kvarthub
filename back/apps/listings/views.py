@@ -59,8 +59,8 @@ class ListingCreateView(CreateAPIView):
                     },
                     'state': {
                         'type': 'string',
-                        'description': 'Listing state (ACCEPTED, REJECTED)',
-                        'enum': ['ACCEPTED', 'REJECTED']
+                        'description': 'Listing state (CHECKING, ACCEPTED, REJECTED)',
+                        'enum': ['CHECKING', 'ACCEPTED', 'REJECTED']
                     },
                     'images_upload': {
                         'type': 'array',
@@ -228,8 +228,8 @@ class ListingCreateView(CreateAPIView):
 
 
 class ListingsListView(ListAPIView):
-    """List all listings"""
-    queryset = Listing.objects.filter(is_active=True)
+    """List all approved listings for homepage"""
+    queryset = Listing.objects.filter(is_active=True, state='ACCEPTED')
     serializer_class = BaseListingSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
 
