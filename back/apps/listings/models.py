@@ -35,8 +35,9 @@ class ForWhom(models.Model):
 
 class Listing(BaseModel):
     state = (
-        ('ACCEPTED', 'ACCEPTED'),
-        ('REJECTED', 'REJECTED'),
+        ('CHECKING', 'CHECKING'),  # Under review
+        ('ACCEPTED', 'ACCEPTED'),  # Approved
+        ('REJECTED', 'REJECTED'),  # Rejected
     )
 
     for_whom_state = (
@@ -56,7 +57,7 @@ class Listing(BaseModel):
     location = models.CharField(max_length=255)
     location_link = models.URLField(max_length=500, null=True, blank=True)
     rooms = models.IntegerField(default=1)
-    state = models.CharField(max_length=10, choices=state, default='ACCEPTED')
+    state = models.CharField(max_length=10, choices=state, default='CHECKING')
     for_whom = models.ManyToManyField(ForWhom, blank=True, related_name='listings')
     type = models.CharField(max_length=15, choices=listing_type, blank=True, null=True)
     phone_number = models.CharField(max_length=15, null=True, blank=True)

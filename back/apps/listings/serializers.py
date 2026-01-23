@@ -42,6 +42,7 @@ class BaseListingSerializer(serializers.ModelSerializer):
             'region',
             'for_whom',
             'district',
+            'state',
             'type',
             'is_active',
             'images',
