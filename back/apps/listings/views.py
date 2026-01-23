@@ -179,7 +179,7 @@ class ListingCreateView(CreateAPIView):
                         logger.info(f"Nyckel example response: {example_response}")
                         logger.info(f"Nyckel example response: {nyckel_response}")
                         # Reject if house is not present with high confidence
-                        if label_name == "House Not Present" and confidence >= 0.70:
+                        if label_name == "House Not Present" and confidence >= 0.85:
                             logger.error(f"Nyckel validation failed: House not present (confidence: {confidence:.2%})")
                             return ErrorResponse(
                                 result=ResultCodes.VALIDATION_ERROR,
