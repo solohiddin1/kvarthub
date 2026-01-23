@@ -127,9 +127,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             const response = await authService.getProfile();
             if (response.success) {
                 setUser(response.result);
+            } else {
+                throw new Error('Failed to fetch user profile');
             }
-        } catch (error) {
-            // Error handling
+        } catch (error: any) {
+            console.error('Failed to refresh user:', error);
+            throw error;
         }
     };
 

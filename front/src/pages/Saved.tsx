@@ -311,20 +311,6 @@ const Saved = () => {
                   <p className="text-[#757575] text-[13px] md:text-[16px] line-clamp-1 max-w-[120px]">{formatForWhom(item.for_whom)}</p>
                 </div>
 
-                  {/* <div className="flex items-center justify-between mt-3 gap-2">
-                    <p className="text-[#757575] text-sm truncate">
-                      {item.district.name_uz}
-                    </p>
-                    <p className="text-[#757575] text-sm shrink-0">
-                      {item.for_whom == "GIRLS"
-                        ? "Qizlarga"
-                        : item.for_whom == "BOYS"
-                          ? "Bolalarga"
-                          : item.for_whom == "FAMILY"
-                            ? "Oilaga"
-                            : "Umumiy"}
-                    </p>
-                  </div> */}
                 </div>
               </div>
             ))}

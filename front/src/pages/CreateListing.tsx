@@ -1,7 +1,7 @@
 import { useAuth } from "../context/AuthContext";
 import { Footer } from "../modules";
 import { HeaderPart } from "../components";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import apiClient from "../services/api";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
@@ -15,8 +15,8 @@ const CreateListing = () => {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(0);
   const [priceDisplay, setPriceDisplay] = useState("");
-  const [region, setRegion] = useState(0);
-  const [district, setDistrict] = useState(0);
+  const [region, setRegion] = useState("");
+  const [district, setDistrict] = useState("");
   const [location_link, setLocationLink] = useState("");
   const [location, setLocation] = useState("");
   const [rooms, setRooms] = useState(0);
@@ -70,12 +70,7 @@ const CreateListing = () => {
         console.log("Regions data:", res.data);
         const regions = res.data.result || [];
         setSelectRegion(regions);
-
-        // Agar ma'lumotlar bo'lsa, birinchi viloyatni tanlash
-        if (regions.length > 0) {
-          setRegion(regions[0].id);
-          setSelectedRegionDistricts(regions[0].disctricts || []);
-        }
+        // Don't auto-select first region - let user choose
       })
       .catch((error) => {
         console.error("Viloyatlarni olishda xatolik:", error);
@@ -84,20 +79,44 @@ const CreateListing = () => {
   }, []);
 
   // Viloyat tanlanganda tumanlarni o'zgartirish
-  const handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const regionId = Number(e.target.value);
+  const handleRegionChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    const regionId = e.target.value;
     setRegion(regionId);
-    setDistrict(0); // Viloyat o'zgarganda tumani tozalash
+    setDistrict(""); // Viloyat o'zgarganda tumani tozalash
 
     // Tanlangan viloyatni topish va uning tumanlarini o'rnatish
-    const selectedRegion = selectRegion.find((r) => r.id === regionId);
+    const selectedRegion = selectRegion.find((r) => r.id === Number(regionId));
     setSelectedRegionDistricts(selectedRegion?.disctricts || []);
-  };
+  }, [selectRegion]);
 
   // Tuman tanlanganda
-  const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setDistrict(Number(e.target.value));
-  };
+  const handleDistrictChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setDistrict(e.target.value);
+  }, []);
+
+  // Memoize region options
+  const regionOptions = useMemo(() => {
+    return selectRegion.map((region) => (
+      <option key={region.id} value={region.id}>
+        {region.name_uz}
+      </option>
+    ));
+  }, [selectRegion]);
+
+  // Memoize district options
+  const districtOptions = useMemo(() => {
+    if (!region) {
+      return <option disabled>Avval viloyatni tanlang</option>;
+    }
+    if (selectedRegionDistricts.length > 0) {
+      return selectedRegionDistricts.map((district) => (
+        <option key={district.id} value={district.id}>
+          {district.name_uz}
+        </option>
+      ));
+    }
+    return <option disabled>Bu viloyatda tumanlar mavjud emas</option>;
+  }, [region, selectedRegionDistricts]);
 
   //  formani backentga yuborish
   function handleFormSubmit(e: React.FormEvent) {
@@ -133,8 +152,8 @@ const CreateListing = () => {
     formData.append("title", title);
     formData.append("description", description);
     formData.append("price", String(price));
-    formData.append("region", String(region));
-    formData.append("district", String(district));
+    formData.append("region", region);
+    formData.append("district", district);
     formData.append("location_link", location_link);
     formData.append("location", location);
     formData.append("rooms", String(rooms));
@@ -420,17 +439,14 @@ const CreateListing = () => {
                 </label>
                 <select
                   required
+                  value={region}
                   className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200 appearance-none"
                   onChange={handleRegionChange}
                 >
-                  <option value="" disabled selected>
+                  <option value="" disabled>
                     Viloyatni tanlang
                   </option>
-                  {selectRegion.map((region) => (
-                    <option key={region.id} value={region.id}>
-                      {region.name_uz}
-                    </option>
-                  ))}
+                  {regionOptions}
                 </select>
               </div>
 
@@ -442,26 +458,17 @@ const CreateListing = () => {
                 </label>
                 <select
                   required
+                  value={district}
                   className={`w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200 appearance-none ${
                     !region ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                   onChange={handleDistrictChange}
                   disabled={!region}
                 >
-                  <option value="" disabled selected>
+                  <option value="" disabled>
                     Tumanni tanlang
                   </option>
-                  {!region ? (
-                    <option disabled>Avval viloyatni tanlang</option>
-                  ) : selectedRegionDistricts.length > 0 ? (
-                    selectedRegionDistricts.map((district) => (
-                      <option key={district.id} value={district.id}>
-                        {district.name_uz}
-                      </option>
-                    ))
-                  ) : (
-                    <option disabled>Bu viloyatda tumanlar mavjud emas</option>
-                  )}
+                  {districtOptions}
                 </select>
                 {!region && (
                   <p className="text-xs text-gray-500">
@@ -475,8 +482,7 @@ const CreateListing = () => {
                   <span className="text-red-500 mr-1">*</span>
                   Kim uchun (Bir nechta tanlanishi mumkin)
                 </label>
-{/* <<<<<<< HEAD */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
                     { value: 'FAMILY', label: 'Oila uchun', icon: '👨‍👩‍👧‍👦' },
                     { value: 'GIRLS', label: 'Qizlar uchun', icon: '👩' },
@@ -485,7 +491,7 @@ const CreateListing = () => {
                   ].map((option) => (
                     <label
                       key={option.value}
-                      className={`flex items-center gap-3 md:p-4 px-1 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                      className={`flex items-center gap-2 p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
                         for_whom.includes(option.value)
                           ? 'border-blue-500 bg-blue-50'
                           : 'border-gray-300 hover:border-blue-300 hover:bg-gray-50'
@@ -493,33 +499,18 @@ const CreateListing = () => {
                     >
                       <input
                         type="checkbox"
-                        className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 shrink-0"
                         checked={for_whom.includes(option.value)}
                         onChange={() => handleForWhomChange(option.value)}
                       />
-                      <span className="text-2xl">{option.icon}</span>
-                      <span className="font-medium text-gray-700">{option.label}</span>
+                      <span className="text-lg sm:text-xl shrink-0">{option.icon}</span>
+                      <span className="font-medium text-sm sm:text-base text-gray-700 leading-tight">{option.label}</span>
                     </label>
                   ))}
                 </div>
                 {for_whom.length === 0 && (
                   <p className="text-xs text-red-500">Kamida bitta variantni tanlang</p>
                 )}
-{/* =======
-                <select
-                  required
-                  className={`w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200 appearance-none`}
-                  onChange={(e) => setFor_whom(e.target.value)}
-                >
-                  <option value="" disabled selected>
-                    Kim uchun
-                  </option>
-                  <option value="FAMILY">Oila uchun</option>
-                  <option value="GIRLS">Qizlar uchun</option>
-                  <option value="BOYS">Bolalar uchun</option>
-                  <option value="FOREIGNERS">Umumiy</option>
-                </select>
->>>>>>> 52ddef07b9d4ec82b770b27bb644a1a63455c463 */}
               </div>
 
               {/* Location & Details */}
@@ -798,12 +789,6 @@ const CreateListing = () => {
                         <p className="text-gray-500">
                           PNG, JPG yoki WEBX formatida (maks. 5MB)
                         </p>
-                        {/* <button
-                          type="button"
-                          className="mt-6 px-8 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-all duration-200 shadow-lg hover:shadow-xl"
-                        >
-                          Fayllarni Tanlash
-                        </button> */}
                       </div>
                     </div>
                   </label>
@@ -973,6 +958,7 @@ const CreateListing = () => {
                       <input
                         type="text"
                         required
+                        maxLength={16}
                         placeholder="1234 5678 9012 3456"
                         className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all tracking-[0.25em]"
                         onChange={(e) => setCard_number(e.target.value)}
