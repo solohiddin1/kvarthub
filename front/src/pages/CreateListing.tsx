@@ -19,7 +19,7 @@ const CreateListing = () => {
   const [location_link, setLocationLink] = useState("");
   const [location, setLocation] = useState("");
   const [rooms, setRooms] = useState(0);
-  const [phone_number, setPhone_number] = useState("");
+  const [phone_number, setPhone_number] = useState("+998");
   const [floor_of_this_apartment, setFloor_of_this_apartment] = useState(0);
   const [total_floor_of_building, setTotal_floor_of_building] = useState(0);
   const [images_upload, setImages_upload] = useState<File[]>([]);
@@ -30,6 +30,25 @@ const CreateListing = () => {
   const [expiry_month, setExpiry_month] = useState<number>(0);
   const [expiry_year, setExpiry_year] = useState<number>(0);
   const [for_whom, setFor_whom] = useState<string[]>([]);
+
+  // Check if form is valid
+  const isFormValid = useMemo(() => {
+    return (
+      title.trim() !== "" &&
+      description.trim() !== "" &&
+      price > 0 &&
+      region !== "" &&
+      district !== "" &&
+      location.trim() !== "" &&
+      rooms > 0 &&
+      phone_number.replace(/\s/g, '').length === 13 &&
+      for_whom.length > 0 &&
+      floor_of_this_apartment > 0 &&
+      total_floor_of_building > 0 &&
+      floor_of_this_apartment <= total_floor_of_building &&
+      images_upload.length > 0
+    );
+  }, [title, description, price, region, district, location, rooms, phone_number, for_whom, floor_of_this_apartment, total_floor_of_building, images_upload]);
 
   // Handle for_whom checkbox changes
   const handleForWhomChange = (value: string) => {
@@ -52,6 +71,27 @@ const CreateListing = () => {
     if (value === '' || /^\d+$/.test(value)) {
       setPrice(Number(value));
       setPriceDisplay(formatPrice(value));
+    }
+  };
+
+  // Prevent non-numeric keyboard input
+  const handleNumericKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Allow: backspace, delete, tab, escape, enter, home, end, arrows
+    if (
+      [46, 8, 9, 27, 13, 110, 190].indexOf(e.keyCode) !== -1 ||
+      // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+      (e.keyCode === 65 && e.ctrlKey === true) ||
+      (e.keyCode === 67 && e.ctrlKey === true) ||
+      (e.keyCode === 86 && e.ctrlKey === true) ||
+      (e.keyCode === 88 && e.ctrlKey === true) ||
+      // Allow: home, end, left, right
+      (e.keyCode >= 35 && e.keyCode <= 39)
+    ) {
+      return;
+    }
+    // Prevent if not a number
+    if ((e.shiftKey || e.keyCode < 48 || e.keyCode > 57) && (e.keyCode < 96 || e.keyCode > 105)) {
+      e.preventDefault();
     }
   };
 
@@ -164,7 +204,7 @@ const CreateListing = () => {
     images_upload.forEach((img) => formData.append("images_upload", img));
     console.log(phone_number);
     
-    if(phone_number.length === 13){
+    if(phone_number.replace(/\s/g, '').length === 13){
 
       apiClient
         .post("/api/listings/create/", formData, {
@@ -289,10 +329,48 @@ const CreateListing = () => {
 
 
   function hanleCheckerPhone(e:React.ChangeEvent<HTMLInputElement>){
-    setPhone_number(e.target.value);
+    let value = e.target.value;
     
-
+    // Always ensure it starts with +998
+    if (!value.startsWith('+998')) {
+      value = '+998';
+    }
+    
+    // Only allow numbers after +998
+    const afterPrefix = value.slice(4).replace(/\D/g, '');
+    
+    // Limit to 9 digits after +998
+    const limitedDigits = afterPrefix.slice(0, 9);
+    
+    // Format with spaces: +998 XX XXX XX XX
+    let formatted = '+998';
+    if (limitedDigits.length > 0) {
+      formatted += ' ' + limitedDigits.slice(0, 2);
+    }
+    if (limitedDigits.length > 2) {
+      formatted += ' ' + limitedDigits.slice(2, 5);
+    }
+    if (limitedDigits.length > 5) {
+      formatted += ' ' + limitedDigits.slice(5, 7);
+    }
+    if (limitedDigits.length > 7) {
+      formatted += ' ' + limitedDigits.slice(7, 9);
+    }
+    
+    setPhone_number(formatted);
   }
+
+  // Prevent deletion of +998 prefix
+  const handlePhoneKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const input = e.currentTarget;
+    const cursorPosition = input.selectionStart || 0;
+    
+    // Prevent backspace and delete if cursor is within +998
+    if ((e.key === 'Backspace' && cursorPosition <= 4) || 
+        (e.key === 'Delete' && cursorPosition < 4)) {
+      e.preventDefault();
+    }
+  };
 
   if (loading) {
     return (
@@ -386,11 +464,11 @@ const CreateListing = () => {
                         required
                         type="text"
                         value={priceDisplay}
-//                         type="number"
-//                         min={0}
+                        inputMode="numeric"
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
                         placeholder="0"
                         onChange={handlePriceChange}
+                        onKeyDown={handleNumericKeyDown}
                       />
                     </div>
                   </div>
@@ -582,10 +660,19 @@ const CreateListing = () => {
                       </div>
                       <input
                         type="text"
-                         maxLength={13} 
+                        maxLength={17}
+                        inputMode="tel"
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
-                        placeholder="+998901234567"
+                        placeholder="+998 90 123 45 67"
+                        value={phone_number}
                         onChange={(e) => hanleCheckerPhone(e)}
+                        onKeyDown={handlePhoneKeyDown}
+                        onFocus={(e) => {
+                          // Set cursor after +998 on focus if no digits entered
+                          if (e.target.value === '+998') {
+                            setTimeout(() => e.target.setSelectionRange(4, 4), 0);
+                          }
+                        }}
                         required
                       />
                     </div>
@@ -596,8 +683,7 @@ const CreateListing = () => {
                   {/* Location (manzil) */}
                   <div className="space-y-3">
                     <label className="block text-sm font-semibold text-gray-700">
-                      <span className="text-red-500 mr-1">*</span>
-                      Aniq manzil linki
+                      Aniq manzil linki (ixtiyoriy)
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -655,10 +741,19 @@ const CreateListing = () => {
                       </div>
                       <input
                         type="number"
-                        placeholder="0"
-                        min={0}
+                        placeholder="1"
+                        min={1}
                         max={200}
-                        onChange={(e) => setRooms(Number(e.target.value))}
+                        required
+                        inputMode="numeric"
+                        value={rooms || ''}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === '' || /^[0-9]+$/.test(value)) {
+                            setRooms(Number(value));
+                          }
+                        }}
+                        onKeyDown={handleNumericKeyDown}
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
                       />
                     </div>
@@ -687,12 +782,19 @@ const CreateListing = () => {
                       </div>
                       <input
                         type="number"
-                        min={0}
+                        min={1}
+                        required
+                        inputMode="numeric"
+                        value={floor_of_this_apartment || ''}
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
                         placeholder="Masalan: 5"
-                        onChange={(e) =>
-                          setFloor_of_this_apartment(Number(e.target.value))
-                        }
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === '' || /^[0-9]+$/.test(value)) {
+                            setFloor_of_this_apartment(Number(value));
+                          }
+                        }}
+                        onKeyDown={handleNumericKeyDown}
                       />
                     </div>
                   </div>
@@ -720,13 +822,20 @@ const CreateListing = () => {
                       </div>
                       <input
                         type="number"
-                        min={0}
+                        min={1}
                         max={150}
+                        required
+                        inputMode="numeric"
+                        value={total_floor_of_building || ''}
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
                         placeholder="Masalan: 5"
-                        onChange={(e) =>
-                          setTotal_floor_of_building(Number(e.target.value))
-                        }
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === '' || /^[0-9]+$/.test(value)) {
+                            setTotal_floor_of_building(Number(value));
+                          }
+                        }}
+                        onKeyDown={handleNumericKeyDown}
                       />
                     </div>
                   </div>
@@ -848,12 +957,32 @@ const CreateListing = () => {
 
               {/* Submit Button */}
               <div className="pt-8 border-t border-gray-100">
+                {!isFormValid && (
+                  <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-sm text-yellow-800 font-medium">⚠️ Iltimos, barcha majburiy maydonlarni to'ldiring:</p>
+                    <ul className="mt-2 text-xs text-yellow-700 list-disc list-inside space-y-1">
+                      {title.trim() === "" && <li>Mo'ljal</li>}
+                      {description.trim() === "" && <li>To'liq malumot</li>}
+                      {price === 0 && <li>Narx</li>}
+                      {region === "" && <li>Viloyat</li>}
+                      {district === "" && <li>Tuman</li>}
+                      {location.trim() === "" && <li>Aniq manzil</li>}
+                      {rooms === 0 && <li>Xonalar soni</li>}
+                      {phone_number.replace(/\s/g, '').length !== 13 && <li>Telefon raqam (+998 formatida)</li>}
+                      {for_whom.length === 0 && <li>Kim uchun (kamida 1 ta)</li>}
+                      {floor_of_this_apartment === 0 && <li>Binoning qavati</li>}
+                      {total_floor_of_building === 0 && <li>Umumiy binoning qavati</li>}
+                      {floor_of_this_apartment > total_floor_of_building && <li>Kvartira qavati binoning umumiy qavatidan oshmasligi kerak</li>}
+                      {images_upload.length === 0 && <li>Kamida 1 ta rasm</li>}
+                    </ul>
+                  </div>
+                )}
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !isFormValid}
                   className={`w-full py-4 bg-linear-to-r from-green-600 to-green-700 text-white font-bold rounded-xl transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 text-lg flex items-center justify-center ${
-                    isSubmitting
-                      ? "opacity-70 cursor-not-allowed"
+                    isSubmitting || !isFormValid
+                      ? "opacity-50 cursor-not-allowed"
                       : "hover:from-green-700 hover:to-green-800"
                   }`}
                 >
