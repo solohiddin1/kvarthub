@@ -1,6 +1,20 @@
 from django.db import models
 from apps.users.models import BaseModel
 # Create your models here.
+import os
+import uuid
+from django.utils.text import slugify
+
+def listing_image_path(instance, filename):
+    """Generate safe filename for listing images"""
+    # Get file extension
+    ext = filename.split('.')[-1]
+    # Generate unique filename with UUID
+    filename = f"{uuid.uuid4().hex[:12]}.{ext}"
+    return os.path.join('listing/images/', filename)
+
+# class ListingImage(models.Model):
+    
 
 class ForWhom(models.Model):
     """Choices for who the listing is available for"""
@@ -59,7 +73,8 @@ class Listing(BaseModel):
     
 class ListingImage(models.Model):
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='listing/images')
+    # image = models.ImageField(upload_to='listing/images')
+    image = models.ImageField(upload_to=listing_image_path)
 
     def __str__(self):
         return f"Image for {self.listing.title}"
