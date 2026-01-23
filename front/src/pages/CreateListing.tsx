@@ -7,6 +7,7 @@ import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import type { DistrictType, RegionsType } from "../types/auth";
 
+
 const CreateListing = () => {
   const { loading } = useAuth();
   const navigate = useNavigate();
@@ -30,6 +31,8 @@ const CreateListing = () => {
   const [expiry_month, setExpiry_month] = useState<number>(0);
   const [expiry_year, setExpiry_year] = useState<number>(0);
   const [for_whom, setFor_whom] = useState<string[]>([]);
+  console.log(images_upload.length);
+  
 
   // Handle for_whom checkbox changes
   const handleForWhomChange = (value: string) => {
@@ -128,13 +131,13 @@ const CreateListing = () => {
     }
     
     // Validate rooms
-    if (rooms > 200) {
+     if (rooms > 200) {
       toast.error("Xonalar soni 200 dan oshmasligi kerak");
       return;
     }
     
     // Validate total floor
-    if (total_floor_of_building > 150) {
+     if (total_floor_of_building > 150) {
       toast.error("Bino qavatlari soni 150 dan oshmasligi kerak");
       return;
     }
@@ -143,6 +146,10 @@ const CreateListing = () => {
     if (floor_of_this_apartment > total_floor_of_building) {
       toast.error("Kvartira qavati binoning umumiy qavatidan oshmasligi kerak");
       return;
+    }
+    if(images_upload.length == 0 ){
+      toast.error("Kamida 1 ta rasm tanlang")
+      return
     }
     
     setIsSubmitting(true);
@@ -162,7 +169,7 @@ const CreateListing = () => {
     formData.append("floor_of_this_apartment", String(floor_of_this_apartment));
     formData.append("total_floor_of_building", String(total_floor_of_building));
     images_upload.forEach((img) => formData.append("images_upload", img));
-    console.log(phone_number);
+    console.log(typeof(for_whom));
     
     if(phone_number.length === 13){
 
@@ -173,6 +180,8 @@ const CreateListing = () => {
           },
         })
         .then((response) => {
+          console.log("Response",response.data);
+          
           if (response.data.success) {
             toast.success("E'lon muvaffaqiyatli yaratildi!");
             navigate("/");
@@ -386,8 +395,7 @@ const CreateListing = () => {
                         required
                         type="text"
                         value={priceDisplay}
-//                         type="number"
-//                         min={0}
+//                        
                         className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
                         placeholder="0"
                         onChange={handlePriceChange}
@@ -496,11 +504,11 @@ const CreateListing = () => {
                     >
                       <input
                         type="checkbox"
-                        className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 flex-shrink-0"
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 shrink-0"
                         checked={for_whom.includes(option.value)}
                         onChange={() => handleForWhomChange(option.value)}
                       />
-                      <span className="text-lg sm:text-xl flex-shrink-0">{option.icon}</span>
+                      <span className="text-lg sm:text-xl shrink-0">{option.icon}</span>
                       <span className="font-medium text-sm sm:text-base text-gray-700 leading-tight">{option.label}</span>
                     </label>
                   ))}
@@ -656,6 +664,7 @@ const CreateListing = () => {
                       <input
                         type="number"
                         placeholder="0"
+                        required
                         min={0}
                         max={200}
                         onChange={(e) => setRooms(Number(e.target.value))}
@@ -749,7 +758,7 @@ const CreateListing = () => {
                     accept=".png,.jpg,.jpeg,.webp,.webx"
                     multiple
                     className="hidden"
-                    required
+                   
                     onChange={(e) => {
                       if (!e.target.files) return;
                       setImages_upload([
@@ -786,12 +795,6 @@ const CreateListing = () => {
                         <p className="text-gray-500">
                           PNG, JPG yoki WEBX formatida (maks. 5MB)
                         </p>
-                        {/* <button
-                          type="button"
-                          className="mt-6 px-8 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-all duration-200 shadow-lg hover:shadow-xl"
-                        >
-                          Fayllarni Tanlash
-                        </button> */}
                       </div>
                     </div>
                   </label>
@@ -961,6 +964,7 @@ const CreateListing = () => {
                       <input
                         type="text"
                         required
+                        maxLength={16}
                         placeholder="1234 5678 9012 3456"
                         className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all tracking-[0.25em]"
                         onChange={(e) => setCard_number(e.target.value)}

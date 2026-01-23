@@ -3,22 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Header, Footer } from "../modules";
 import apiClient from "../services/api";
 import { useAuth } from "../context/AuthContext";
-import type { DistrictType, ForWhomType, Listing, RegionsType } from "../types/auth";
+import type { DistrictType,  Listing, RegionsType } from "../types/auth";
 
-type ForWhomMeta = { label: string; icon: string; color: string; desc: string };
 
-const FOR_WHOM_META: Record<ForWhomType, ForWhomMeta> = {
-  FAMILY: { label: "Oila uchun", icon: "👨‍👩‍👧‍👦", color: "text-blue-700", desc: "Oilaviy va yakka tartibda" },
-  BOYS: { label: "Bolalar uchun", icon: "👨‍🦱", color: "text-emerald-700", desc: "Faqat bolalar uchun" },
-  GIRLS: { label: "Qizlar uchun", icon: "👩", color: "text-rose-700", desc: "Faqat qizlar uchun" },
-  FOREIGNERS: { label: "Chet elliklar", icon: "🌍", color: "text-slate-700", desc: "Barcha uchun ochiq" },
-};
-
-// Backend for_whom_display ni array sifatida qaytaradi
-function normalizeForWhom(value: Listing["for_whom_display"]): ForWhomType[] {
-  if (Array.isArray(value)) return value as ForWhomType[];
-  return [];
-}
 
 const ListingDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -54,7 +41,35 @@ const ListingDetail = () => {
     if (id) fetchListing();
   }, [id]);
 
-  console.log(listing)
+
+
+  // viloyatni olish (name_uz)
+  useEffect(() => {
+    if (!listing?.region) return;
+    apiClient
+      .get("/api/shared/regions/")
+      .then((res) => {
+        const found: RegionsType | undefined = res.data?.result?.find(
+          (item: RegionsType) => item.id === listing.region.id
+        );
+        setRegionName(found?.name_uz || "");
+      })
+      .catch(() => { });
+  }, [listing?.region]);
+
+  // tumanni olish (name_uz)
+  useEffect(() => {
+    if (!listing?.district) return;
+    apiClient
+      .get("/api/shared/districts/")
+      .then((res) => {
+        const found: DistrictType | undefined = res.data?.result?.find(
+          (item: DistrictType) => item.id === listing.district.id
+        );
+        setDistrictName(found?.name_uz || "");
+      })
+      .catch(() => { });
+  }, [listing?.district]);
 
   // viloyatni olish (name_uz)
   useEffect(() => {
@@ -90,8 +105,8 @@ const ListingDetail = () => {
   const mainImage =
     images.length > 0 ? images[Math.min(selectedImageIndex, images.length - 1)]?.image : "/placeholder.jpg";
 
-  const forWhomList = useMemo(() => normalizeForWhom(listing?.for_whom_display), [listing?.for_whom_display]);
-
+  
+  
   const mapUrl = useMemo(() => {
     if (!listing) return "#";
     const link = (listing.location_link || "").trim();
@@ -99,6 +114,8 @@ const ListingDetail = () => {
     const q = encodeURIComponent(listing.location || "");
     return `https://www.google.com/maps/search/?api=1&query=${q}`;
   }, [listing]);
+
+  
 
   if (loading) {
     return (
@@ -143,7 +160,6 @@ const ListingDetail = () => {
   return (
     <>
       <Header />
-
       <div className="bg-slate-50">
         <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 py-6 sm:py-10">
           {/* Top bar */}
@@ -156,15 +172,7 @@ const ListingDetail = () => {
               Orqaga
             </button>
 
-            {listing.is_active ? (
-              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-700 text-sm font-semibold">
-                Aktiv
-              </span>
-            ) : (
-              <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-slate-700 text-sm font-semibold">
-                Aktiv emas
-              </span>
-            )}
+           
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
@@ -272,20 +280,11 @@ const ListingDetail = () => {
                   </summary>
 
                   <div className="px-4 pb-4 sm:px-6 sm:pb-6">
-                    {forWhomList.length === 0 ? (
-                      <p className="text-slate-700 font-semibold">Tanlanmagan</p>
-                    ) : (
-                      <div className="flex flex-wrap gap-3">
-                        {forWhomList.map((k) => (
-                          <div key={k} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                            <span className="text-2xl">{FOR_WHOM_META[k].icon}</span>
-                            <p className={`text-lg font-extrabold ${FOR_WHOM_META[k].color}`}>
-                              {FOR_WHOM_META[k].label}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    {listing.for_whom_display?.map(item => (
+                      <p>
+                        {item == "FAMILY" ? "Oilaga" : item == "GIRLS" ? "Qizlarga" : item == "BOYS" ? "Bolalarga" : "Chet ellikga" }
+                      </p>
+                    )) }
                   </div>
                 </details>
 
