@@ -1,4 +1,4 @@
-import HeaderImg from "./header-img.png"
+import HeaderImg from "./header-img.svg"
 import GoogleLogo from "./google-img.svg"
 import YoutubeIcon from "./YoutubeImg.svg"
 import DiscordIcon from "./DiscordIcon.svg"

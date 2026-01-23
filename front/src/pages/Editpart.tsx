@@ -335,12 +335,12 @@ const Editpart = () => {
                   {[
                     { value: "FAMILY", label: "Oila uchun", icon: "👨‍👩‍👧‍👦" },
                     { value: "GIRLS", label: "Qizlar uchun", icon: "👩" },
-                    { value: "BOYS", label: "O'g'il bolalar uchun", icon: "👨" },
+                    { value: "BOYS", label: " Bolalar uchun", icon: "👨" },
                     { value: "FOREIGNERS", label: "Chet elliklar", icon: "🌍" },
                   ].map((option) => (
                     <label
                       key={option.value}
-                      className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                      className={`flex items-center gap-3 md:p-4 px-1 border-2 rounded-xl cursor-pointer transition-all ${
                         for_whom.includes(option.value as ForWhomType)
                           ? "border-green-500 bg-green-50"
                           : "border-gray-300 hover:border-green-300"
@@ -457,7 +457,7 @@ const Editpart = () => {
                       type="text"
                       value={location_link}
                       onChange={(e) => setLocationLink(e.target.value)}
-                      placeholder="Shahar, tuman, ko'cha"
+                      placeholder="Manzil linki"
                       className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all duration-200"
                     />
                   </div>

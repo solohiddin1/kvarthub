@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
 import { LikedFilledIcon, LikedIcon } from "../assets/icons";
-import type { ProductsType } from "../types/auth";
+import type { ForWhomType, ProductsType } from "../types/auth";
 import { useNavigate } from "react-router";
 import { Footer } from "../modules";
 import { HeaderPart } from "../components";
+
+
+const FOR_WHOM_LABEL_UZ: Record<ForWhomType, string> = {
+    BOYS: "Bolalarga",
+    GIRLS: "Qizlarga",
+    FAMILY: "Oilaga",
+    FOREIGNERS: "Chet elliklarga",
+  };
 
 const Saved = () => {
   const navigate = useNavigate();
@@ -54,6 +62,11 @@ const Saved = () => {
   const handleCloseSuccess = () => {
     setShowSuccessModal(false);
   };
+
+  function formatForWhom(list?: ForWhomType[]) {
+      if (!list || list.length === 0) return "Umumiy";
+      return list.map((x) => FOR_WHOM_LABEL_UZ[x]).join(", ");
+    }
 
   return (
     <>
@@ -250,7 +263,7 @@ const Saved = () => {
             {savedCard.map((item: ProductsType) => (
               <div
                 key={item.id}
-                className=" bg-[#0000000D] lg:w-[300px] rounded-[20px] relative"
+                className=" md:bg-[#0000000D] lg:w-[300px] rounded-[20px] relative"
               >
                 {/* liked button start */}
                 <div
@@ -279,7 +292,7 @@ const Saved = () => {
                   width={194}
                   height={212}
                 />
-                <div className="p-3">
+                <div className="md:p-3">
                   <h2 className="line-clamp-2 font-medium text-black text-[18px]">
                     {item.title}
                   </h2>
@@ -293,6 +306,10 @@ const Saved = () => {
                       {item.rooms} rooms
                     </p>
                   </div>
+                  <div className="flex items-center justify-between mt-3">
+                  <p className="text-[#757575] text-[13px] md:text-[16px] line-clamp-2">{item.district.name_uz.replace("tumani","")}</p>
+                  <p className="text-[#757575] text-[13px] md:text-[16px] line-clamp-1 max-w-[120px]">{formatForWhom(item.for_whom)}</p>
+                </div>
 
                   {/* <div className="flex items-center justify-between mt-3 gap-2">
                     <p className="text-[#757575] text-sm truncate">

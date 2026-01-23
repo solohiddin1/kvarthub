@@ -485,7 +485,7 @@ const CreateListing = () => {
                   ].map((option) => (
                     <label
                       key={option.value}
-                      className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                      className={`flex items-center gap-3 md:p-4 px-1 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
                         for_whom.includes(option.value)
                           ? 'border-blue-500 bg-blue-50'
                           : 'border-gray-300 hover:border-blue-300 hover:bg-gray-50'
