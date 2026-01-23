@@ -198,7 +198,7 @@ const Home = () => {
       )}
 
       {!loading && products.length > 0 && (
-        <div className="containers grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 py-5 px-5 pb-20 gap-3 md:gap-4">
+        <div className="containers grid grid-cols-2 md:grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(280px,1fr))]  py-5 px-5 pb-20 gap-3 md:gap-4">
   {products.map((item: ProductsType) => (
     <div
       key={item.id}
