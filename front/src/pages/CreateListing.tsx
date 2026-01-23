@@ -30,9 +30,54 @@ const CreateListing = () => {
   const [expiry_month, setExpiry_month] = useState<number>(0);
   const [expiry_year, setExpiry_year] = useState<number>(0);
   const [for_whom, setFor_whom] = useState<string[]>([]);
+  const [locationLinkError, setLocationLinkError] = useState<string>("");
+
+  // URL validation function - matches Django URLValidator
+  const isValidUrl = (url: string): boolean => {
+    if (!url || url.trim() === '') return true; // Empty is valid since it's optional
+    
+    // Trim the URL
+    url = url.trim();
+    
+    try {
+      const urlObj = new URL(url);
+      
+      // Must be http or https
+      if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
+        return false;
+      }
+      
+      // Must have a valid hostname (not empty)
+      if (!urlObj.hostname || urlObj.hostname.length === 0) {
+        return false;
+      }
+      
+      // Basic domain validation - must have at least one dot or be localhost
+      if (urlObj.hostname !== 'localhost' && !urlObj.hostname.includes('.')) {
+        return false;
+      }
+      
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  // Handle location link change with validation
+  const handleLocationLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.trim();
+    setLocationLink(value);
+    
+    if (value && !isValidUrl(value)) {
+      setLocationLinkError("Noto'g'ri URL. Misol: https://maps.google.com/...");
+    } else {
+      setLocationLinkError("");
+    }
+  };
 
   // Check if form is valid
   const isFormValid = useMemo(() => {
+    const isLocationLinkValid = !location_link || isValidUrl(location_link);
     return (
       title.trim() !== "" &&
       description.trim() !== "" &&
@@ -46,9 +91,10 @@ const CreateListing = () => {
       floor_of_this_apartment > 0 &&
       total_floor_of_building > 0 &&
       floor_of_this_apartment <= total_floor_of_building &&
-      images_upload.length > 0
+      images_upload.length > 0 &&
+      isLocationLinkValid
     );
-  }, [title, description, price, region, district, location, rooms, phone_number, for_whom, floor_of_this_apartment, total_floor_of_building, images_upload]);
+  }, [title, description, price, region, district, location, rooms, phone_number, for_whom, floor_of_this_apartment, total_floor_of_building, images_upload, location_link]);
 
   // Handle for_whom checkbox changes
   const handleForWhomChange = (value: string) => {
@@ -167,6 +213,12 @@ const CreateListing = () => {
       return;
     }
     
+    // Validate location link if provided
+    if (location_link && !isValidUrl(location_link)) {
+      toast.error("Manzil linki noto'g'ri formatda. Iltimos, to'g'ri URL kiriting.");
+      return;
+    }
+    
     // Validate rooms
     if (rooms > 200) {
       toast.error("Xonalar soni 200 dan oshmasligi kerak");
@@ -196,7 +248,7 @@ const CreateListing = () => {
     formData.append("location_link", location_link);
     formData.append("location", location);
     formData.append("rooms", String(rooms));
-    formData.append("phone_number", phone_number);
+    formData.append("phone_number", phone_number.replace(/\s/g, ''));
     // Append for_whom array
     for_whom.forEach(item => formData.append("for_whom", item));
     formData.append("floor_of_this_apartment", String(floor_of_this_apartment));
@@ -708,12 +760,25 @@ const CreateListing = () => {
                         </svg>
                       </div>
                       <input
-                        type="text"
-                        className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
-                        placeholder="Aniq manzil linki"
-                        onChange={(e) => setLocationLink(e.target.value)}
+                        type="url"
+                        value={location_link}
+                        className={`w-full pl-10 pr-4 py-3.5 border rounded-xl focus:ring-2 outline-none transition-all duration-200 ${
+                          locationLinkError
+                            ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                            : 'border-gray-300 focus:ring-green-500 focus:border-green-500'
+                        }`}
+                        placeholder="https://maps.google.com/..."
+                        onChange={handleLocationLinkChange}
                       />
                     </div>
+                    {locationLinkError && (
+                      <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        {locationLinkError}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -974,6 +1039,7 @@ const CreateListing = () => {
                       {total_floor_of_building === 0 && <li>Umumiy binoning qavati</li>}
                       {floor_of_this_apartment > total_floor_of_building && <li>Kvartira qavati binoning umumiy qavatidan oshmasligi kerak</li>}
                       {images_upload.length === 0 && <li>Kamida 1 ta rasm</li>}
+                      {locationLinkError && <li>Manzil linki noto'g'ri formatda</li>}
                     </ul>
                   </div>
                 )}
