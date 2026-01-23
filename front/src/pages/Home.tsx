@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import type { ProductsType } from "../types/auth"
+import type { ForWhomType, ProductsType } from "../types/auth"
 import { LikedFilledIcon, LikedIcon } from "../assets/icons"
 import { Footer, Header } from "../modules"
 import { Skleton } from "../components"
@@ -43,20 +43,20 @@ const Home = () => {
 
   // Query string yasash (bo'sh bo'lsa qo'shmaydi)
   const queryString = useMemo(() => {
-  const params = new URLSearchParams();
+    const params = new URLSearchParams();
 
-  if (filters.search) params.set("search", filters.search);
+    if (filters.search) params.set("search", filters.search);
 
-  // ⚠️ backend kutyapti: price__gte va price__lte
-  if (filters.min_price) params.set("price__gte", filters.min_price);
-  if (filters.max_price) params.set("price__lte", filters.max_price);
+    // ⚠️ backend kutyapti: price__gte va price__lte
+    if (filters.min_price) params.set("price__gte", filters.min_price);
+    if (filters.max_price) params.set("price__lte", filters.max_price);
 
-  if (filters.rooms) params.set("rooms", filters.rooms);
-  if (filters.for_whom) params.set("for_whom", filters.for_whom);
-  if (filters.region) params.set("region", filters.region);
+    if (filters.rooms) params.set("rooms", filters.rooms);
+    if (filters.for_whom) params.set("for_whom__name", filters.for_whom);
+    if (filters.region) params.set("region", filters.region);
 
-  return params.toString();
-}, [filters]);
+    return params.toString();
+  }, [filters]);
 
   // listings fetch (filter o'zgarsa qayta chaqiladi)
   useEffect(() => {
@@ -143,6 +143,25 @@ const Home = () => {
     }))
   }
 
+
+  const FOR_WHOM_LABEL_UZ: Record<ForWhomType, string> = {
+    BOYS: "Bolalarga",
+    GIRLS: "Qizlarga",
+    FAMILY: "Oilaga",
+    FOREIGNERS: "Chet elliklarga",
+  };
+
+  function formatForWhom(list?: ForWhomType[]) {
+    if (!list || list.length === 0) return "Umumiy";
+    return list.map((x) => FOR_WHOM_LABEL_UZ[x]).join(", ");
+  }
+
+  function formatPrice(price: string) {
+    return price.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  }
+
+  console.log(products)
+
   return (
     <div>
       <Header filters={filters} onChangeFilters={setFilters} />
@@ -157,11 +176,10 @@ const Home = () => {
             <li
               key={region.id}
               onClick={() => toggleRegion(region.id)}
-              className={`py-[13px] px-6 rounded-[30px] cursor-pointer transition ${
-                filters.region === String(region.id)
+              className={`py-[13px] px-6 rounded-[30px] cursor-pointer transition whitespace-nowrap ${filters.region === String(region.id)
                   ? "bg-[#28A453] text-white"
                   : "bg-[#0000000D] hover:bg-gray-300"
-              }`}
+                }`}
             >
               {region.name_uz}
             </li>
@@ -194,9 +212,8 @@ const Home = () => {
                   e.stopPropagation()
                   SavedCard(item.id)
                 }}
-                className={`w-10 md:w-12 h-10 md:h-12 flex justify-center items-center rounded-xl bg-[#FFFFFF4D] absolute top-2 right-2 cursor-pointer ${
-                  likedBtnId.includes(item.id) ? "text-[#FF383C]" : "text-black"
-                }`}
+                className={`w-10 md:w-12 h-10 md:h-12 flex justify-center items-center rounded-xl bg-[#FFFFFF4D] absolute top-2 right-2 cursor-pointer ${likedBtnId.includes(item.id) ? "text-[#FF383C]" : "text-black"
+                  }`}
               >
                 {likedBtnId.includes(item.id) ? <LikedFilledIcon /> : <LikedIcon />}
               </div>
@@ -218,12 +235,12 @@ const Home = () => {
                   {item.title}
                 </h2>
                 <div className="flex items-center justify-between mt-1">
-                  <p className="text-[#757575]">${item.price}</p>
+                  <p className="text-[#757575]">{formatPrice(item.price)} UZS</p>
                   <p className="text-[14px] text-[#A6A6A6]">{item.rooms} rooms</p>
                 </div>
                 <div className="flex items-center justify-between mt-3">
-                  <p className="text-[#757575]">{item.region}</p>
-                  <p className="text-[#757575]">{item.for_whom == "GIRLS" ? "Qizlarga" : item.for_whom == "BOYS" ? "Bolalarga" : item.for_whom == "FAMILY" ? "Oilaga" : "Umumiy"}</p>
+                  <p className="text-[#757575]">{item.district.name_uz}</p>
+                  <p className="text-[#757575] text-[13px] line-clamp-1 max-w-[120px]">{formatForWhom(item.for_whom)}</p>
                 </div>
               </div>
             </div>

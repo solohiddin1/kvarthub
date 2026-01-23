@@ -1,7 +1,7 @@
 import { useAuth } from "../context/AuthContext";
 import { Footer } from "../modules";
 import { HeaderPart } from "../components";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import apiClient from "../services/api";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
@@ -13,8 +13,9 @@ const CreateListing = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(0);
-  const [region, setRegion] = useState(0);
-  const [district, setDistrict] = useState(0);
+  const [priceDisplay, setPriceDisplay] = useState("");
+  const [region, setRegion] = useState("");
+  const [district, setDistrict] = useState("");
   const [location_link, setLocationLink] = useState("");
   const [location, setLocation] = useState("");
   const [rooms, setRooms] = useState(0);
@@ -28,7 +29,31 @@ const CreateListing = () => {
   const [card_holder_name, setCard_holder_name] = useState<string>("");
   const [expiry_month, setExpiry_month] = useState<number>(0);
   const [expiry_year, setExpiry_year] = useState<number>(0);
-  const [for_whom, setFor_whom] = useState<string>("");
+  const [for_whom, setFor_whom] = useState<string[]>([]);
+
+  // Handle for_whom checkbox changes
+  const handleForWhomChange = (value: string) => {
+    setFor_whom(prev => 
+      prev.includes(value) 
+        ? prev.filter(item => item !== value)
+        : [...prev, value]
+    );
+  };
+
+  // Format price with spaces
+  const formatPrice = (value: string) => {
+    const numValue = value.replace(/\s/g, '');
+    if (!numValue) return '';
+    return numValue.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\s/g, '');
+    if (value === '' || /^\d+$/.test(value)) {
+      setPrice(Number(value));
+      setPriceDisplay(formatPrice(value));
+    }
+  };
 
   // select regions
   const [selectRegion, setSelectRegion] = useState<RegionsType[]>([]);
@@ -44,12 +69,7 @@ const CreateListing = () => {
         console.log("Regions data:", res.data);
         const regions = res.data.result || [];
         setSelectRegion(regions);
-
-        // Agar ma'lumotlar bo'lsa, birinchi viloyatni tanlash
-        if (regions.length > 0) {
-          setRegion(regions[0].id);
-          setSelectedRegionDistricts(regions[0].disctricts || []);
-        }
+        // Don't auto-select first region - let user choose
       })
       .catch((error) => {
         console.error("Viloyatlarni olishda xatolik:", error);
@@ -58,37 +78,87 @@ const CreateListing = () => {
   }, []);
 
   // Viloyat tanlanganda tumanlarni o'zgartirish
-  const handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const regionId = Number(e.target.value);
+  const handleRegionChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    const regionId = e.target.value;
     setRegion(regionId);
-    setDistrict(0); // Viloyat o'zgarganda tumani tozalash
+    setDistrict(""); // Viloyat o'zgarganda tumani tozalash
 
     // Tanlangan viloyatni topish va uning tumanlarini o'rnatish
-    const selectedRegion = selectRegion.find((r) => r.id === regionId);
+    const selectedRegion = selectRegion.find((r) => r.id === Number(regionId));
     setSelectedRegionDistricts(selectedRegion?.disctricts || []);
-  };
+  }, [selectRegion]);
 
   // Tuman tanlanganda
-  const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setDistrict(Number(e.target.value));
-  };
+  const handleDistrictChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setDistrict(e.target.value);
+  }, []);
+
+  // Memoize region options
+  const regionOptions = useMemo(() => {
+    return selectRegion.map((region) => (
+      <option key={region.id} value={region.id}>
+        {region.name_uz}
+      </option>
+    ));
+  }, [selectRegion]);
+
+  // Memoize district options
+  const districtOptions = useMemo(() => {
+    if (!region) {
+      return <option disabled>Avval viloyatni tanlang</option>;
+    }
+    if (selectedRegionDistricts.length > 0) {
+      return selectedRegionDistricts.map((district) => (
+        <option key={district.id} value={district.id}>
+          {district.name_uz}
+        </option>
+      ));
+    }
+    return <option disabled>Bu viloyatda tumanlar mavjud emas</option>;
+  }, [region, selectedRegionDistricts]);
 
   //  formani backentga yuborish
   function handleFormSubmit(e: React.FormEvent) {
     e.preventDefault();
+    
+    // Validate for_whom selection
+    if (for_whom.length === 0) {
+      toast.error("Kim uchun maydonidan kamida bitta variantni tanlang");
+      return;
+    }
+    
+    // Validate rooms
+    if (rooms > 200) {
+      toast.error("Xonalar soni 200 dan oshmasligi kerak");
+      return;
+    }
+    
+    // Validate total floor
+    if (total_floor_of_building > 150) {
+      toast.error("Bino qavatlari soni 150 dan oshmasligi kerak");
+      return;
+    }
+    
+    // Validate floor of apartment vs total floor
+    if (floor_of_this_apartment > total_floor_of_building) {
+      toast.error("Kvartira qavati binoning umumiy qavatidan oshmasligi kerak");
+      return;
+    }
+    
     setIsSubmitting(true);
 
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", description);
     formData.append("price", String(price));
-    formData.append("region", String(region));
-    formData.append("district", String(district));
+    formData.append("region", region);
+    formData.append("district", district);
     formData.append("location_link", location_link);
     formData.append("location", location);
     formData.append("rooms", String(rooms));
     formData.append("phone_number", phone_number);
-    formData.append("for_whom", for_whom);
+    // Append for_whom array
+    for_whom.forEach(item => formData.append("for_whom", item));
     formData.append("floor_of_this_apartment", String(floor_of_this_apartment));
     formData.append("total_floor_of_building", String(total_floor_of_building));
     images_upload.forEach((img) => formData.append("images_upload", img));
@@ -167,6 +237,28 @@ const CreateListing = () => {
   // payment part
   function PaymentFn(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.preventDefault();
+    
+    // Validate all fields
+    if (!card_number || card_number.replace(/\s/g, "").length !== 16) {
+      toast.error("Karta raqamini to'liq kiriting (16 ta raqam)");
+      return;
+    }
+    
+    if (!card_holder_name || card_holder_name.trim().length < 3) {
+      toast.error("Karta egasining ismini kiriting");
+      return;
+    }
+    
+    if (!expiry_month || expiry_month < 1 || expiry_month > 12) {
+      toast.error("Oyni to'g'ri kiriting (1-12)");
+      return;
+    }
+    
+    if (!expiry_year || expiry_year < 24) {
+      toast.error("Yilni to'g'ri kiriting");
+      return;
+    }
+    
     apiClient
       .post("/api/payment/cards/add/", {
         card_number: card_number.replace(/\s/g, ""),
@@ -204,23 +296,23 @@ const CreateListing = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-gray-50 to-blue-50">
-        <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent"></div>
+      <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-gray-50 to-green-50">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-green-500 border-t-transparent"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-green-50">
       <HeaderPart />
 
       <div className="max-w-4xl mx-auto px-4 py-10">
         {/* Header Card */}
-        <div className="bg-linear-to-r from-blue-600 to-blue-700 rounded-2xl shadow-xl p-8 mb-10 text-white">
+        <div className="bg-linear-to-r from-green-600 to-green-700 rounded-2xl shadow-xl p-8 mb-10 text-white">
           <h1 className="text-3xl font-bold mb-3">
             Yangi Uy Joy E'lon Qo'shish
           </h1>
-          <p className="text-blue-100">
+          <p className="text-green-100">
             Barcha maydonlarni to'ldiring va e'loningizni darhol joylashtiring
           </p>
         </div>
@@ -242,7 +334,7 @@ const CreateListing = () => {
               {/* Title Section */}
               <div className="space-y-4">
                 <div className="flex items-center">
-                  <div className="w-2 h-8 bg-blue-500 rounded-full mr-3"></div>
+                  <div className="w-2 h-8 bg-green-500 rounded-full mr-3"></div>
                   <h3 className="text-lg font-semibold text-gray-800">
                     Asosiy Ma'lumotlar
                   </h3>
@@ -273,7 +365,7 @@ const CreateListing = () => {
                       <input
                         required
                         type="text"
-                        className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
+                        className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
                         placeholder="Masalan: Yaqin Metro, Yangi Ta'mirlangan kvartira"
                         onChange={(e) => setTitle(e.target.value)}
                       />
@@ -292,11 +384,13 @@ const CreateListing = () => {
                       </div>
                       <input
                         required
-                        type="number"
-                        min={0}
-                        className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
+                        type="text"
+                        value={priceDisplay}
+//                         type="number"
+//                         min={0}
+                        className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
                         placeholder="0"
-                        onChange={(e) => setPrice(Number(e.target.value))}
+                        onChange={handlePriceChange}
                       />
                     </div>
                   </div>
@@ -328,7 +422,7 @@ const CreateListing = () => {
                   <textarea
                     rows={4}
                     required
-                    className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 resize-none"
+                    className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200 resize-none"
                     placeholder="Uy joy haqida batafsil ma'lumot..."
                     onChange={(e) => setDescription(e.target.value)}
                   />
@@ -342,17 +436,14 @@ const CreateListing = () => {
                 </label>
                 <select
                   required
-                  className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none"
+                  value={region}
+                  className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200 appearance-none"
                   onChange={handleRegionChange}
                 >
-                  <option value="" disabled selected>
+                  <option value="" disabled>
                     Viloyatni tanlang
                   </option>
-                  {selectRegion.map((region) => (
-                    <option key={region.id} value={region.id}>
-                      {region.name_uz}
-                    </option>
-                  ))}
+                  {regionOptions}
                 </select>
               </div>
 
@@ -364,26 +455,17 @@ const CreateListing = () => {
                 </label>
                 <select
                   required
-                  className={`w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none ${
+                  value={district}
+                  className={`w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200 appearance-none ${
                     !region ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                   onChange={handleDistrictChange}
                   disabled={!region}
                 >
-                  <option value="" disabled selected>
+                  <option value="" disabled>
                     Tumanni tanlang
                   </option>
-                  {!region ? (
-                    <option disabled>Avval viloyatni tanlang</option>
-                  ) : selectedRegionDistricts.length > 0 ? (
-                    selectedRegionDistricts.map((district) => (
-                      <option key={district.id} value={district.id}>
-                        {district.name_uz}
-                      </option>
-                    ))
-                  ) : (
-                    <option disabled>Bu viloyatda tumanlar mavjud emas</option>
-                  )}
+                  {districtOptions}
                 </select>
                 {!region && (
                   <p className="text-xs text-gray-500">
@@ -395,21 +477,37 @@ const CreateListing = () => {
               <div className="space-y-3">
                 <label className="block text-sm font-semibold text-gray-700">
                   <span className="text-red-500 mr-1">*</span>
-                  Kim uchun
+                  Kim uchun (Bir nechta tanlanishi mumkin)
                 </label>
-                <select
-                  required
-                  className={`w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none`}
-                  onChange={(e) => setFor_whom(e.target.value)}
-                >
-                  <option value="" disabled selected>
-                    Kim uchun
-                  </option>
-                  <option value="FAMILY">Oila uchun</option>
-                  <option value="GIRLS">Qizlar uchun</option>
-                  <option value="BOYS">Bolalar uchun</option>
-                  <option value="FOREIGNERS">Umumiy</option>
-                </select>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {[
+                    { value: 'FAMILY', label: 'Oila uchun', icon: '👨‍👩‍👧‍👦' },
+                    { value: 'GIRLS', label: 'Qizlar uchun', icon: '👩' },
+                    { value: 'BOYS', label: 'Bolalar uchun', icon: '👨‍🦱' },
+                    { value: 'FOREIGNERS', label: 'Umumiy', icon: '🌍' }
+                  ].map((option) => (
+                    <label
+                      key={option.value}
+                      className={`flex items-center gap-2 p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                        for_whom.includes(option.value)
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-300 hover:border-blue-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 flex-shrink-0"
+                        checked={for_whom.includes(option.value)}
+                        onChange={() => handleForWhomChange(option.value)}
+                      />
+                      <span className="text-lg sm:text-xl flex-shrink-0">{option.icon}</span>
+                      <span className="font-medium text-sm sm:text-base text-gray-700 leading-tight">{option.label}</span>
+                    </label>
+                  ))}
+                </div>
+                {for_whom.length === 0 && (
+                  <p className="text-xs text-red-500">Kamida bitta variantni tanlang</p>
+                )}
               </div>
 
               {/* Location & Details */}
@@ -453,7 +551,7 @@ const CreateListing = () => {
                       <input
                         required
                         type="text"
-                        className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
+                        className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
                         placeholder="Ko'cha, uy, kvartira raqami"
                         onChange={(e) => setLocation(e.target.value)}
                       />
@@ -485,7 +583,7 @@ const CreateListing = () => {
                       <input
                         type="text"
                          maxLength={13} 
-                        className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
+                        className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
                         placeholder="+998901234567"
                         onChange={(e) => hanleCheckerPhone(e)}
                         required
@@ -525,7 +623,7 @@ const CreateListing = () => {
                       </div>
                       <input
                         type="text"
-                        className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
+                        className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
                         placeholder="Aniq manzil linki"
                         onChange={(e) => setLocationLink(e.target.value)}
                       />
@@ -559,8 +657,9 @@ const CreateListing = () => {
                         type="number"
                         placeholder="0"
                         min={0}
+                        max={200}
                         onChange={(e) => setRooms(Number(e.target.value))}
-                        className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
+                        className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
                       />
                     </div>
                   </div>
@@ -589,7 +688,7 @@ const CreateListing = () => {
                       <input
                         type="number"
                         min={0}
-                        className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
+                        className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
                         placeholder="Masalan: 5"
                         onChange={(e) =>
                           setFloor_of_this_apartment(Number(e.target.value))
@@ -622,7 +721,8 @@ const CreateListing = () => {
                       <input
                         type="number"
                         min={0}
-                        className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
+                        max={150}
+                        className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200"
                         placeholder="Masalan: 5"
                         onChange={(e) =>
                           setTotal_floor_of_building(Number(e.target.value))
@@ -636,7 +736,7 @@ const CreateListing = () => {
               {/* Image Upload */}
               <div className="space-y-4">
                 <div className="flex items-center">
-                  <div className="w-2 h-8 bg-purple-500 rounded-full mr-3"></div>
+                  <div className="w-2 h-8 bg-green-500 rounded-full mr-3"></div>
                   <h3 className="text-lg font-semibold text-gray-800">
                     Rasm Yuklash
                   </h3>
@@ -663,9 +763,9 @@ const CreateListing = () => {
                     htmlFor="property-images"
                     className="block cursor-pointer"
                   >
-                    <div className="border-3 border-dashed border-gray-300 rounded-2xl p-10 text-center hover:border-blue-400 transition-all duration-300 bg-linear-to-br from-gray-50 to-white hover:from-blue-50 hover:to-white">
+                    <div className="border-3 border-dashed border-gray-300 rounded-2xl p-10 text-center hover:border-green-400 transition-all duration-300 bg-linear-to-br from-gray-50 to-white hover:from-green-50 hover:to-white">
                       <div className="flex flex-col items-center justify-center">
-                        <div className="w-20 h-20 bg-linear-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mb-5 shadow-lg">
+                        <div className="w-20 h-20 bg-linear-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center mb-5 shadow-lg">
                           <svg
                             className="w-10 h-10 text-white"
                             fill="none"
@@ -688,7 +788,7 @@ const CreateListing = () => {
                         </p>
                         {/* <button
                           type="button"
-                          className="mt-6 px-8 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                          className="mt-6 px-8 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-all duration-200 shadow-lg hover:shadow-xl"
                         >
                           Fayllarni Tanlash
                         </button> */}
@@ -706,9 +806,9 @@ const CreateListing = () => {
                         <button
                           type="button"
                           onClick={() => setImages_upload([])}
-                          className="text-sm text-red-500 hover:text-red-700 font-medium"
+                          className="text-sm text-red-500 hover:text-red-700 font-medium cursor-pointer"
                         >
-                          Barchasini O'chirish
+                          O'chirish
                         </button>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -717,7 +817,7 @@ const CreateListing = () => {
                             <img
                               src={URL.createObjectURL(img)}
                               alt="Rasm"
-                              className="w-full h-32 object-cover rounded-xl border-2 border-gray-200 group-hover:border-blue-400 transition-all duration-200"
+                              className="w-full h-32 object-cover rounded-xl border-2 border-gray-200 group-hover:border-green-400 transition-all duration-200"
                             />
                             <button
                               type="button"
@@ -751,10 +851,10 @@ const CreateListing = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`w-full py-4 bg-linear-to-r from-blue-600 to-blue-700 text-white font-bold rounded-xl transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 text-lg flex items-center justify-center ${
+                  className={`w-full py-4 bg-linear-to-r from-green-600 to-green-700 text-white font-bold rounded-xl transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 text-lg flex items-center justify-center ${
                     isSubmitting
                       ? "opacity-70 cursor-not-allowed"
-                      : "hover:from-blue-700 hover:to-blue-800"
+                      : "hover:from-green-700 hover:to-green-800"
                   }`}
                 >
                   {isSubmitting ? (
@@ -803,13 +903,13 @@ const CreateListing = () => {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}
-              <div className="bg-linear-to-r from-blue-600 to-purple-600 p-6 text-white">
+              <div className="bg-linear-to-r from-green-600 to-green-600 p-6 text-white">
                 <div className="flex justify-between items-center">
                   <div>
                     <h3 className="text-xl font-bold">
                       To'lovni amalga oshirish
                     </h3>
-                    <p className="text-blue-100 text-sm mt-1">
+                    <p className="text-green-100 text-sm mt-1">
                       E'lon joylashtirish uchun to'lov qiling
                     </p>
                   </div>
@@ -862,7 +962,7 @@ const CreateListing = () => {
                         type="text"
                         required
                         placeholder="1234 5678 9012 3456"
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all tracking-[0.25em]"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all tracking-[0.25em]"
                         onChange={(e) => setCard_number(e.target.value)}
                       />
                     </div>
@@ -896,7 +996,7 @@ const CreateListing = () => {
                         type="text"
                         required
                         placeholder="ALIYEV ALI"
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
                         onChange={(e) => setCard_holder_name(e.target.value)}
                       />
                     </div>
@@ -921,7 +1021,7 @@ const CreateListing = () => {
                             value = "12";
                           setExpiry_month(Number(value));
                         }}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-center"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all text-center"
                       />
                     </div>
 
@@ -935,7 +1035,7 @@ const CreateListing = () => {
                         required
                         placeholder="YY"
                         onChange={(e) => setExpiry_year(Number(e.target.value))}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-center"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all text-center"
                       />
                     </div>
                   </div>
@@ -944,8 +1044,8 @@ const CreateListing = () => {
                   <div className="bg-gray-50 rounded-xl p-4">
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">To'lov miqdori:</span>
-                      <span className="text-xl font-bold text-blue-600">
-                        $50.00
+                      <span className="text-xl font-bold text-green-600">
+                        50.00 UZS
                       </span>
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
@@ -958,7 +1058,7 @@ const CreateListing = () => {
                     <button
                       onClick={(e) => PaymentFn(e)}
                       type="submit"
-                      className="w-[50%] mx-auto py-3 rounded-2xl text-white font-semibold bg-blue-600 cursor-pointer"
+                      className="w-[50%] mx-auto py-3 rounded-2xl text-white font-semibold bg-green-600 cursor-pointer"
                     >
                       Karta Qo'shish
                     </button>

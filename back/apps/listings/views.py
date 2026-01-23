@@ -1,3 +1,6 @@
+import requests
+import base64
+from io import BytesIO
 from apps.users.models import User
 from apps.shared.enum import ResultCodes
 from apps.shared.utils import SuccessResponse, ErrorResponse, detect_nsfw, get_logger
@@ -16,9 +19,10 @@ from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db import transaction as db_transaction
 from django.conf import settings
+import nyckel
+
 
 logger = get_logger()
-# Create your views here.
 
 class ListingCreateView(CreateAPIView):
     """Create a new listing with optional image uploads"""
@@ -46,9 +50,12 @@ class ListingCreateView(CreateAPIView):
                     'region': {'type': 'integer'},
                     'district': {'type': 'integer'},
                     'for_whom': {
-                        'type': 'string',
-                        'description': 'For whom (BOYS, GIRLS, FAMILY, FOREIGNERS)',
-                        'enum': ['BOYS', 'GIRLS', 'FAMILY', 'FOREIGNERS']
+                        'type': 'array',
+                        'items': {
+                            'type': 'string',
+                            'enum': ['BOYS', 'GIRLS', 'FAMILY', 'FOREIGNERS']
+                        },
+                        'description': 'For whom (BOYS, GIRLS, FAMILY, FOREIGNERS)'
                     },
                     'state': {
                         'type': 'string',
@@ -70,87 +77,153 @@ class ListingCreateView(CreateAPIView):
         if user is None or not user.is_authenticated:
             return SuccessResponse(result="User is not authenticated.")
         
-        # Check if user has an active card
-        from apps.payment.models import Card
-        user_card = Card.objects.filter(user=user, is_active=True).first()
-        
-        if not user_card:
-            return ErrorResponse(
-                result=ResultCodes.VALIDATION_ERROR,
-                message={
-                    "en": "Please add a payment card before creating a listing.",
-                    "ru": "Пожалуйста, добавьте платежную карту перед созданием объявления.",
-                    "uz": "Iltimos, e'lon yaratishdan oldin to'lov kartasini qo'shing."
-                }
-            )
+        # Check if this is the user's first listing
+        existing_listings_count = Listing.objects.filter(host=user).count()
+        is_first_listing = existing_listings_count == 0
         
         # Define listing charge amount
         LISTING_CREATION_CHARGE = settings.LISTING_CREATION_CHARGE
         
-        # Check if user has sufficient balance
-        if user_card.balance < LISTING_CREATION_CHARGE:
-            return ErrorResponse(
-                result=ResultCodes.VALIDATION_ERROR,
-                message={
-                    "en": f"Insufficient balance. You need {LISTING_CREATION_CHARGE} to create a listing. Current balance: {user_card.balance}",
-                    "ru": f"Недостаточно средств. Для создания объявления требуется {LISTING_CREATION_CHARGE}. Текущий баланс: {user_card.balance}",
-                    "uz": f"Balansda mablag' yetarli emas. E'lon yaratish uchun {LISTING_CREATION_CHARGE} kerak. Joriy balans: {user_card.balance}"
-                }
-            )
+        # If it's not the first listing, check for payment card and balance
+        if not is_first_listing:
+            # Check if user has active cards
+            from apps.payment.models import Card
+            user_cards = Card.objects.filter(user=user, is_active=True).order_by('-balance')
+            
+            if not user_cards.exists():
+                return ErrorResponse(
+                    result=ResultCodes.VALIDATION_ERROR,
+                    message={
+                        "en": "Please add a payment card before creating a listing.",
+                        "ru": "Пожалуйста, добавьте платежную карту перед созданием объявления.",
+                        "uz": "Iltimos, e'lon yaratishdan oldin to'lov kartasini qo'shing."
+                    }
+                )
+            
+            # Try to find a card with sufficient balance
+            user_card = None
+            for card in user_cards:
+                if card.balance >= LISTING_CREATION_CHARGE:
+                    user_card = card
+                    break
+            
+            # If no card has sufficient balance
+            if not user_card:
+                total_balance = sum(card.balance for card in user_cards)
+                return ErrorResponse(
+                    result=ResultCodes.VALIDATION_ERROR,
+                    message={
+                        "en": f"Insufficient balance in all cards. You need {LISTING_CREATION_CHARGE} to create a listing. Total balance across all cards: {total_balance}",
+                        "ru": f"Недостаточно средств на всех картах. Для создания объявления требуется {LISTING_CREATION_CHARGE}. Общий баланс на всех картах: {total_balance}",
+                        "uz": f"Barcha kartalarda mablag' yetarli emas. E'lon yaratish uchun {LISTING_CREATION_CHARGE} kerak. Barcha kartalardagi umumiy balans: {total_balance}"
+                    }
+                )
+        else:
+            user_card = None
         
         # Check for NSFW content in uploaded images BEFORE touching request.data
         images_upload = request.FILES.getlist('images_upload')
         if images_upload:
-            logger.info(f"Checking {len(images_upload)} images for NSFW content.")
+            logger.info(f"Checking {len(images_upload)} images for content validation.")
+            
+            # Prepare validation tasks
+            # has_nyckel = settings.NYCKEL_TOKEN and settings.NYCKEL_TOKEN != 'None'
+            has_nyckel = settings.CLIENT_ID and settings.CLIENT_SECRET and settings.CLIENT_ID != 'None' and settings.CLIENT_SECRET != 'None'
+            logger.info(f"Nyckel validation is {'enabled' if has_nyckel else 'disabled'}.")
             for image in images_upload:
-                # Ensure file pointer is at start for reading and restored afterward
-                try:
-                    image.seek(0)
-                except Exception:
-                    pass
-                is_nsfw, confidence = detect_nsfw(image)
-                try:
-                    image.seek(0)
-                except Exception:
-                    pass
-                if is_nsfw:
-                    return ErrorResponse(
-                        result=ResultCodes.VALIDATION_ERROR,
-                        message={
-                            "en": f"Image contains inappropriate content (confidence: {confidence:.2%}). Please upload appropriate property images.",
-                            "ru": f"Изображение содержит неприемлемый контент (уверенность: {confidence:.2%}). Пожалуйста, загрузите соответствующие изображения недвижимости.",
-                            "uz": f"Rasm nomaqbul kontent o'z ichiga oladi (ishonch: {confidence:.2%}). Iltimos, tegishli uy rasmlarini yuklang."
-                        }
-                    )
+                # Read image bytes once
+                image.seek(0)
+                image_bytes = image.read()
+                image.seek(0)
+                
+                # Run NSFW check first (faster, local check)
+                # is_nsfw, nsfw_confidence = detect_nsfw(image)
+                # image.seek(0)
+                
+                # if is_nsfw:
+                #     return ErrorResponse(
+                #         result=ResultCodes.VALIDATION_ERROR,
+                #         message={
+                #             "en": f"Image contains inappropriate content (confidence: {nsfw_confidence:.2%}). Please upload appropriate property images.",
+                #             "ru": f"Изображение содержит неприемлемый контент (уверенность: {nsfw_confidence:.2%}). Пожалуйста, загрузите соответствующие изображения недвижимости.",
+                #             "uz": f"Rasm nomaqbul kontent o'z ichiga oladi (ishonch: {nsfw_confidence:.2%}). Iltimos, tegishli uy rasmlarini yuklang."
+                #         }
+                #     )
+                
+                logger.info(f"Running Nyckel content validation for an image.{image.name}")
+                # Only check Nyckel for house presence if configured
+                if has_nyckel:
+                    url = 'https://www.nyckel.com/v1/functions/house-presence-identifier/invoke'
+                    # headers = {'Authorization': 'Bearer ' + settings.NYCKEL_TOKEN}
+                    # logger.info(f"Sending image to Nyckel for validation.{headers}")
+                    # logger.info(settings.NYCKEL_TOKEN)
+                    credentials=nyckel.Credentials(client_id=settings.CLIENT_ID, client_secret=settings.CLIENT_SECRET)
 
-        # Validate incoming data directly (avoid copying QueryDict with files)
+                    try:
+                        # result = requests.post(
+                        #     url, 
+                        #     headers=headers, 
+                        #     files={'data': (image.name, BytesIO(image_bytes), image.content_type)},
+                        #     timeout=20  # Add timeout to prevent hanging
+                        # )
+                        nyckel_response = nyckel.invoke("house-presence-identifier", "https://www.nyckel.com/assets/example.jpg", credentials)
+                        
+                        logger.info(f"Nyckel response: {nyckel_response}")
+                        label_name = nyckel_response.get('labelName', '')
+                        confidence = nyckel_response.get('confidence', 0)
+                        example_response = {
+                            "labelName": "Bird",
+                            "labelId": "label_2n5a7za51n329v0l",
+                            "confidence": 0.76
+                            }
+                        logger.info(f"Nyckel example response: {example_response}")
+                        logger.info(f"Nyckel example response: {nyckel_response}")
+                        # Reject if house is not present with high confidence
+                        if label_name == "House Not Present" and confidence >= 0.85:
+                            logger.error(f"Nyckel validation failed: House not present (confidence: {confidence:.2%})")
+                            return ErrorResponse(
+                                result=ResultCodes.VALIDATION_ERROR,
+                                message={
+                                    "en": f"Image does not contain a house/property (confidence: {confidence:.2%}). Please upload actual property images.",
+                                    "ru": f"Изображение не содержит дом/недвижимость (уверенность: {confidence:.2%}). Пожалуйста, загрузите фактические изображения недвижимости.",
+                                    "uz": f"Rasmda uy/ko'chmas mulk yo'q (ishonch: {confidence:.2%}). Iltimos, haqiqiy uy rasmlarini yuklang."
+                                }
+                            )
+                        logger.info(f"Nyckel validation passed for image.{image.name}")
+                    except Exception as e:
+                        logger.error(f"Nyckel API error: {str(e)}")
+                        # Continue without Nyckel validation if it fails
+
+        # Validate incoming data - serializer will handle for_whom array extraction
+
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # Use atomic transaction to ensure payment and listing creation happen together
         with db_transaction.atomic():
-            # Charge the card
-            card_balance_before = float(user_card.balance)
-            user_card.balance = card_balance_before - LISTING_CREATION_CHARGE
-            user_card.save()
-            
-            # Save listing
             listing = serializer.save(host=user)
             
-            # Create transaction record
-            Transaction.objects.create(
-                user=user,
-                card=user_card,
-                listing=listing,
-                amount=LISTING_CREATION_CHARGE,
-                transaction_type='listing_charge',
-                status='completed',
-                description=f'Charge for creating listing: {listing.title}'
-            )
-            
-            logger.info(f"Charged {LISTING_CREATION_CHARGE} from user {user.email} for listing creation.")
+            # Only charge if it's not the first listing
+            if not is_first_listing:
+                card_balance_before = float(user_card.balance)
+                user_card.balance = card_balance_before - LISTING_CREATION_CHARGE
+                user_card.save()
+                
+                # Create transaction record
+                Transaction.objects.create(
+                    user=user,
+                    card=user_card,
+                    listing=listing,
+                    amount=LISTING_CREATION_CHARGE,
+                    transaction_type='listing_charge',
+                    status='completed',
+                    description=f'Charge for creating listing: {listing.title}'
+                )
+                
+                logger.info(f"Charged {LISTING_CREATION_CHARGE} from user {user.email} for listing creation.")
+            else:
+                logger.info(f"First listing for user {user.email} - no charge applied.")
 
-        # Return listing with images
         return SuccessResponse(serializer.data)
 
 
@@ -168,7 +241,8 @@ class ListingsListView(ListAPIView):
         'district': ['exact'],
         'floor_of_this_apartment': ['exact'],
         'rooms': ['exact'],
-        'for_whom': ['exact'],
+        'for_whom__name': ['exact'],
+        'type': ['exact'],
     }
 
     def list(self, request, *args, **kwargs):
@@ -202,7 +276,9 @@ class ListingUpdateView(UpdateAPIView):
         if user is None or not user.is_authenticated:
             return ErrorResponse(result=ResultCodes.USER_NOT_FOUND)
         instance = self.get_object()
+        print(instance.host, user)
         if instance.host != user:
+            print("Permission denied: User is not the host of the listing.")
             return ErrorResponse(result=ResultCodes.YOU_DO_NOT_HAVE_PERMISSION)
         data = request.data.copy()
         data['host'] = user.id
@@ -235,10 +311,10 @@ class ListingStatusUpdateView(UpdateAPIView):
             instance.is_active = True
             # Charge the user for activating the listing
             with db_transaction.atomic():
-                card = None
                 from apps.payment.models import Card
-                card = Card.objects.filter(user=user, is_active=True).first()
-                if not card:
+                user_cards = Card.objects.filter(user=user, is_active=True).order_by('-balance')
+                
+                if not user_cards.exists():
                     return ErrorResponse(
                         result=ResultCodes.VALIDATION_ERROR,
                         message={
@@ -247,13 +323,23 @@ class ListingStatusUpdateView(UpdateAPIView):
                             "uz": "Iltimos, e'lonni faollashtirishdan oldin to'lov kartasini qo'shing."
                         }
                     )
-                if card.balance < settings.LISTING_ACTIVATION_CHARGE:
+                
+                # Try to find a card with sufficient balance
+                card = None
+                for c in user_cards:
+                    if c.balance >= settings.LISTING_ACTIVATION_CHARGE:
+                        card = c
+                        break
+                
+                # If no card has sufficient balance
+                if not card:
+                    total_balance = sum(c.balance for c in user_cards)
                     return ErrorResponse(
                         result=ResultCodes.VALIDATION_ERROR,
                         message={
-                            "en": f"Insufficient balance. You need {settings.LISTING_ACTIVATION_CHARGE} to activate the listing. Current balance: {card.balance}",
-                            "ru": f"Недостаточно средств. Для активации объявления требуется {settings.LISTING_ACTIVATION_CHARGE}. Текущий баланс: {card.balance}",
-                            "uz": f"Balansda mablag' yetarli emas. E'lonni faollashtirish uchun {settings.LISTING_ACTIVATION_CHARGE} kerak. Joriy balans: {card.balance}"
+                            "en": f"Insufficient balance in all cards. You need {settings.LISTING_ACTIVATION_CHARGE} to activate the listing. Total balance across all cards: {total_balance}",
+                            "ru": f"Недостаточно средств на всех картах. Для активации объявления требуется {settings.LISTING_ACTIVATION_CHARGE}. Общий баланс на всех картах: {total_balance}",
+                            "uz": f"Barcha kartalarda mablag' yetarli emas. E'lonni faollashtirish uchun {settings.LISTING_ACTIVATION_CHARGE} kerak. Barcha kartalardagi umumiy balans: {total_balance}"
                         }
                     )
                 # Deduct amount

@@ -151,9 +151,13 @@ class LoginUser(GenericAPIView):
 
         user_verified = get_user_by_username(email)
 
+        # Check if user exists
+        if not user_verified:
+            return ErrorResponse(ResultCodes.INVALID_CREDENTIALS)
+
         # If the account has no usable password (e.g. created via Google),
         # do not call authenticate (would trigger hasher on None). Guide user to set a password.
-        if user_verified and not user_verified.has_usable_password():
+        if not user_verified.has_usable_password() or user_verified.password is None or user_verified.password == '':
             otp = generate_otp()
             send_result = send_otp_email(email, otp)
             update_user_otp(user_verified.id, otp, timezone.now())

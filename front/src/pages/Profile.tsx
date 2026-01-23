@@ -172,10 +172,9 @@ const Profile = () => {
               <div className="p-3 sm:p-5  bg-[#F2F2F2] rounded-full flex items-center justify-center">
                 <HomeOutlined className="text-[18px] sm:text-[19px]" />
               </div>
-
               <div className="border-b flex-1 pb-2 border-[#E7E6E5]">
                 <strong className="text-black text-[16px] sm:text-[20px] font-semibold">
-                  Mening roʻyxatlarim
+                  Mening e'lonlarim
                 </strong>
                 <p className="text-sm sm:text-base text-gray-600">
                   {product?.length ?? 0} ta e'lon

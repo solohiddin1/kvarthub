@@ -1,12 +1,7 @@
 import { useEffect, useState } from "react";
 import apiClient from "../services/api";
 import { useNavigate, useParams } from "react-router-dom";
-import type {
-  DistrictType,
-  ImageType,
-  ProductsType,
-  RegionsType,
-} from "../types/auth";
+import type { DistrictType, ImageType, ProductsType, RegionsType } from "../types/auth";
 import { toast } from "react-toastify";
 import { HeaderPart } from "../components";
 
@@ -21,8 +16,10 @@ const Editpart = () => {
   const [location_link, setLocationLink] = useState<string>("");
   const [rooms, setRooms] = useState(0);
   const [phone_number, setPhone_number] = useState("");
-  const [district, setDistrict] = useState(0);
-  const [region, setRegion] = useState(0);
+
+  const [district, setDistrict] = useState<number>(0);
+  const [region, setRegion] = useState<number>(0);
+
   const [selectRegion, setSelectRegion] = useState<RegionsType[]>([]);
   const [selectDistrict, setSelectDistrict] = useState<DistrictType[]>([]);
   const [selectRegionValue, setSelectRegionValue] = useState<string>("");
@@ -32,7 +29,9 @@ const Editpart = () => {
   const [images_upload, setImages_upload] = useState<ImageType[]>([]);
   const [newImages, setNewImages] = useState<File[]>([]);
   const [allDistricts, setAllDistricts] = useState<DistrictType[]>([]);
-  const [for_whom, setFor_whom] = useState<string>("");
+
+  type ForWhomType = "BOYS" | "GIRLS" | "FAMILY" | "FOREIGNERS";
+  const [for_whom, setFor_whom] = useState<ForWhomType[]>([]);
 
 
   // update
@@ -45,22 +44,23 @@ const Editpart = () => {
     formData.append("location_link", location_link);
     formData.append("rooms", String(rooms));
     formData.append("phone_number", phone_number);
+
     formData.append("region", String(region));
     formData.append("district", String(district));
-    formData.append("for_whom", for_whom || "");
+
+    for_whom.forEach((v) => formData.append("for_whom", v));
+
     formData.append("floor_of_this_apartment", String(floor_of_this_apartment));
     formData.append("total_floor_of_building", String(total_floor_of_building));
 
     newImages.forEach((file) => {
-      formData.append(`images_upload`, file);
+      formData.append("images_upload", file);
     });
-    if(phone_number.length === 13){
 
+    if (phone_number.length === 13) {
       apiClient
         .patch(`/api/listings/${numberId}/update/`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         })
         .then((res) => {
           toast.success("Yangilandi");
@@ -68,16 +68,14 @@ const Editpart = () => {
           console.log(res.data);
         })
         .catch((error) => {
-          // Error handling
           console.log(error);
           toast.error("Ma'lumotlar xato");
         });
-    }
-    else{
+    } else {
       toast.error("Telefon raqam noto'g'ri formatda. Iltimos, +998901234567 shaklida kiriting.");
-  
     }
   }
+
   // img delete
   function handledeleteFn(id: string) {
     apiClient
@@ -97,14 +95,11 @@ const Editpart = () => {
       .get("/api/shared/regions")
       .then((res) => {
         setSelectRegion(res.data.result);
-        const regionName: RegionsType = res.data.result.find(
-          (item: RegionsType) => item.id === region
-        );
-        setSelectRegionValue(regionName?.name_uz || "");
+
+        const foundRegion = res.data.result.find((item: RegionsType) => item.id === region);
+        setSelectRegionValue(foundRegion?.name_uz || "");
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => console.log(err));
   }, []);
 
   // barcha tumanlarni olish
@@ -113,30 +108,20 @@ const Editpart = () => {
       .get("/api/shared/districts")
       .then((res) => {
         setAllDistricts(res.data.result);
-        const districtsName: DistrictType = res.data.result.find(
-          (item: DistrictType) => item.id === district
-        );
-        if (districtsName) {
-          setSelectDistrictValue(districtsName.name_uz);
-        }
+
+        const foundDistrict = res.data.result.find((item: DistrictType) => item.id === district);
+        if (foundDistrict) setSelectDistrictValue(foundDistrict.name_uz);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => console.log(err));
   }, []);
 
   // viloyat tanlanganida tumanlarni filter qilish
   useEffect(() => {
     if (region > 0 && allDistricts.length > 0) {
-      const filteredDistricts = allDistricts.filter(
-        (item: DistrictType) => item.region === region
-      );
+      const filteredDistricts = allDistricts.filter((item: DistrictType) => item.region === region);
       setSelectDistrict(filteredDistricts);
 
-      // Agar tanlangan tuman filter qilingan tumanlar ichida bo'lsa, uni saqlash
-      const currentDistrict = filteredDistricts.find(
-        (item: DistrictType) => item.id === district
-      );
+      const currentDistrict = filteredDistricts.find((item: DistrictType) => item.id === district);
       if (district > 0 && !currentDistrict) {
         setDistrict(0);
         setSelectDistrictValue("");
@@ -160,9 +145,12 @@ const Editpart = () => {
       setFloor_of_this_apartment(data.floor_of_this_apartment);
       setTotal_floor_of_building(data.total_floor_of_building);
       setImages_upload(data.images);
-      setDistrict(data.district);
-      setRegion(data.region);
-      setFor_whom(data.for_whom || "");
+
+      // ✅ ProductsType da district object, region object:
+      setDistrict(data.district.id);
+      setRegion(data.region.id);
+
+      setFor_whom(data.for_whom_display || (Array.isArray(data.for_whom) ? data.for_whom : []));
       setLocationLink(data.location_link);
     });
   }, [numberId]);
@@ -171,9 +159,7 @@ const Editpart = () => {
   useEffect(() => {
     if (region > 0 && selectRegion.length > 0) {
       const foundRegion = selectRegion.find((item) => item.id === region);
-      if (foundRegion) {
-        setSelectRegionValue(foundRegion.name_uz);
-      }
+      if (foundRegion) setSelectRegionValue(foundRegion.name_uz);
     }
   }, [region, selectRegion]);
 
@@ -181,9 +167,7 @@ const Editpart = () => {
   useEffect(() => {
     if (district > 0 && selectDistrict.length > 0) {
       const foundDistrict = selectDistrict.find((item) => item.id === district);
-      if (foundDistrict) {
-        setSelectDistrictValue(foundDistrict.name_uz);
-      }
+      if (foundDistrict) setSelectDistrictValue(foundDistrict.name_uz);
     }
   }, [district, selectDistrict]);
 
@@ -191,7 +175,6 @@ const Editpart = () => {
   const handleRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedRegionId = Number(e.target.value);
     setRegion(selectedRegionId);
-    // Yangi viloyat tanlanganda tuman reset qilish
     setDistrict(0);
     setSelectDistrictValue("");
   };
@@ -200,17 +183,12 @@ const Editpart = () => {
   const handleDistrictChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedDistrictId = Number(e.target.value);
     setDistrict(selectedDistrictId);
-    const selectedDistrict = selectDistrict.find(
-      (item) => item.id === selectedDistrictId
-    );
-    setSelectDistrictValue(selectedDistrict?.name_uz || "");
+    const selected = selectDistrict.find((item) => item.id === selectedDistrictId);
+    setSelectDistrictValue(selected?.name_uz || "");
   };
 
-
-function hanleCheckerPhone(e:React.ChangeEvent<HTMLInputElement>){
+  function hanleCheckerPhone(e: React.ChangeEvent<HTMLInputElement>) {
     setPhone_number(e.target.value);
-    
-
   }
 
   return (
@@ -221,10 +199,10 @@ function hanleCheckerPhone(e:React.ChangeEvent<HTMLInputElement>){
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Uy joy e'lon qo'shish
+              E'lonni tahrirlash
             </h1>
             <p className="text-gray-600">
-              Barcha maydonlarni to'ldiring va e'loningizni joylashtiring
+              Barcha maydonlarni to'ldiring va e'loningizni yangilang
             </p>
           </div>
 
@@ -326,9 +304,8 @@ function hanleCheckerPhone(e:React.ChangeEvent<HTMLInputElement>){
                   value={district}
                   onChange={handleDistrictChange}
                   disabled={!region}
-                  className={`w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none ${
-                    !region ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                  className={`w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none ${!region ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                 >
                   <option value="">
                     {selectDistrictValue ||
@@ -352,27 +329,39 @@ function hanleCheckerPhone(e:React.ChangeEvent<HTMLInputElement>){
                   <span className="text-red-500 mr-1">*</span>
                   Kim uchun
                 </label>
-                <select
-                  value={for_whom} 
-                  onChange={(e) => setFor_whom(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 appearance-none"
-                >
-                  <option value="">
-                    {for_whom === "BOYS"
-                      ? "Bolalar uchun"
-                      : for_whom === "GIRLS"
-                      ? "Qizlar uchun"
-                      : for_whom === "FAMILY"
-                      ? "Oila uchun"
-                      : for_whom === "FOREIGNERS"
-                      ? "Umumiy"
-                      : "Tanlang"}
-                  </option>
-                  <option value="FAMILY">Oila uchun</option>
-                  <option value="GIRLS">Qizlar uchun</option>
-                  <option value="BOYS">Bolalar uchun</option>
-                  <option value="FOREIGNERS">Umumiy</option>
-                </select>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { value: "FAMILY", label: "Oila uchun", icon: "👨‍👩‍👧‍👦" },
+                    { value: "GIRLS", label: "Qizlar uchun", icon: "👩" },
+                    { value: "BOYS", label: "O'g'il bolalar uchun", icon: "👨" },
+                    { value: "FOREIGNERS", label: "Chet elliklar", icon: "🌍" },
+                  ].map((option) => (
+                    <label
+                      key={option.value}
+                      className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                        for_whom.includes(option.value as ForWhomType)
+                          ? "border-green-500 bg-green-50"
+                          : "border-gray-300 hover:border-green-300"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={for_whom.includes(option.value as ForWhomType)}
+                        onChange={() => {
+                          const val = option.value as ForWhomType;
+                          setFor_whom((prev) =>
+                            prev.includes(val)
+                              ? prev.filter((v) => v !== val)
+                              : [...prev, val]
+                          );
+                        }}
+                        className="w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500"
+                      />
+                      <span className="text-2xl">{option.icon}</span>
+                      <span className="font-medium text-gray-700">{option.label}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
 
               {/* Price and Location Row */}
@@ -640,12 +629,12 @@ function hanleCheckerPhone(e:React.ChangeEvent<HTMLInputElement>){
                   />
                   <label
                     htmlFor="image-upload"
-                    className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-2xl hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 cursor-pointer group"
+                    className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-2xl hover:border-green-400 hover:bg-green-50 transition-all duration-200 cursor-pointer group"
                   >
                     <div className="p-8 text-center">
-                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center group-hover:bg-green-200 transition-colors">
                         <svg
-                          className="w-8 h-8 text-blue-600"
+                          className="w-8 h-8 text-green-600"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -740,7 +729,7 @@ function hanleCheckerPhone(e:React.ChangeEvent<HTMLInputElement>){
                 <button
                   onClick={handleEditFn}
                   type="submit"
-                  className="w-full py-4 bg-linear-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  className="w-full py-4 bg-linear-to-r from-green-600 to-green-700 text-white font-semibold rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
                   E'lonni joylashtirish
                 </button>

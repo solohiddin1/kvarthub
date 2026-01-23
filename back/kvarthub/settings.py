@@ -46,8 +46,12 @@ OUT = [
     'django_filters',
     'rest_framework.authtoken',
     'rest_framework_simplejwt.token_blacklist',
+<<<<<<< HEAD
     'django_celery_beat',
     'import_export',
+=======
+    # 'django_celery_beat',
+>>>>>>> e15d7cb3e201dc449193513a5e9cfa50c2c5e8da
     
     # auth
     # 'allauth',
@@ -120,7 +124,12 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES':['rest_framework.permissions.AllowAny'],
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend'
-    ]
+    ],
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.FormParser',
+    )
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -229,7 +238,7 @@ SIMPLE_JWT = {
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+# STATICFILES_DIRS = [BASE_DIR / 'static']
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -267,9 +276,9 @@ CORS_ALLOW_HEADERS = [
 # Payment Settings
 LISTING_CREATION_CHARGE = 50.00
 DAILY_LISTING_CHARGE = 10.00
-CARD_CREATED_INITIAL_BALANCE = 500.00
+CARD_CREATED_INITIAL_BALANCE = 5000.00
 LISTING_ACTIVATION_CHARGE = 5.00
-CARD_INITIAL_BALANCE = 500
+CARD_INITIAL_BALANCE = 5000.00
 
 # Celery Configuration
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
@@ -277,5 +286,14 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'UTC'
+CELERY_TIMEZONE = 'Asia/Tashkent'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+NYCKEL_TOKEN = settings.NYCKEL_TOKEN
+CLIENT_ID = settings.CLIENT_ID
+CLIENT_SECRET = settings.CLIENT_SECRET
+FRONTEND_URL = "https://kvarthub.solohiddin.tech"
+
+GOOGLE_CLIENT_ID = settings.GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET = settings.GOOGLE_CLIENT_SECRET
+GOOGLE_REDIRECT_URI = settings.GOOGLE_REDIRECT_URI

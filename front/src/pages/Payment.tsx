@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import apiClient from "../services/api";
 import { toast } from "react-toastify";
 import { HeaderPart } from "../components";
+import { useNavigate } from "react-router";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 
 export interface PaymentType {
   id: number;
@@ -23,7 +25,7 @@ const Payment = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedCard, setSelectedCard] = useState<PaymentType | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  console.log(isProcessing);
+  const navigate = useNavigate()
 
   // Yangi karta form state
   const [newCard, setNewCard] = useState({
@@ -118,7 +120,7 @@ const Payment = () => {
   const getCardColor = (cardType: string) => {
     const type = cardType.toLowerCase();
     if (type.includes("visa")) {
-      return "from-blue-500 to-purple-600";
+      return "from-green-500 to-green-600";
     } else if (type.includes("mastercard")) {
       return "from-red-500 to-orange-500";
     } else if (type.includes("uzcard")) {
@@ -126,7 +128,7 @@ const Payment = () => {
     } else if (type.includes("humo")) {
       return "from-gray-700 to-gray-900";
     } else {
-      return "from-indigo-500 to-blue-600";
+      return "from-indigo-500 to-green-600";
     }
   };
 
@@ -271,6 +273,10 @@ const Payment = () => {
       <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 p-4 md:p-6">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
+            <button className="flex items-center gap-3 my-4 cursor-pointer bg-linear-to-r from-green-600 to-green-700 text-white font-semibold rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 py-2 px-3" onClick={() =>navigate(-1)}>
+             <ArrowLeftOutlined/>
+              <span>Ortga qaytish</span>
+            </button>
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
             <div>
               <h1 className="text-3xl font-bold text-gray-800">
@@ -282,7 +288,7 @@ const Payment = () => {
             </div>
             <button
               onClick={() => setShowAddCardModal(true)}
-              className="mt-4 md:mt-0 px-6 py-3 bg-linear-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center"
+              className="mt-4 md:mt-0 px-6 py-3 bg-linear-to-r from-green-600 to-green-700 text-white font-semibold rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center"
             >
               <svg
                 className="w-5 h-5 mr-2"
@@ -305,9 +311,9 @@ const Payment = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
               <div className="flex items-center">
-                <div className="p-3 bg-blue-100 rounded-xl">
+                <div className="p-3 bg-green-100 rounded-xl">
                   <svg
-                    className="w-6 h-6 text-blue-600"
+                    className="w-6 h-6 text-green-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -363,9 +369,9 @@ const Payment = () => {
             </div>
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
               <div className="flex items-center">
-                <div className="p-3 bg-purple-100 rounded-xl">
+                <div className="p-3 bg-green-100 rounded-xl">
                   <svg
-                    className="w-6 h-6 text-purple-600"
+                    className="w-6 h-6 text-green-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -416,7 +422,7 @@ const Payment = () => {
                 </p>
                 <button
                   onClick={() => setShowAddCardModal(true)}
-                  className="px-8 py-3 bg-linear-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg"
+                  className="px-8 py-3 bg-linear-to-r from-green-600 to-green-700 text-white font-semibold rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg"
                 >
                   Birinchi Kartani Qo'shish
                 </button>
@@ -427,7 +433,7 @@ const Payment = () => {
               {payments.map((card) => {
                 if (!card) return null;
 
-                const cardType = getCardType("4" + card.card_number_last4); // Visa deb faraz qilamiz
+                const cardType = getCardType("4" + card.card_number_last4); 
                 const gradientClass = getCardColor(cardType);
 
                 return (
@@ -549,7 +555,7 @@ const Payment = () => {
                               setSelectedCard(card);
                               setShowDeleteModal(true);
                             }}
-                            className="px-4 py-3 bg-red-500/30 backdrop-blur-sm text-white font-medium rounded-xl hover:bg-red-500/40 transition-all duration-200 text-sm flex items-center justify-center"
+                            className="px-4 py-3 bg-red-400/70 backdrop-blur-sm text-white font-medium rounded-xl hover:bg-red-500/70 transition-all duration-200 text-sm flex items-center justify-center"
                             title="Kartani o'chirish"
                           >
                             <svg
@@ -620,7 +626,7 @@ const Payment = () => {
                         })
                       }
                       placeholder="1234 5678 9012 3456"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
                       maxLength={19}
                       required
                     />
@@ -640,7 +646,7 @@ const Payment = () => {
                         })
                       }
                       placeholder="ALI VALIYEV"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none uppercase"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none uppercase"
                       required
                     />
                   </div>
@@ -662,7 +668,7 @@ const Payment = () => {
                         placeholder="12"
                         min="1"
                         max="12"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
                         required
                       />
                     </div>
@@ -683,7 +689,7 @@ const Payment = () => {
                         placeholder="2026"
                         min={new Date().getFullYear()}
                         max={new Date().getFullYear() + 20}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
                         required
                       />
                     </div>
@@ -701,7 +707,7 @@ const Payment = () => {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-4 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50"
+                    className="flex-1 px-4 py-3 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-all disabled:opacity-50"
                     disabled={isProcessing}
                   >
                     {isProcessing ? "Qo'shilmoqda..." : "Qo'shish"}
@@ -714,7 +720,7 @@ const Payment = () => {
 
         {/* Status Change Modal */}
         {showStatusModal && selectedCard && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-3xl p-8 max-w-md w-full">
               <div className="text-center mb-6">
                 <div
@@ -785,7 +791,7 @@ const Payment = () => {
 
         {/* Delete Card Modal */}
         {showDeleteModal && selectedCard && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-3xl p-8 max-w-md w-full">
               <div className="text-center mb-6">
                 <div className="w-16 h-16 mx-auto rounded-full bg-red-100 flex items-center justify-center mb-4">

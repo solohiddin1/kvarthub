@@ -10,7 +10,7 @@ from config.config import settings
 
     
 urlpatterns = [
-    path("api/swagger/", SpectacularSwaggerView.as_view(url_name="schema"), name="schema-swagger-ui"),
+    path("api/swagger/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('admin/', admin.site.urls),
     path('api/users/', include('apps.users.urls')),

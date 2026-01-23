@@ -22,3 +22,4 @@ back/staticfiles/
 front/node_modules/
 front/dist/
 front/.next/
+test_nyckel.py
