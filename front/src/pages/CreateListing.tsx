@@ -273,7 +273,7 @@ const CreateListing = () => {
           console.log("Response",response.data);
           
           if (response.data.success) {
-            toast.success("E'lon muvaffaqiyatli yaratildi!");
+            toast.success("E'lon muvaffaqiyatli yaratildi va moderatsiyaga yuborildi tez orada tasdiqlanadi!");
             navigate("/");
             console.log(response.data);
           } else {
