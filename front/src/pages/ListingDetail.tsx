@@ -280,11 +280,27 @@ const ListingDetail = () => {
                   </summary>
 
                   <div className="px-4 pb-4 sm:px-6 sm:pb-6">
-                    {listing.for_whom_display?.map(item => (
-                      <p>
-                        {item == "FAMILY" ? "Oilaga" : item == "GIRLS" ? "Qizlarga" : item == "BOYS" ? "Bolalarga" : "Chet ellikga" }
-                      </p>
-                    )) }
+                    <div className="flex flex-wrap gap-2">
+                      {listing.for_whom_display?.map((item, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg"
+                        >
+                          <span className="text-lg">
+                            {item === "FAMILY" ? "👨‍👩‍👧‍👦" : 
+                             item === "GIRLS" ? "👩" : 
+                             item === "BOYS" ? "👨" : 
+                             "🌍"}
+                          </span>
+                          <span className="text-sm font-medium text-gray-700">
+                            {item === "FAMILY" ? "Oila uchun" : 
+                             item === "GIRLS" ? "Qizlar uchun" : 
+                             item === "BOYS" ? "Bolalar uchun" : 
+                             "Umumiy"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </details>
 
