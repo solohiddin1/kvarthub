@@ -101,6 +101,7 @@ export interface ProductsType {
   total_floor_of_building:number
   images: ImageType[]
   rooms: number
+  for_whomdispley:string[]
   district: DistrictType;
   region: RegionsType;
   for_whom: ForWhomType[];
@@ -162,4 +163,15 @@ export interface Listing {
   is_active: boolean;
   images: ListingImage[];
   host?: number;
+
+
+}
+ 
+
+export interface Region {
+  id: number
+  name_uz: string
+  name_ru: string
+  name_en: string
+  soato_id: number
 }

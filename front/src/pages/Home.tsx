@@ -1,19 +1,14 @@
 import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import type { ForWhomType, ProductsType } from "../types/auth"
+import type { ForWhomType, ProductsType, Region } from "../types/auth"
 import { LikedFilledIcon, LikedIcon } from "../assets/icons"
 import { Footer, Header } from "../modules"
 import { Skleton } from "../components"
 import apiClient from "../services/api"
 import type { ListingFilters } from "../modules/Header" // pathni o'zingni strukturangga qarab to'g'rila
 
-interface Region {
-  id: number
-  name_uz: string
-  name_ru: string
-  name_en: string
-  soato_id: number
-}
+
+
 
 const Home = () => {
   const navigate = useNavigate()
@@ -22,7 +17,10 @@ const Home = () => {
   const [productsCount, setProductsCount] = useState<number>(0)
   const [regions, setRegions] = useState<Region[]>([])
   const [regionsLoading, setRegionsLoading] = useState(false)
+  
+  
 
+  
   const [filters, setFilters] = useState<ListingFilters>({
     search: "",
     min_price: "",
@@ -160,13 +158,13 @@ const Home = () => {
     return price.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   }
 
-  console.log(products)
+ 
 
   return (
     <div>
       <Header filters={filters} onChangeFilters={setFilters} />
 
-      <ul className="containers pt-5 pb-6 lg:pb-[63px] flex justify-between gap-2 overflow-x-auto scrollbar-hidden scroll-smooth">
+      <ul className="containers pt-5 pb-6 lg:pb-[63px] flex justify-between gap-2 overflow-x-auto scrollbar-hidden scroll-smooth ">
         {regionsLoading ? (
           <li className="py-[13px] px-6 rounded-[30px] bg-[#0000000D] text-gray-500">
             Loading...
@@ -200,52 +198,57 @@ const Home = () => {
       )}
 
       {!loading && products.length > 0 && (
-        <div className="containers grid grid-cols-2 md:grid-cols-3 lg:flex lg:flex-wrap lg:justify-between gap-3 py-5 px-5">
-          {products.map((item: ProductsType) => (
-            <div
-              key={item.id}
-              onClick={() => navigate(`/listing/${item.id}`)}
-              className="bg-[#0000000D] min-h-[319px] lg:w-[357px] rounded-[20px] relative cursor-pointer transition-shadow"
-            >
-              <div
-                onClick={(e) => {
-                  e.stopPropagation()
-                  SavedCard(item.id)
-                }}
-                className={`w-10 md:w-12 h-10 md:h-12 flex justify-center items-center rounded-xl bg-[#FFFFFF4D] absolute top-2 right-2 cursor-pointer ${likedBtnId.includes(item.id) ? "text-[#FF383C]" : "text-black"
-                  }`}
-              >
-                {likedBtnId.includes(item.id) ? <LikedFilledIcon /> : <LikedIcon />}
-              </div>
+        <div className="containers grid grid-cols-2 md:grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(280px,1fr))]  py-5 px-5 pb-20 gap-3 md:gap-4">
+  {products.map((item: ProductsType) => (
+    <div
+      key={item.id}
+      onClick={() => navigate(`/listing/${item.id}`)}
+      className="w-full md:bg-[#0000000D] min-h-[319px] rounded-[20px] relative cursor-pointer transition-shadow"
+    >
+      <div
+        onClick={(e) => {
+          e.stopPropagation();
+          SavedCard(item.id);
+        }}
+        className={`w-10 md:w-12 h-10 md:h-12 flex justify-center items-center rounded-xl bg-[#FFFFFF4D] absolute top-2 right-2 cursor-pointer ${
+          likedBtnId.includes(item.id) ? "text-[#FF383C]" : "text-black"
+        }`}
+      >
+        {likedBtnId.includes(item.id) ? <LikedFilledIcon /> : <LikedIcon />}
+      </div>
 
-              <img
-                className="rounded-[20px] w-[357px] h-53 md:h-80 object-cover "
-                src={
-                  item.images && item.images.length > 0
-                    ? item.images[0].image
-                    : "/placeholder.jpg"
-                }
-                alt={item.title}
-                width={194}
-                height={212}
-              />
+      <img
+        className="rounded-[20px] w-full h-53 md:h-80 object-cover"
+        src={
+          item.images && item.images.length > 0
+            ? item.images[0].image
+            : "/placeholder.jpg"
+        }
+        alt={item.title}
+      />
 
-              <div className=" p-3">
-                <h2 className="line-clamp-2 font-medium text-[#000000] text-[18px]">
-                  {item.title}
-                </h2>
-                <div className="flex items-center justify-between mt-1">
-                  <p className="text-[#757575]">{formatPrice(item.price)} UZS</p>
-                  <p className="text-[14px] text-[#A6A6A6]">{item.rooms} rooms</p>
-                </div>
-                <div className="flex items-center justify-between mt-3">
-                  <p className="text-[#757575]">{item.district.name_uz}</p>
-                  <p className="text-[#757575] text-[13px] line-clamp-1 max-w-[120px]">{formatForWhom(item.for_whom)}</p>
-                </div>
-              </div>
-            </div>
-          ))}
+      <div className="pt-2 md:p-3">
+        <h2 className="line-clamp-2 font-medium text-[#000000] text-[18px]">
+          {item.title}
+        </h2>
+        <div className="flex items-center justify-between mt-1">
+          <p className="text-[#757575] text-[14px] line-clamp-2">
+            {formatPrice(item.price)} UZS
+          </p>
+          <p className="text-[14px] text-[#A6A6A6]">{item.rooms} rooms</p>
         </div>
+        <div className="flex items-center justify-between mt-3">
+          <p className="text-[#757575] text-[13px] md:text-[16px] line-clamp-2">
+            {item.district.name_uz.replace("tumani", "")}
+          </p>
+          <p className="text-[#757575] text-[13px] md:text-[16px] line-clamp-1 max-w-[120px]">
+            {formatForWhom(item.for_whom)}
+          </p>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
       )}
 
       <Footer />
